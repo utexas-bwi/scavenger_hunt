@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+        <link href="style.css" rel="stylesheet"/>
+        <script src="https://unpkg.com/scrollreveal@4"></script>
+        <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-light bg-light" id = "myHeader">
+            <a class="navbar-brand" href="/"><span class="red">Scavenger Hunt</span></span></a>
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="navbar-nav ml-auto mt-2">
+                    <li class="nav-item"><a class="nav-link" href="/register">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/register">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/login">Log In</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <section id="main" class = "full">
+			<header class="major">
+				<h2>Robot Scavenger Hunt Rules</h2>
+			</header>
+			<section id="content">
+				<p> A task library includes a set of scavenger hunt tasks for robots. On the mornings of game days, a list of tasks will be randomly selected from the task library and posted on the page of results. Specific types of tasks from the library might appear more than once or not at all. It is not mandatory for the robot to follow the order of tasks on the list when working on the tasks. Instead, we encourage robots to dynamically adjust the order of tasks in such a way that they judge will maximize their overall score. For instance, tasks requiring long-distance navigation can be executed at times when humans have fewer activities, e.g., early mornings, while tasks require human-robot interactions can be attempted during hours when people are more accessible. However, this reordering should be done fully autonomously: once the robot downloads the task list, its only input from a person should be as specified by the tasks themselves. </p>
+
+                <p> A task specification is a four-tuple: <br />⟨ <br /> task name, format, score, description <br /> ⟩ </p>
+
+                <p> The name is a unique string that usually includes fewer than four words in English. The format specifies the format of completion certificate (e.g., jpg for images and txt for plain texts). The score defines the reward a robot can receive when the task is finished within the game day and the certificate meets the requirements specified in the task description. Finally, in the description, we describe the requirements that a completion certificate needs to meet so the robot can earn the full score, and in case of partial completion or partial correctness, how we award partial credit. </p>
+
+                <p> At the beginning of each game day (when the robot downloads the task list), a profile needs to be submitted for each robot player. This profile includes a map of the game environment for that robot, the initial location of the robot within that map and some statistics about the robot's capabilities. By the end of each game day, a game report needs to be collected from each robot that participated in the scavenger hunt game on that day - no matter whether the robot has finished the given list of tasks or not. </p>
+
+                <p> Such results can be used for statistical analysis over a long period of time. A game report is in the form: robot name, traveled distance, start time, finish time, task results, where the traveled distance records the distance covered between the start time and the finish time on that day (both are local time in format YYYYMMDD:HHMMSS). The task results is a set of results that each identifies the task name and the path to the completion certificate, where the path provides a link by which the completion certificate is publicly available. </p>
+
+                <p> Task results: <br /> ⟨ <br /> task name 1, certificate 1, time stamp 1, path to certificate 1, <br /> task name 2, certificate 2, time stamp 2, path to certificate 2, <br /> ...<br /> ⟩ </p>
+
+			</section>
+		</section>
+
+        <footer id="footer" class = "foot">
+        	<span class="copyright">
+        		&copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
+        	</span>
+        </footer>
+    </body>
+<html>
