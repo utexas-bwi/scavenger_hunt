@@ -213,26 +213,8 @@ p {
 		position: bottom;
 		text-align: center;
 		height: 750px;
-        -webkit-clip-path: polygon(0 0, 100% 0, 100% 97%, 0 100%);
-        clip-path: polygon(0 0, 100% 0, 100% 97%, 0 100%);
 	}
 
-		#banner:after {
-			background-image: url("https://www.google.com.sa/url?sa=i&rct=j&q=&esrc=s&source=images&cd=&cad=rja&uact=8&ved=0ahUKEwi29LfzzJfWAhVDWxQKHSqBCc0QjRwIBw&url=http%3A%2F%2Fblog.hdwallsource.com%2F15-excellent-hd-gradient-wallpapers%2F&psig=AFQjCNHN3r-Nov1JioCcrI57O1mS5FQqVA&ust=1505029208521045");
-			-moz-transition: opacity 2s ease-in-out;
-			-webkit-transition: opacity 2s ease-in-out;
-			-o-transition: opacity 2s ease-in-out;
-			-ms-transition: opacity 2s ease-in-out;
-			transition: opacity 2s ease-in-out;
-			content: '';
-			height: 700px;
-			left: 0;
-			opacity: 0;
-			position: relative;
-			top: 0;
-			width: 100%;
-			z-index: 1;
-		}
 
 		#banner :last-child {
 			margin-bottom: 0;
@@ -765,7 +747,6 @@ header.major {
 	box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
     transition: 0.3s;
     background-color: rgb(247, 247, 247);
-
 }
 
 #main:hover , .news:hover {
