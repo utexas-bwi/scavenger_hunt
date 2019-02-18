@@ -2,20 +2,17 @@
 
 ## Packages Needed
 
-php
-mysql-server
-php-curl
-php-xml
+* php
+* mysql-server
+* php-curl
+* php-xml
 
 ## Directory Structure
 
-public\_html: contains all website files
-    assets: contains images and other public assets
-    css: contains stylesheets
-resources: contains external resources used by project
-    lib: contains third party libraries
-        phpMyAdmin: contains php files from phpMyAdmin library
-src: contains original php and sql code
+* images: contains all images
+* public\_html: contains all website files
+    * css: contains stylesheets
+* php: contains original php code
 
 ## Notes on Ozil
 
