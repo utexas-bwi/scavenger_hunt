@@ -9,9 +9,9 @@
 
 ## Directory Structure
 
-* images: contains all images
 * public\_html: contains all website files
     * css: contains stylesheets
+    * images: contains all images    
 * php: contains original php code
 
 ## Notes on Ozil
