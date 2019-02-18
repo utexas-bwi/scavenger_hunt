@@ -56,7 +56,7 @@ p {
 
 				  .main {
 					text-align: center;
-					background: "images/dash.png") no-repeat fixed top center;
+					background: "../images/dash.png") no-repeat fixed top center;
 					background-size: cover;
 					height: 800px;
 				  }
