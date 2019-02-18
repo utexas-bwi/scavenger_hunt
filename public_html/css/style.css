@@ -56,7 +56,6 @@ p {
 
 				  .main {
 					text-align: center;
-					background: "../images/dash.png") no-repeat fixed top center;
 					background-size: cover;
 					height: 800px;
 				  }
@@ -204,7 +203,7 @@ p {
 #banner {
 		background-attachment: scroll;
 		opacity: .95;
-		background-image: url("https://lh3.googleusercontent.com/FUswOIJMfT_Xqr_6qvoTpfB-1lTw5w1bM0ZHEtCpq5U46QEr_CdfJtpuHbVorN6T7rR3eY4jN6bIDXJwiNLvondeGESWOG-a8XoRTpFP5AlZA3aFJoctJbNhZkaLgRFr6RoojiCluGH-YvAL-AcUzGnNBRToMNRCMcJzGd17N2p-RRvavpNPZtMz2Q_1rMeAv8ow9n0uBy6ZooSDHi1KM3-wfxMdzXx0xGlkSQKPBlZ-9vYsbQR5ohgwGOlvgvAwHPy5bMGV1jqC_xItbwuZlgSwqMpvuKzCvEf_FHv2uQy0qt_h4WC7oKjSI9EfxEblfq-BU-iuaykxFS5iO3uyb3kYQtKqNsJIdiDd0eK_sq8c-6usohSe9zwEGoDHNesEr-sra5YOrVLFYENTkfXXJgwcm_yMChxU-q8L6ECHCa1N0FSv0BkFwKdwuXkA8o8eHtt-zqQCwZjObDakaB8WiXzK3hTq4D6-jqfCzGXaG7ECLw-5dPjSg1Cz6Be5lS2ybUk5vrtQmOhXOkp3LT8MAalTw82EUFptjH4QDZ4Vw_KjT2RnvTK2TI5qFTsdzom8D6ZRy73VXvuuY68qlKV4ENbsaKyPn-71iMoXN7o08mYBFHpY5VIL2x0p2NqAtkSJVj3mStEFfe1QY40ngxBPUDmx=w2140-h1314-no");
+		background-image: url("/public_html/images/dash.png");
 		background-position: top left,					center center;
 		background-repeat:						no-repeat;
 		background-size:cover;
