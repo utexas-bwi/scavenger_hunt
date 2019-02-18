@@ -1,5 +1,12 @@
 # scavenger\_hunt
 
+## Packages Needed
+
+php
+mysql-server
+php-curl
+php-xml
+
 ## Directory Structure
 
 public\_html: contains all website files
