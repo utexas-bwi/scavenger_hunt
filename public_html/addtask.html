@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+        <link href="css/style.css" rel="stylesheet"/>
+        <script src="https://unpkg.com/scrollreveal@4"></script>
+        <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-light bg-light" id = "myHeader">
+            <a class="navbar-brand" href="/"><span class="red">Scavenger Hunt</span></span></a>
+            <div class="collapse navbar-collapse" id="navbar">
+                <ul class="navbar-nav ml-auto mt-2">
+                    <li class="nav-item"><a class="nav-link" href="rules.html">Game Rules</a></li>
+                    <li class="nav-item"><a class="nav-link" href="task.html">Task Library</a></li>
+                    <li class="nav-item"><a class="nav-link" href="leaderboard.html">Leaderboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact Us</a></li>
+                    <li class="nav-item"><a class="nav-link" href="register.html">Register</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Log In</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <section id="main" class = "full">
+            <header class="major">
+                <h2>Submit a Task for the Robot</h2>
+            </header>
+
+            <section id="content" class="full">
+                <form name="task_form" display="none">
+                    <p>Pick a task for the robot:</p>
+                    <select name="tasks">
+                        <option value="Color Shirt">color shirt</option>
+                        <option value="Target Search">target search</option>
+                        <option value="Human Following">human following</option>
+                        <option value="Object Delivery">object delivery</option>
+                    </select><br/> 
+                    <input type="submit" value="Submit Task"/>
+                </form>
+                
+                <h4>Task: Color Shirt</h4>
+                <form name="color_shirt_form" display="none">
+                    <p>Pick a color shirt for the robot to find:</p>
+                    <select name="colors">
+                        <option value="red">red</option>
+                        <option value="blue">blue</option>
+                        <option value="green">green</option>
+                        <option value="yellow">yellow</option>
+                    </select><br/> 
+                    <input type="submit" value="Submit Task"/>
+                </form>
+                <h4>Task: Target Search</h4>
+                <form name="target_search_form" display="none">
+                    <p>Pick a target for the robot to find:</p>
+                    <select name="objects">
+                        <option value="can">coke can</option>
+                        <option value="bottle">water bottle</option>
+                        <option value="pen">pen</option>
+                        <option value="shoe">shoe</option>
+                    </select><br/> 
+                    <input type="submit" value="Submit Task"/>
+                </form>
+                <h4>Task: Human Following</h4>
+                <form name="color_shirt_form" display="none">
+                    <input type="submit" value="Submit Task"/>
+                </form>
+                <h4>Task: Object Delivery</h4>
+                <form name="target_search_form" display="none">
+                    <input type="submit" value="Submit Task"/>
+                </form>
+            </section>
+        </section>
+
+        <footer id="footer" class = "foot">
+            <span class="copyright">
+                &copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
+            </span>
+        </footer>
+    </body>
+    <html>
