@@ -14,7 +14,6 @@
 function addFields(fieldName) {
     // remove all extra form questions specific to a given task
     const addFormTo = document.getElementById("task_form");
-    console.log(addFormTo.childElementCount);
     while (addFormTo.childElementCount > 3) {
         addFormTo.removeChild(addFormTo.lastChild);
     }
@@ -59,6 +58,19 @@ function addFields(fieldName) {
     }
 }
         </script>
+        <script type='text/javascript'>
+function submitTask() {
+    // remove form and add thank you message
+    const content = document.getElementById("content");
+    content.removeChild(document.getElementById("task_form"));
+    const par = document.createElement("h3");
+    par.textContent = "Thank you for submitting a task for the robot!";
+    content.appendChild(par);
+    // reload page
+    setTimeout(location.reload.bind(location), 1000);
+    // TODO: add code for storing information from form
+}
+        </script>
     </head>
     <body>
         <nav class="navbar navbar-expand-md navbar-light bg-light" id = "myHeader">
@@ -81,10 +93,10 @@ function addFields(fieldName) {
             </header>
 
             <section id="content" class="full">
-                <form id="task_form" name="task_form" display="none">
+                <form id="task_form" name="task_form" display="none" onsubmit="submitTask()">
                     <p>Pick a task for the robot:</p>
                     <select id="task_list" name="tasks" onchange="addFields(this.value)">
-                        <option value="default">Select one of the following...</option>
+                        <option value="default" selected>Select one of the following...</option>
                         <option value="color">color shirt</option>
                         <option value="target">target search</option>
                         <option value="following">human following</option>
