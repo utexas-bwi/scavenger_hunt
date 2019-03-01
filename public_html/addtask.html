@@ -10,6 +10,55 @@
         <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+        <script type='text/javascript'>
+function addFields(fieldName) {
+    // remove all extra form questions specific to a given task
+    const addFormTo = document.getElementById("task_form");
+    console.log(addFormTo.childElementCount);
+    while (addFormTo.childElementCount > 3) {
+        addFormTo.removeChild(addFormTo.lastChild);
+    }
+    // add extra questions based on task chosen
+    if (fieldName === "color") {
+        const par = document.createElement("p");
+        par.textContent = "Pick a color shirt for the robot to find.";
+        addFormTo.appendChild(par);
+        const select = document.createElement("select");
+        select.name = "colors";
+        const colors = ["red", "blue", "green", "yellow"];
+        for (let i = 0; i < colors.length; ++i) {
+            const option = document.createElement("option");
+            option.value = colors[i];
+            option.textContent = colors[i];
+            select.appendChild(option);
+        }
+        addFormTo.appendChild(select);
+        addFormTo.appendChild(document.createElement("br"));
+    } else if (fieldName == "target") {
+        const par = document.createElement("p");
+        par.textContent = "Pick a target object for the robot to find.";
+        addFormTo.appendChild(par);
+        const select = document.createElement("select");
+        select.name = "colors";
+        const objects = ["can", "bottle", "pen", "shoe"];
+        for (let i = 0; i < objects.length; ++i) {
+            const option = document.createElement("option");
+            option.value = objects[i];
+            option.textContent = objects[i];
+            select.appendChild(option);
+        }
+        addFormTo.appendChild(select);
+        addFormTo.appendChild(document.createElement("br"));
+    }
+    if (!(fieldName === "default")) {
+        // add submit button
+        const input = document.createElement("input");
+        input.type = "submit";
+        input.value="Submit Task";
+        addFormTo.appendChild(input);
+    }
+}
+        </script>
     </head>
     <body>
         <nav class="navbar navbar-expand-md navbar-light bg-light" id = "myHeader">
@@ -32,46 +81,15 @@
             </header>
 
             <section id="content" class="full">
-                <form name="task_form" display="none">
+                <form id="task_form" name="task_form" display="none">
                     <p>Pick a task for the robot:</p>
-                    <select name="tasks">
-                        <option value="Color Shirt">color shirt</option>
-                        <option value="Target Search">target search</option>
-                        <option value="Human Following">human following</option>
-                        <option value="Object Delivery">object delivery</option>
+                    <select id="task_list" name="tasks" onchange="addFields(this.value)">
+                        <option value="default">Select one of the following...</option>
+                        <option value="color">color shirt</option>
+                        <option value="target">target search</option>
+                        <option value="following">human following</option>
+                        <option value="delivery">object delivery</option>
                     </select><br/> 
-                    <input type="submit" value="Submit Task"/>
-                </form>
-                
-                <h4>Task: Color Shirt</h4>
-                <form name="color_shirt_form" display="none">
-                    <p>Pick a color shirt for the robot to find:</p>
-                    <select name="colors">
-                        <option value="red">red</option>
-                        <option value="blue">blue</option>
-                        <option value="green">green</option>
-                        <option value="yellow">yellow</option>
-                    </select><br/> 
-                    <input type="submit" value="Submit Task"/>
-                </form>
-                <h4>Task: Target Search</h4>
-                <form name="target_search_form" display="none">
-                    <p>Pick a target for the robot to find:</p>
-                    <select name="objects">
-                        <option value="can">coke can</option>
-                        <option value="bottle">water bottle</option>
-                        <option value="pen">pen</option>
-                        <option value="shoe">shoe</option>
-                    </select><br/> 
-                    <input type="submit" value="Submit Task"/>
-                </form>
-                <h4>Task: Human Following</h4>
-                <form name="color_shirt_form" display="none">
-                    <input type="submit" value="Submit Task"/>
-                </form>
-                <h4>Task: Object Delivery</h4>
-                <form name="target_search_form" display="none">
-                    <input type="submit" value="Submit Task"/>
                 </form>
             </section>
         </section>
