@@ -12,27 +12,13 @@
         <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
     </head>
     <body>
-        <nav class="navbar navbar-expand-md navbar-light bg-light" id = "myHeader">
-            <a class="navbar-brand" href="/"><span class="red">Scavenger Hunt</span></span></a>
-            <div class="collapse navbar-collapse" id="navbar">
-                <ul class="navbar-nav ml-auto mt-2">
-                    <li class="nav-item"><a class="nav-link" href="rules.html">Game Rules</a></li>
-                    <li class="nav-item"><a class="nav-link" href="task.html">Task Library</a></li>
-                    <li class="nav-item"><a class="nav-link" href="addtask.html">Submit a Task</a></li> 
-                    <li class="nav-item"><a class="nav-link" href="leaderboard.html">Leaderboard</a></li>
-                    <li class="nav-item"><a class="nav-link" href="contact.html">Contact Us</a></li>
-                    <li class="nav-item"><a class="nav-link" href="register.html">Register</a></li>
-                    <li class="nav-item"><a class="nav-link" href="login.html">Log In</a></li>
-		</ul>
-            </div>
-        </nav>
-
+        <?php include 'components/navBar.html';?>
         <section id="main" class = "full">
-			<header class="major">
-				<h2>Robot Scavenger Hunt Rules</h2>
-			</header>
-			<section id="content">
-				<p> A task library includes a set of scavenger hunt tasks for robots. On the mornings of game days, a list of tasks will be randomly selected from the task library and posted on the page of results. Specific types of tasks from the library might appear more than once or not at all. It is not mandatory for the robot to follow the order of tasks on the list when working on the tasks. Instead, we encourage robots to dynamically adjust the order of tasks in such a way that they judge will maximize their overall score. For instance, tasks requiring long-distance navigation can be executed at times when humans have fewer activities, e.g., early mornings, while tasks require human-robot interactions can be attempted during hours when people are more accessible. However, this reordering should be done fully autonomously: once the robot downloads the task list, its only input from a person should be as specified by the tasks themselves. </p>
+            <header class="major">
+                <h2>Robot Scavenger Hunt Rules</h2>
+            </header>
+            <section id="content">
+                <p> A task library includes a set of scavenger hunt tasks for robots. On the mornings of game days, a list of tasks will be randomly selected from the task library and posted on the page of results. Specific types of tasks from the library might appear more than once or not at all. It is not mandatory for the robot to follow the order of tasks on the list when working on the tasks. Instead, we encourage robots to dynamically adjust the order of tasks in such a way that they judge will maximize their overall score. For instance, tasks requiring long-distance navigation can be executed at times when humans have fewer activities, e.g., early mornings, while tasks require human-robot interactions can be attempted during hours when people are more accessible. However, this reordering should be done fully autonomously: once the robot downloads the task list, its only input from a person should be as specified by the tasks themselves. </p>
 
                 <p> A task specification is a four-tuple: <br />⟨ <br /> task name, format, score, description <br /> ⟩ </p>
 
@@ -44,13 +30,13 @@
 
                 <p> Task results: <br /> ⟨ <br /> task name 1, certificate 1, time stamp 1, path to certificate 1, <br /> task name 2, certificate 2, time stamp 2, path to certificate 2, <br /> ...<br /> ⟩ </p>
 
-			</section>
-		</section>
+            </section>
+        </section>
 
         <footer id="footer" class = "foot">
-        	<span class="copyright">
-        		&copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
-        	</span>
+            <span class="copyright">
+                &copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
+            </span>
         </footer>
     </body>
-<html>
+    <html>
