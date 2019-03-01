@@ -1,6 +1,6 @@
 function submitTask() {
     // remove form and add thank you message
-    const content = document.getElementById("content");
+    const content = document.getElementById("task_form_parent");
     content.removeChild(document.getElementById("task_form"));
     const par = document.createElement("h3");
     par.textContent = "Thank you for submitting a task for the robot!";
