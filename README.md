@@ -25,3 +25,11 @@ When configuring apache2, you will have to add the following line to /etc/apache
 `AddHandler application/x-httpd-php .htm .html`
 
 The mysql password is the same as the sudo password for the bwilab account on Ozil.
+
+## Viewing the Website on Ozil
+
+Currently, the website is hosted on Ozil, so you will have to have a BWI account to view the website. You can view the website by ssh-ing into Ozil with the following command:
+
+`ssh -L 8080:128.83.143.224:80 [username]@ozil.csres.utexas.edu`
+
+Then, open a web browser and go to the website address `http://localhost:8080`, and you will be able to see the website.
