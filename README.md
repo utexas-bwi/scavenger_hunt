@@ -20,4 +20,8 @@ On a Linux machine (such as Ozil), you will have to copy the files from this rep
 
 The following packages have been downloaded on Ozil: php, apache2, mysql, php-curl, php-xml.
 
+When configuring apache2, you will have to add the following line to /etc/apache2/apache2.conf:
+
+    `AddHandler application/x-httpd-php .htm .html`
+
 The mysql password is the same as the sudo password for the bwilab account on Ozil.
