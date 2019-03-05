@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+		<link href="css/style.css" rel="stylesheet"/>
+		<script src="https://unpkg.com/scrollreveal@4"></script>
+		<link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+		<script src="../script/table.js"></script>
+	</head>
+	<body>
+		<?php include 'components/navBar.html';?>
+		<section id="main" class = "full">
+			<section id="content">
+
+<!-- table for user to construct a hunt from tasks -->
+				<h2>Construct a Scavenger Hunt</h2>
+				<div id="table" class="table-editable">
+					<table class="table">
+						<tr>
+							<th>Task</th>
+							<th>Parameters</th>
+							<th>Proof Format</th>
+							<th>Point Value</th>
+							<th>English Description</th>
+							<th>
+								<span class="table-add glyphicon glyphicon-plus" onclick="addRow(this)"></span>
+							</th>
+						</tr>
+
+						<!-- clonable table line -->
+						<tr class="hide" id="tr-hide">
+							<td contenteditable="true">Untitled</td>
+							<td contenteditable="true">undefined</td>
+							<td contenteditable="true">Untitled</td>
+							<td contenteditable="true">undefined</td>
+							<td contenteditable="true">undefined</td>
+							<td>
+								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
+							</td>
+						</tr>
+					</table>
+					<button id="export-btn" class="btn btn-primary">Submit Hunt</button>
+				</div>
+</section>
+
+			<footer id="footer" class = "foot">
+				<span class="copyright">
+					&copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
+				</span>
+			</footer>
+	</body>
+	<html>
