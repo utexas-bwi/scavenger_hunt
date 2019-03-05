@@ -30,53 +30,38 @@
 								<span class="table-add glyphicon glyphicon-plus" onclick="addRow()"></span>
 							</th>
 						</tr>
-
-						<tr>
-							<td contenteditable="true">Color Shirt</td>
-							<td contenteditable="true">color (red, blue, green, or yellow)</td>
-							<td contenteditable="true">picture (jpg) of the person wearing the shirt</td>
-							<td contenteditable="true">100</td>
-							<td contenteditable="true">Take a picture of a person who wears a specific color shirt.</td>
-							<td>
-								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
-							</td>
-						</tr>
-
-
-						<tr>
-							<td contenteditable="true">Target Search</td>
-							<td contenteditable="true">object</td>
-							<td contenteditable="true">picture (jpg) of the object</td>
-							<td contenteditable="true">100</td>
-							<td contenteditable="true">Take a picture of the specified object.</td>
-							<td>
-								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
-							</td>
-						</tr>
-
-
-						<tr>
-							<td contenteditable="true">Human Following</td>
-							<td contenteditable="true">none</td>
-							<td contenteditable="true">picture (jpg) of the human and picture (jpg) of the trajectories walked by the human and robot</td>
-							<td contenteditable="true">100</td>
-							<td contenteditable="true">Take a picture of a person who wears a specific color shirt.</td>
-							<td>
-								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
-							</td>
-						</tr>
-
-
-						<tr>
-							<td contenteditable="true">Object Delivery</td>
-							<td contenteditable="true">object and location</td>
-							<td contenteditable="true">time-stamped description of object by person who gives the task and time-stamped description of object by person at ending location</td>
-							<td contenteditable="true">150</td>
-							<td contenteditable="true">Find a person who is willing to specify an object to deliver from one location to another. Objects and locations can be selected through the robot's UI in real time. Once the robot delivers the object, it should find a person at the ending location who can describe the object.</td>
-							<td>
-								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
-							</td>
-						</tr>
+						<?php
+							$task='Color Shirt';
+							$param='color (red, blue, green, or yellow)';
+							$proof='picture (jpg) of the person wearing the shirt';
+							$score='100';
+							$descr='Take a picture of a person who wears a specific color shirt.';
+							include 'components/task-table-row.html';
+						?>
+						<?php
+							$task='Target Search';
+							$param='object';
+							$proof='picture (jpg) of the specified object';
+							$score='100';
+							$descr='Take a picture of the specified object.';
+							include 'components/task-table-row.html';
+						?>
+						<?php
+							$task='Human Following';
+							$param='none';
+							$proof='picture (jpg) of the human and picture (jpg) of the trajectories walked by the human and robot';
+							$score='100';
+							$descr='Take a picture of the human being followed.';
+							include 'components/task-table-row.html';
+						?>
+						<?php
+							$task='Object Delivery';
+							$param='none';
+							$proof='time-stamped description of object by person who gives the task and time-stamped description of object by person at ending location';
+							$score='150';
+							$descr='Find a person who is willing to specify an object to deliver from one location to another. Objects and locations can be selected through the robot\'s UI in real time. Once the robot delivers the object, it should find a person at the ending location who can describe the object.';
+							include 'components/task-table-row.html';
+						?>
 
 						<!-- clonable table line -->
 						<tr class="hide" id="tr-hide">
