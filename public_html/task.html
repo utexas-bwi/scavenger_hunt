@@ -1,69 +1,129 @@
 <!DOCTYPE html>
 
 <html lang="en">
-    <head>
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
-        <link href="css/style.css" rel="stylesheet"/>
-        <script src="https://unpkg.com/scrollreveal@4"></script>
-        <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
-        <script src="../script/addFieldsToForm.js"></script>
-        <script src="../script/submitTaskForm.js"></script>
-    </head>
-    <body>
-        <?php include 'components/navBar.html';?>
-        <section id="main" class = "task-form">
-            <header class="major">
-                <h2>Submit a Task for the Robot</h2>
-            </header>
-            <section id="content">
-                <section id="content">
-                    <div id="task_form_parent">
-                    <form id="task_form" name="task_form" display="none" onsubmit="submitTask()">
-                        <p>Pick a task for the robot:</p>
-                        <select id="task_list" name="tasks" onchange="addFields(this.value)">
-                            <option value="default" selected>Select one of the following...</option>
-                            <option value="color">color shirt</option>
-                            <option value="target">target search</option>
-                            <option value="following">human following</option>
-                            <option value="delivery">object delivery</option>
-                        </select><br/>
-                    </form>
-                    </div>
-                </section>
-            </section>
-        </section>
-        <section id="main" class = "full">
-            <header class="major">
-                <h2>Task Details</h2>
-            </header>
-            <section id="content">
-                <section id="content">
-                    <h3>Color Shirt</h3>
-                    <p> In this task, the robot needs to take a picture of a person who wears a shirt in a specific color. <br /> <br /> The color can be red, blue, green or yellow, and is provided as part of this task. Since the process of interpreting a color, say blue, can be very subjective, we will accept a color to be blue, if most people would identify the color as blue rather than another solid color such as, red, green or yellow. <br /> <br /> The format of "color shirt" is jpg, that saying the completion certificate of this task is an image in jpg format. The score of an in-time, correct completion is 100. This task is mainly used for demonstrating the vision module of intelligent robots. It makes sense for robots to actively search areas with more human activities, so robots with a good navigation capability can perform better in this task. </p>
-                </section>
-                <section id="content">
-                    <h3>Target Search</h3>
-                    <p> This task requires a robot to visually localize a target object in a 3D environment. <br /> <br /> We maintain a list of objects that are easily accessible anywhere around the world, such as a can of coke. An instance of this task is specified by giving the name of a target object (from this list) in plain text. Therefore, each team needs to maintain a mapping from the name of any object on the list to an set of visual representations. A representation can be an image or a point cloud (in case of robot using RGB-D sensors). <br /> <br /> The format this this task is jpg. This task is mainly used for evaluating the vision and navigation capabilities, as robots need to simultaneously move its platform from point to point and visually analyzing scenes being visited. </p>
-                </section>
-                <section id="content">
-                    <h3>Human Following</h3>
-                    <p> This task requires a robot to follow a human walker for at least a predefined distance. <br /> <br /> The completion certificate of this task includes a picture of the human walker and an image showing the trajectories traveled by the human walker and the robot. </p>
-                </section>
-                <section id="content">
-                    <h3>Object Delivery</h3>
-                    <p> The format of completion certificate is txt. The score of an in-time, correct completion is 150. This task is used for demonstrating human-robot interactions, navigation and vision. The robot needs to find a person P1 who is willing to help specify the object name O, initial room R1, and goal room R2. To avoid language ambiguities, object names and room numbers can be selected through drop-down menus, or the robot can suggest humans to follow well-specified script (e.g., "Please input the room number. You can type 'r101', 'r102', 'r103', or 'r200'"). In so doing, the robot may want to actively seek human input in busy areas. After that, the robot needs to move to R1 to load object O (possibly with human P2's help). Finally, the robot moves object O to room R2 and asks the last human P3 to describe the object with a few words. The completion certificate includes the time-stamped object name given by P1 and the time-stamped words P3 used for describing the object. </p>
-                </section>
-            </section>
-        </section>
+	<head>
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+		<link href="css/editabletable.css" rel="stylesheet"/>
+		<link href="css/style.css" rel="stylesheet"/>
+		<script src="https://unpkg.com/scrollreveal@4"></script>
+		<link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+		<link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet">
+		<script src="../script/table.js"></script>
+	</head>
+	<body>
+		<?php include 'components/navBar.html';?>
+		<section id="main" class = "full">
+			<section id="content">
 
-        <footer id="footer" class = "foot">
-            <span class="copyright">
-                &copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
-            </span>
-        </footer>
-    </body>
-    <html>
+				<header class="major">
+					<h2>Current Tasks</h2>
+				</header>
+				<div id="table" class="table-editable">
+					<table class="table" id="task-table">
+						<tr>
+							<th>Task</th>
+							<th>Parameters</th>
+							<th>Proof Format</th>
+							<th>Point Value</th>
+							<th>English Description</th>
+							<th>
+								<span class="table-add glyphicon glyphicon-plus" onclick="addRow()"></span>
+							</th>
+						</tr>
+
+						<tr>
+							<td contenteditable="true">Color Shirt</td>
+							<td contenteditable="true">color : {red, blue, green, yellow}</td>
+							<td contenteditable="true">picture (jpg) of the person wearing the shirt</td>
+							<td contenteditable="true">100</td>
+							<td contenteditable="true">Take a picture of a person who wears a specific color shirt.</td>
+							<td>
+								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
+							</td>
+						</tr>
+
+
+						<tr>
+							<td contenteditable="true">Target Search</td>
+							<td contenteditable="true">object</td>
+							<td contenteditable="true">picture (jpg) of the object</td>
+							<td contenteditable="true">100</td>
+							<td contenteditable="true">Take a picture of the specified object.</td>
+							<td>
+								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
+							</td>
+						</tr>
+
+
+						<tr>
+							<td contenteditable="true">Human Following</td>
+							<td contenteditable="true">none</td>
+							<td contenteditable="true">picture (jpg) of the human and picture (jpg) of the trajectories walked by the human and robot</td>
+							<td contenteditable="true">100</td>
+							<td contenteditable="true">Take a picture of a person who wears a specific color shirt.</td>
+							<td>
+								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
+							</td>
+						</tr>
+
+
+						<tr>
+							<td contenteditable="true">Object Delivery</td>
+							<td contenteditable="true">object and location</td>
+							<td contenteditable="true">picture (jpg) of the successful delivery</td>
+							<td contenteditable="true">100</td>
+							<td contenteditable="true">Deliver a specified object to a location.</td>
+							<td>
+								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
+							</td>
+						</tr>
+
+						<!-- clonable table line -->
+						<tr class="hide" id="tr-hide">
+							<td contenteditable="true">Untitled</td>
+							<td contenteditable="true">undefined</td>
+							<td contenteditable="true">Untitled</td>
+							<td contenteditable="true">undefined</td>
+							<td contenteditable="true">undefined</td>
+							<td>
+								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<button id="export-btn" class="btn btn-primary">Save Changes</button>
+				</div>
+				<header class="major">
+					<h2>Task Details</h2>
+				</header>
+				<section id="content">
+					<h3>Color Shirt</h3>
+					<p> In this task, the robot needs to take a picture of a person who wears a shirt in a specific color. <br /> <br /> The color can be red, blue, green or yellow, and is provided as part of this task. Since the process of interpreting a color, say blue, can be very subjective, we will accept a color to be blue, if most people would identify the color as blue rather than another solid color such as, red, green or yellow. <br /> <br /> The format of "color shirt" is jpg, that saying the completion certificate of this task is an image in jpg format. The score of an in-time, correct completion is 100. This task is mainly used for demonstrating the vision module of intelligent robots. It makes sense for robots to actively search areas with more human activities, so robots with a good navigation capability can perform better in this task. </p>
+				</section>
+				<section id="content">
+					<h3>Target Search</h3>
+					<p> This task requires a robot to visually localize a target object in a 3D environment. <br /> <br /> We maintain a list of objects that are easily accessible anywhere around the world, such as a can of coke. An instance of this task is specified by giving the name of a target object (from this list) in plain text. Therefore, each team needs to maintain a mapping from the name of any object on the list to an set of visual representations. A representation can be an image or a point cloud (in case of robot using RGB-D sensors). <br /> <br /> The format this this task is jpg. This task is mainly used for evaluating the vision and navigation capabilities, as robots need to simultaneously move its platform from point to point and visually analyzing scenes being visited. </p>
+				</section>
+				<section id="content">
+					<h3>Human Following</h3>
+					<p> This task requires a robot to follow a human walker for at least a predefined distance. <br /> <br /> The completion certificate of this task includes a picture of the human walker and an image showing the trajectories traveled by the human walker and the robot. </p>
+				</section>
+				<section id="content">
+					<h3>Object Delivery</h3>
+					<p> The format of completion certificate is txt. The score of an in-time, correct completion is 150. This task is used for demonstrating human-robot interactions, navigation and vision. The robot needs to find a person P1 who is willing to help specify the object name O, initial room R1, and goal room R2. To avoid language ambiguities, object names and room numbers can be selected through drop-down menus, or the robot can suggest humans to follow well-specified script (e.g., "Please input the room number. You can type 'r101', 'r102', 'r103', or 'r200'"). In so doing, the robot may want to actively seek human input in busy areas. After that, the robot needs to move to R1 to load object O (possibly with human P2's help). Finally, the robot moves object O to room R2 and asks the last human P3 to describe the object with a few words. The completion certificate includes the time-stamped object name given by P1 and the time-stamped words P3 used for describing the object. </p>
+				</section>
+			</section>
+		</section>
+
+		<footer id="footer" class = "foot">
+			<span class="copyright">
+				&copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
+			</span>
+		</footer>
+	</body>
+	<html>
