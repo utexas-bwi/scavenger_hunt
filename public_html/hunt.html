@@ -20,33 +20,43 @@
 
 <!-- table for user to construct a hunt from tasks -->
 				<h2>Construct a Scavenger Hunt</h2>
-				<div id="table" class="table-editable">
+				<div id="task-list">
 					<table class="table">
+						<tr><th>Tasks</th><tr>
+						<tr onclick="addTask('Color Shirt')">
+							<td>Color Shirt</td>
+						</tr>
+						<tr onclick="addTask('Target Search')">
+							<td>Target Search</td>
+						</tr>
+						<tr onclick="addTask('Human Following')">
+							<td>Human Following</td>
+						</tr>
+						<tr onclick="addTask('Object Delivery')">
+							<td>Object Delivery</td>
+						</tr>
+					</table>
+				</div>
+				<div id="construct-hunt-table" class="table-editable">
+					<table class="table" id="hunt-table">
 						<tr>
 							<th>Task</th>
 							<th>Parameters</th>
-							<th>Proof Format</th>
-							<th>Point Value</th>
-							<th>English Description</th>
-							<th>
-								<span class="table-add glyphicon glyphicon-plus" onclick="addRow(this)"></span>
-							</th>
 						</tr>
 
 						<!-- clonable table line -->
 						<tr class="hide" id="tr-hide">
 							<td contenteditable="true">Untitled</td>
 							<td contenteditable="true">undefined</td>
-							<td contenteditable="true">Untitled</td>
-							<td contenteditable="true">undefined</td>
-							<td contenteditable="true">undefined</td>
 							<td>
 								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
 							</td>
 						</tr>
 					</table>
+					<button id="export-btn" class="btn btn-primary">Save Draft</button>
 					<button id="export-btn" class="btn btn-primary">Submit Hunt</button>
 				</div>
+</section>
 </section>
 
 			<footer id="footer" class = "foot">

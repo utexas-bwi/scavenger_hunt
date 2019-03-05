@@ -697,6 +697,17 @@ h2.title {
   }
 }
 
+#construct-hunt-table {
+  position: relative;
+  float: right;
+  margin: 0px;
+}
+
+#task-list {
+  position: relative;
+  float: left; 
+}
+
 .table-remove {
   color: #700;
   cursor: pointer;
