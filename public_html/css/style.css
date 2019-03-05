@@ -86,133 +86,24 @@ p {
 					text-decoration: none;
 					display: inline-block;
 				  }
-
-				  .personalize {
-					background: url("https://lh3.googleusercontent.com/2frtdnaF8VUVlCJ3qStofl-T5izra-lysrKe5d0jhJpmgPS9lXFgq1DvEMBP0RoaXfSMZGcj1mOOuvPgihLfxudGltHv_SELhe3RKMHpU7Q2fqXHAZu77MQ_NhZArG3qtDLv0aVaGwwqckuY9XWkGXSeDIZdOk9-A74FPQOEVZGwrD02ZfMDULnXy5U4exXu_ObH1EdSnoOy6fpf3mjSsB6HYi9pmc83ab_oFySid57Qzz8hkcQnhSbVd627DakbNjkRLZkJGMSjpzJr_gQ_WuS_NeOT24k7rhFvkIhSfIjp0NLsTwlbzhEPUwKu5O-biSj28TWf1VgY1xI6sNpl13E44rLl1XKXC2Lsxf3eNNhD00r2IgHXn9TQSb7c9BleHAc1srx6IoFVKQ4h7VEz6eULlZ5u83IzyE8Lia7G1NKbmlQZ6PldjWPzcMdNTL9q-fENRkGUcwjbRb_ftenE4zlfpwxCohsf__k9WttBNPfq48glPI0XBJC0A2ASNpzpag7euTb3dmsv-yEE6bfFbDzR_vArLAf6sEztmHOwU-ega9YIvdcYf1AVafgQORH7L6a4gD1MGSsXGkklzzIUtVsVstiqKtja1edQC5VjZl6nlS0YZrcjtgKjN7eLs-vs88MJEwhs9ZUppXqLdE5kLpaQ=w2140-h1314-no") no-repeat fixed  center center;
-					background-size: cover;
-					height: 650px;
-					text-align: right;
-				  }
-
-				  .personalize .container {
-					position: relative;
-					top: 100px;
-				  }
-
-				  .personalize h2 {
-					color: #fff;
-					font-size: 80px;
-					margin:0;
-					text-align: center;
-					padding:140px 50px;
-				  }
-
-
-				  hr {
-					  display: block;
-					  height: 10px;
-					  border: 100px;
-						width: 600px;
-					  border-top: 1px solid #ccc;
-					  margin: 1.5em 0em 1.5em 25em;
-					  padding: 0;
-				  }
-
-				  .personalize h3 {
-					color: #fff;
-					font-family: Avenir;
-					font-size: 25px;
-					text-align: right;
-					margin:0;
-					font-weight: lighter;
-					padding:0px 0px 0px 430px;
-				  }
-
-				  .interact {
-					background: url("https://lh3.googleusercontent.com/kyKmkcF7nYSRlCllpLzR35qCDr0pkagTIpnMvwtEWx_mphZQNGWBcWXHrfBLOPI_Yx9Hp1D7JLmfWzkkwwMN4_Tu1sZaW0HGrRISSso9DDDZugWL5IWepHG7ISQ6Up1CdkORGxhCiLDlX-TXiGMITImXO2Zvvdfg6fbq8ku-DxAqMalTLNddgoqbKFLswbNM369TyJhs6O7riKtNV7z0AR6s4HETQ2QpFb9H-wiT0M7Lzimri4XboiKWrZYKE5ks4I-FSy0FkCrdQHxI2d3ABy5xaKDkok-A5nFp8UlbjZ8DMrlNAry88QUqhEfAgVo3i30ez3X5GMs22AocUz80CI_NMcss2wxJEWA0txfGaHdHHF32x7JYUgBWvhH8C7qFJIO5D52OVn_e3a8TkWbHpuCAb-mZkiLrd9TYc1noosjLp66WBuCTGYtFVhtGGvW8mT2SNlPBg6nNP5Z1zpHIk_M2ADu18Asm2pFXhnJcIwZD6hd2hPlQ1vosLarwnTFvnDgOcHq215W-vE4qrbPpeq-kCJO09BqmLJUNPHKWU98xQ6HVF7nlpb4AqYLUTxnXC7cWe0iNMSzsseX5JRRh3074HLqf4TiqL2-FJ8E2BslphcguSLVFzOXuREDxIwE=w1300-h956-no") no-repeat fixed center center;
-					background-size: cover;
-					height: 650px;
-					text-align: right;
-				  }
-
-				  .interact .container {
-					position: relative;
-					top: 100px;
-				  }
-
-				  .interact h2 {
-					color: #fff;
-					font-size: 80px;
-					margin:0;
-					text-align: center;
-					padding:140px 50px;
-				  }
-
-				  hr1 {
-					  display: block;
-					  height: 1px;
-					  border: 0;
-						width: 600px;
-					  border-top: 1px solid #ccc;
-					  margin: 1.5em 25em 1.5em 0em;
-					  padding: 0;
-				  }
-
-				  .interact h3 {
-					color: #fff;
-					font-family: Avenir;
-					font-size: 25px;
-					text-align: left;
-					margin:0;
-					font-weight: lighter;
-					padding:30px 150px 0px 0px;
-				  }
-
-				  .learn {
-					background: url("https://dzfsa2yjtlieg.cloudfront.net/wp-content/uploads/2016/05/gym-shoes-men.png") no-repeat fixed center top;
-					background-size: cover;
-					height: 650px;
-					text-align: right;
-				  }
-
-				  .learn .container {
-					position: relative;
-					top: 100px;
-				  }
-
-				  .learn h2 {
-					color: #fff;
-					font-size: 80px;
-					margin:0;
-					text-align: center;
-					padding:140px 50px;
-				  }
-
-
-				  .learn h3 {
-					color: #fff;
-					font-family: Avenir;
-					font-size: 25px;
-					text-align: right;
-					margin:0;
-					font-weight: lighter;
-					padding:0px 0px 0px 430px;
-				  }
-
-				  /* Title opening */
+/* Title opening */
 #banner {
 		background-attachment: scroll;
 		opacity: .95;
-		background-image: url("/public_html/images/dash.png");
-		background-position: top left,					center center;
-		background-repeat:						no-repeat;
+        background-image: url('../images/dash.jpeg');
+		background-position: top left,center center;
+		background-repeat: no-repeat;
 		background-size:cover;
+        -webkit-transition: background-image 1s ease-in-out;
+        transition: background-image 1s ease-in-out;
 		color: #d1d2d4;
 		padding: 10em 0;
 		position: bottom;
 		text-align: center;
 		height: 750px;
+
 	}
+}
 
 
 		#banner :last-child {
@@ -786,4 +677,14 @@ h2.title {
 .foot {
     float: center !important;
     margin-right: 10%;
+    padding-left: 500px;
+}
+
+#main.task-form {
+    margin-left: 10%;
+    width: 80%;
+    text-align: center;
+}
+#task_form_parent.task-form {
+    text-align: center;
 }
