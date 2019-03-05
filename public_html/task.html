@@ -27,63 +27,92 @@
 							<th>Point Value</th>
 							<th>English Description</th>
 							<th>
-								<span class="table-add glyphicon glyphicon-plus" onclick="addRow()"></span>
+								<span class="table-add glyphicon glyphicon-plus" onclick="addRow(this)"></span>
 							</th>
 						</tr>
 						<?php
-							$task='Color Shirt';
-							$param='color (red, blue, green, or yellow)';
-							$proof='picture (jpg) of the person wearing the shirt';
-							$score='100';
-							$descr='Take a picture of a person who wears a specific color shirt.';
-							include 'components/task-table-row.html';
-						?>
-						<?php
-							$task='Target Search';
-							$param='object';
-							$proof='picture (jpg) of the specified object';
-							$score='100';
-							$descr='Take a picture of the specified object.';
-							include 'components/task-table-row.html';
-						?>
-						<?php
-							$task='Human Following';
-							$param='none';
-							$proof='picture (jpg) of the human and picture (jpg) of the trajectories walked by the human and robot';
-							$score='100';
-							$descr='Take a picture of the human being followed.';
-							include 'components/task-table-row.html';
-						?>
-						<?php
-							$task='Object Delivery';
-							$param='none';
-							$proof='time-stamped description of object by person who gives the task and time-stamped description of object by person at ending location';
-							$score='150';
-							$descr='Find a person who is willing to specify an object to deliver from one location to another. Objects and locations can be selected through the robot\'s UI in real time. Once the robot delivers the object, it should find a person at the ending location who can describe the object.';
-							include 'components/task-table-row.html';
-						?>
+							 $task='Color Shirt';
+							 $param='color (red, blue, green, or yellow)';
+							 $proof='picture (jpg) of the person wearing the shirt';
+							 $score='100';
+							 $descr='Take a picture of a person who wears a specific color shirt.';
+							 include 'components/task-table-row.html';
+							 ?>
+							 <?php
+							 $task='Target Search';
+							 $param='object';
+							 $proof='picture (jpg) of the specified object';
+							 $score='100';
+							 $descr='Take a picture of the specified object.';
+							 include 'components/task-table-row.html';
+							 ?>
+							 <?php
+							 $task='Human Following';
+							 $param='none';
+							 $proof='picture (jpg) of the human and picture (jpg) of the trajectories walked by the human and robot';
+							 $score='100';
+							 $descr='Take a picture of the human being followed.';
+							 include 'components/task-table-row.html';
+							 ?>
+							 <?php
+							 $task='Object Delivery';
+							 $param='none';
+							 $proof='time-stamped description of object by person who gives the task and time-stamped description of object by person at ending location';
+							 $score='150';
+							 $descr='Find a person who is willing to specify an object to deliver from one location to another. Objects and locations can be selected through the robot\'s UI in real time. Once the robot delivers the object, it should find a person at the ending location who can describe the object.';
+							 include 'components/task-table-row.html';
+							 ?>
 
-						<!-- clonable table line -->
-						<tr class="hide" id="tr-hide">
-							<td contenteditable="true">Untitled</td>
-							<td contenteditable="true">undefined</td>
-							<td contenteditable="true">Untitled</td>
-							<td contenteditable="true">undefined</td>
-							<td contenteditable="true">undefined</td>
-							<td>
-								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
-							</td>
-						</tr>
+							 <!-- clonable table line -->
+							 <tr class="hide" id="tr-hide">
+								 <td contenteditable="true">Untitled</td>
+								 <td contenteditable="true">undefined</td>
+								 <td contenteditable="true">Untitled</td>
+								 <td contenteditable="true">undefined</td>
+								 <td contenteditable="true">undefined</td>
+								 <td>
+									 <span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
+								 </td>
+							 </tr>
 					</table>
+					<button id="export-btn" class="btn btn-primary">Save Changes</button>
 				</div>
 
-				<button id="export-btn" class="btn btn-primary">Save Changes</button>
-		</section>
+				<div id="table" class="table-editable">
+					<h2>Construct a Scavenger Hunt</h2>
+					<div id="table" class="table-editable">
+						<table class="table" id="task-table">
+							<tr>
+								<th>Task</th>
+								<th>Parameters</th>
+								<th>Proof Format</th>
+								<th>Point Value</th>
+								<th>English Description</th>
+								<th>
+									<span class="table-add glyphicon glyphicon-plus" onclick="addRow(this)"></span>
+								</th>
+							</tr>
 
-		<footer id="footer" class = "foot">
-			<span class="copyright">
-				&copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
-			</span>
-		</footer>
+							<!-- clonable table line -->
+							<tr class="hide" id="tr-hide">
+								<td contenteditable="true">Untitled</td>
+								<td contenteditable="true">undefined</td>
+								<td contenteditable="true">Untitled</td>
+								<td contenteditable="true">undefined</td>
+								<td contenteditable="true">undefined</td>
+								<td>
+									<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
+								</td>
+							</tr>
+						</table>
+						<button id="export-btn" class="btn btn-primary">Submit Hunt</button>
+					</div>
+			</section>
+
+			<footer id="footer" class = "foot">
+				<span class="copyright">
+					&copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
+				</span>
+			</footer>
 	</body>
 	<html>
