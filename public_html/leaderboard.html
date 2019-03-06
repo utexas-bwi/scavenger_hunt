@@ -14,25 +14,24 @@
     </head>
     <body>
         <?php include 'components/navBar.html';?>
-        <div class="content">
+        <header class="major">
+            <h2>Hunt Results</h2>
+        </header>
+        <div class="content" id="main1">
+            <header class="major">
+                <h2>All Time Leaderboard</h2>
+            </header>
             <div class="leaderboard flex column wrap">
                 <div class="leaderboard-table flex column">
                     <div class="leaderboard-header flex column grow">
-
-                        <div class="filter-by flex grow wrap">
-                            <div class="time-filter flex grow">
-                                <div class="row-button pointer row-button--active align-center">This week</div>
-                                <div class="row-button pointer align-center">All-time</div>
-                            </div>
-                        </div>
 
                         <div class="leaderboard-row flex align-center row--header" style="border-radius: 0 !important;">
                             <div class="row-position">Position</div>
                             <div class="row-collapse flex align-center">
                                 <div class="row-user--header" style = "padding-left: 4%">University</div>
                                 <div class="row-user--header" style = "padding-left: 13%"># of Hunts</div>
-                                <div class="row-team--header" style = "padding-left: 4%">Avg. Search Time</div>
-                                <div class="row-team--header" style = "padding-left: 5%">Percent Success</div>
+                                <div class="row-team--header" style = "padding-left: 4%">Percent Success</div>
+                                <div class="row-team--header" style = "padding-left: 6.5%">Points</div>
                             </div>
                         </div>
                     </div>
@@ -47,9 +46,9 @@
                                     <div class="row-user">University of Texas at Austin</div>
                                 </div>
                                 <div class="row-team">359</div>
-                                <div class="row-rank">12 min</div>
+                                <div class="row-rank">65.2%</div>
                             </div>
-                            <div class="row-calls">65.2%</div>
+                            <div class="row-calls">10435</div>
                         </div>
 
                         <div class="leaderboard-row flex row-alt align-center">
@@ -60,9 +59,9 @@
                                     <div class="row-user">University of Pennsylvania</div>
                                 </div>
                                 <div class="row-team">234</div>
-                                <div class="row-rank">14 min</div>
+                                <div class="row-rank">54.3%</div>
                             </div>
-                            <div class="row-calls">57.5%</div>
+                            <div class="row-calls">8550</div>
                         </div>
 
                         <div class="leaderboard-row flex align-center">
@@ -73,27 +72,35 @@
                                     <div class="row-user">University of Michigan</div>
                                 </div>
                                 <div class="row-team">274</div>
-                                <div class="row-rank">13 min</div>
+                                <div class="row-rank">54.3%</div>
                             </div>
-                            <div class="row-calls">54.3%</div>
+                            <div class="row-calls">8400</div>
                         </div>
 
                         <div class="leaderboard-row flex row-alt align-center">
                             <div class="row-position">4</div>
                             <div class="row-collapse flex align-center">
                                 <div class="row-caller flex">
-                                    <img class="avatar" src="images/usc-logo.png" />
-                                    <div class="row-user">University of Southern California</div>
+                                    <img class="avatar" src="images/ill-logo.png" />
+                                    <div class="row-user">University of Illinois</div>
                                 </div>
                                 <div class="row-team">303</div>
-                                <div class="row-rank">19 min</div>
+                                <div class="row-rank">33.6%</div>
                             </div>
-                            <div class="row-calls">45.7%</div>
+                            <div class="row-calls">7250</div>
                         </div>
 
-
-                        <div class="leaderboard-footer flex align-center">
-                            Page 1 of 2
+                        <div class="leaderboard-row flex align-center">
+                            <div class="row-position">5</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/cali-logo.png" />
+                                    <div class="row-user">University of California, Berkeley</div>
+                                </div>
+                                <div class="row-team">283</div>
+                                <div class="row-rank">45.7%</div>
+                            </div>
+                            <div class="row-calls">5700</div>
                         </div>
 
                     </div>
@@ -103,8 +110,296 @@
 
         </div>
 
+        <div class="content" id="main1">
+            <header class="major">
+                <h2>Hunt 3</h2>
+            </header>
+            <div class="leaderboard flex column wrap">
+                <div class="leaderboard-table flex column">
+                    <div class="leaderboard-header flex column grow">
+
+                        <div class="leaderboard-row flex align-center row--header" style="border-radius: 0 !important;">
+                            <div class="row-position">Position</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-user--header" style = "padding-left: 4%">University</div>
+                                <div class="row-user--header" style = "padding-left: 14%"># of Tries</div>
+                                <div class="row-team--header" style = "padding-left: 4%">Avg. Search Time</div>
+                                <div class="row-team--header" style = "padding-left: 4%"> High Score</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="leaderboard-body flex column grow">
+                        <div class="leaderboard-row flex align-center">
+                            <div class="row-position">1</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/ut-logo.png" />
+                                    <div class="row-user">University of Texas at Austin</div>
+                                </div>
+                                <div class="row-team">12</div>
+                                <div class="row-rank">12 min</div>
+                            </div>
+                            <div class="row-calls">200</div>
+                        </div>
+
+                        <div class="leaderboard-row flex row-alt align-center">
+                            <div class="row-position">2</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/upenn-logo.png" />
+                                    <div class="row-user">University of Pennsylvania</div>
+                                </div>
+                                <div class="row-team">21</div>
+                                <div class="row-rank">14 min</div>
+                            </div>
+                            <div class="row-calls">150</div>
+                        </div>
+
+                        <div class="leaderboard-row flex align-center">
+                            <div class="row-position">3</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/mich-logo.png" />
+                                    <div class="row-user">University of Michigan</div>
+                                </div>
+                                <div class="row-team">14</div>
+                                <div class="row-rank">13 min</div>
+                            </div>
+                            <div class="row-calls">125</div>
+                        </div>
+
+                        <div class="leaderboard-row flex row-alt align-center">
+                            <div class="row-position">4</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/ill-logo.png" />
+                                    <div class="row-user">University of Illinois</div>
+                                </div>
+                                <div class="row-team">3</div>
+                                <div class="row-rank">19 min</div>
+                            </div>
+                            <div class="row-calls">125</div>
+                        </div>
+
+                        <div class="leaderboard-row flex align-center">
+                            <div class="row-position">5</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/cali-logo.png" />
+                                    <div class="row-user">University of California, Berkeley</div>
+                                </div>
+                                <div class="row-team">19</div>
+                                <div class="row-rank">22 min</div>
+                            </div>
+                            <div class="row-calls">75</div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <ul class="action">
+                <li><a class="button big scrolly" id = "more">See More</a></li>
+            </ul>
+        </div>
+
+        <div class="content" id="main1">
+            <header class="major">
+                <h2>Hunt 2</h2>
+            </header>
+            <div class="leaderboard flex column wrap">
+                <div class="leaderboard-table flex column">
+                    <div class="leaderboard-header flex column grow">
+
+                        <div class="leaderboard-row flex align-center row--header" style="border-radius: 0 !important;">
+                            <div class="row-position">Position</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-user--header" style = "padding-left: 4%">University</div>
+                                <div class="row-user--header" style = "padding-left: 14%"># of Tries</div>
+                                <div class="row-team--header" style = "padding-left: 4%">Avg. Search Time</div>
+                                <div class="row-team--header" style = "padding-left: 4%"> High Score</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="leaderboard-body flex column grow">
+                        <div class="leaderboard-row flex align-center">
+                            <div class="row-position">1</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/ut-logo.png" />
+                                    <div class="row-user">University of Texas at Austin</div>
+                                </div>
+                                <div class="row-team">12</div>
+                                <div class="row-rank">12 min</div>
+                            </div>
+                            <div class="row-calls">200</div>
+                        </div>
+
+                        <div class="leaderboard-row flex row-alt align-center">
+                            <div class="row-position">2</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/upenn-logo.png" />
+                                    <div class="row-user">University of Pennsylvania</div>
+                                </div>
+                                <div class="row-team">21</div>
+                                <div class="row-rank">14 min</div>
+                            </div>
+                            <div class="row-calls">150</div>
+                        </div>
+
+                        <div class="leaderboard-row flex align-center">
+                            <div class="row-position">3</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/mich-logo.png" />
+                                    <div class="row-user">University of Michigan</div>
+                                </div>
+                                <div class="row-team">14</div>
+                                <div class="row-rank">13 min</div>
+                            </div>
+                            <div class="row-calls">125</div>
+                        </div>
+
+                        <div class="leaderboard-row flex row-alt align-center">
+                            <div class="row-position">4</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/ill-logo.png" />
+                                    <div class="row-user">University of Illinois</div>
+                                </div>
+                                <div class="row-team">3</div>
+                                <div class="row-rank">19 min</div>
+                            </div>
+                            <div class="row-calls">125</div>
+                        </div>
+
+                        <div class="leaderboard-row flex align-center">
+                            <div class="row-position">5</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/cali-logo.png" />
+                                    <div class="row-user">University of California, Berkeley</div>
+                                </div>
+                                <div class="row-team">19</div>
+                                <div class="row-rank">22 min</div>
+                            </div>
+                            <div class="row-calls">75</div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <ul class="action">
+                <li><a class="button big scrolly" id = "more">See More</a></li>
+            </ul>
+        </div>
+
+        <div class="content" id="main1">
+            <header class="major">
+                <h2>Hunt 1</h2>
+            </header>
+            <div class="leaderboard flex column wrap">
+                <div class="leaderboard-table flex column">
+                    <div class="leaderboard-header flex column grow">
+
+                        <div class="leaderboard-row flex align-center row--header" style="border-radius: 0 !important;">
+                            <div class="row-position">Position</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-user--header" style = "padding-left: 4%">University</div>
+                                <div class="row-user--header" style = "padding-left: 14%"># of Tries</div>
+                                <div class="row-team--header" style = "padding-left: 4%">Avg. Search Time</div>
+                                <div class="row-team--header" style = "padding-left: 4%"> High Score</div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="leaderboard-body flex column grow">
+                        <div class="leaderboard-row flex align-center">
+                            <div class="row-position">1</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/ut-logo.png" />
+                                    <div class="row-user">University of Texas at Austin</div>
+                                </div>
+                                <div class="row-team">12</div>
+                                <div class="row-rank">12 min</div>
+                            </div>
+                            <div class="row-calls">200</div>
+                        </div>
+
+                        <div class="leaderboard-row flex row-alt align-center">
+                            <div class="row-position">2</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/upenn-logo.png" />
+                                    <div class="row-user">University of Pennsylvania</div>
+                                </div>
+                                <div class="row-team">21</div>
+                                <div class="row-rank">14 min</div>
+                            </div>
+                            <div class="row-calls">150</div>
+                        </div>
+
+                        <div class="leaderboard-row flex align-center">
+                            <div class="row-position">3</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/mich-logo.png" />
+                                    <div class="row-user">University of Michigan</div>
+                                </div>
+                                <div class="row-team">14</div>
+                                <div class="row-rank">13 min</div>
+                            </div>
+                            <div class="row-calls">125</div>
+                        </div>
+
+                        <div class="leaderboard-row flex row-alt align-center">
+                            <div class="row-position">4</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/ill-logo.png" />
+                                    <div class="row-user">University of Illinois</div>
+                                </div>
+                                <div class="row-team">3</div>
+                                <div class="row-rank">19 min</div>
+                            </div>
+                            <div class="row-calls">125</div>
+                        </div>
+
+                        <div class="leaderboard-row flex align-center">
+                            <div class="row-position">5</div>
+                            <div class="row-collapse flex align-center">
+                                <div class="row-caller flex">
+                                    <img class="avatar" src="images/cali-logo.png" />
+                                    <div class="row-user">University of California, Berkeley</div>
+                                </div>
+                                <div class="row-team">19</div>
+                                <div class="row-rank">22 min</div>
+                            </div>
+                            <div class="row-calls">75</div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <ul class="action">
+                <li><a class="button big scrolly" id = "more">See More</a></li>
+            </ul>
+        </div>
+
         <footer id="footer">
             <span class="copyright">
+                <br>
+                <br>
+                <br>
                 &copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
             </span>
         </footer>
