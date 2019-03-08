@@ -709,9 +709,11 @@ h2.title {
     width: 80%;
     text-align: center;
 }
+
 #task_form_parent.task-form {
     text-align: center;
 }
+
 #more.button {
     -moz-appearance: none;
     -webkit-appearance: none;
@@ -743,30 +745,23 @@ h2.title {
     white-space: nowrap;
 }
 
+/*==================================================================
+[ Task Library Table ]*/
+
+.use-glyphicon {
+    font-size: 20px;
+}
+
 .table-editable {
     position: relative;
-    margin: 20px;
-
-    .glyphicon {
-        font-size: 20px;
-    }
-}
-
-#construct-hunt-table {
-  position: relative;
-  float: right;
-  margin: 0px;
-}
-
-#task-list {
-  position: relative;
-  float: left; 
+    margin: 20px; 
 }
 
 .table-remove {
     color: #700;
     cursor: pointer;
 }    
+
 .table-remove:hover {
         color: #f00;
 }
@@ -778,6 +773,28 @@ h2.title {
     top: 8px;
     right: 0;
 }
+
 .table-add:hover {
         color: #0b0;
 }
+
+/*==================================================================
+[ Create a Hunt Page ]*/
+
+.clickable {
+    cursor: pointer;
+}
+
+#task-list {
+    position: relative;
+    float: left;
+    width: 30%;
+    margin-right: 2%;
+}
+
+#construct-hunt-table {
+    position: relative;
+    float: right;
+    width: 65%;
+}
+

@@ -1,68 +1,74 @@
 <!DOCTYPE html>
 
 <html lang="en">
-	<head>
-		<link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
-		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
-		<link href="css/style.css" rel="stylesheet"/>
-		<script src="https://unpkg.com/scrollreveal@4"></script>
-		<link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
-		<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-		<link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
-		<link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
-		<link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
-		<script src="../script/table.js"></script>
-	</head>
-	<body>
-		<?php include 'components/navBar.html';?>
-		<section id="main" class = "full">
-			<section id="content">
+    <head>
+        <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+        <link href="css/style.css" rel="stylesheet"/>
+        <script src="https://unpkg.com/scrollreveal@4"></script>
+        <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+        <script src="../script/table.js"></script>
+    </head>
+    <body>
+        <?php include 'components/navBar.html';?>
+        <section id="main" class = "full">
+            <section id="content">
 
-<!-- table for user to construct a hunt from tasks -->
-				<h2>Construct a Scavenger Hunt</h2>
-				<div id="task-list">
-					<table class="table">
-						<tr><th>Tasks</th><tr>
-						<tr onclick="addTask('Color Shirt')">
-							<td>Color Shirt</td>
-						</tr>
-						<tr onclick="addTask('Target Search')">
-							<td>Target Search</td>
-						</tr>
-						<tr onclick="addTask('Human Following')">
-							<td>Human Following</td>
-						</tr>
-						<tr onclick="addTask('Object Delivery')">
-							<td>Object Delivery</td>
-						</tr>
-					</table>
-				</div>
-				<div id="construct-hunt-table" class="table-editable">
-					<table class="table" id="hunt-table">
-						<tr>
-							<th>Task</th>
-							<th>Parameters</th>
-						</tr>
+                <!-- table for user to construct a hunt from tasks -->
+                <h2>Construct a Scavenger Hunt</h2>
+                <div>
+                    <p> Below are the possible tasks that you can add to your scavenger hunt. Click on the name of the task to add it to your scavenger hunt, and then fill in the parameters accordingly. If the task has no parameters (denoted as {} next to the task name), leave it as undefined.</p>
+                    <span id="task-list">
+                        <table class="table">
+                            <tr><th>Possible Tasks</th><tr>
+                                    <tr class = "clickable" onclick="addTask('Color Shirt')">
+                                        <td>Color Shirt, {red, yellow, blue, green}</td>
+                                    </tr>
+                                    <tr class = "clickable" onclick="addTask('Target Search')">
+                                        <td>Target Search, {can, pencil, shoe}</td>
+                                    </tr>
+                                    <tr class = "clickable" onclick="addTask('Human Following')">
+                                        <td>Human Following, {}</td>
+                                    </tr>
+                                    <tr class = "clickable" onclick="addTask('Object Delivery')">
+                                        <td>Object Delivery, {}</td>
+                                    </tr>
+                        </table>
+                    </span>
+                    <span id="construct-hunt-table" class="use-glyphicon">
+                        <h2>New Hunt
+                        <span class="use-glyphicon glyphicon glyphicon-pencil"/>
+                        </h2>
+                            <table class="table" id="hunt-table">
+                            <tr>
+                                <th>Task</th>
+                                <th>Parameters</th>
+                            </tr>
 
-						<!-- clonable table line -->
-						<tr class="hide" id="tr-hide">
-							<td contenteditable="true">Untitled</td>
-							<td contenteditable="true">undefined</td>
-							<td>
-								<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
-							</td>
-						</tr>
-					</table>
-					<button id="export-btn" class="btn btn-primary">Save Draft</button>
-					<button id="export-btn" class="btn btn-primary">Submit Hunt</button>
-				</div>
-</section>
-</section>
+                            <!-- clonable table line -->
+                            <tr class="hide" id="tr-hide">
+                                <td contenteditable="true">Untitled</td>
+                                <td contenteditable="true">undefined</td>
+                                <td>
+                                    <span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
+                                </td>
+                            </tr>
+                        </table>
+                        <button id="export-btn" class="btn btn-primary">Save Draft</button>
+                        <button id="export-btn" class="btn btn-primary">Submit Hunt</button>
+                    </span>
+                </div>
+            </section>
+        </section>
 
-			<footer id="footer" class = "foot">
-				<span class="copyright">
-					&copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
-				</span>
-			</footer>
-	</body>
-	<html>
+        <footer id="footer" class = "foot">
+            <span class="copyright">
+                &copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
+            </span>
+        </footer>
+    </body>
+    <html>
