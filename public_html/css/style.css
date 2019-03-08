@@ -778,6 +778,16 @@ h2.title {
         color: #0b0;
 }
 
+.editable {
+    background-color: white;
+    border-radius: 4px !important;
+    box-shadow: rgb(221, 221, 221) 0px 1px 3px 0px inset;
+}
+
+.editable:focus{
+    box-shadow: rgba(102, 175, 233, .6) 0px 1px 3px 0px inset;
+}
+
 /*==================================================================
 [ Create a Hunt Page ]*/
 

@@ -1,10 +1,12 @@
 <tr>
-	<td contenteditable="true"><?php echo $task;?></td>
-	<td contenteditable="true"><?php echo $param;?></td>
-	<td contenteditable="true"><?php echo $proof;?></td>
-	<td contenteditable="true"><?php echo $score;?></td>
-	<td contenteditable="true"><?php echo $descr;?></td>
-	<td>
-		<span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
-	</td>
+    <td contenteditable="false"><?php echo $task;?></td>
+    <td contenteditable="false"><?php echo $param;?></td>
+    <td contenteditable="false"><?php echo $proof;?></td>
+    <td contenteditable="false"><?php echo $score;?></td>
+    <td contenteditable="false"><?php echo $descr;?></td>
+    <td>
+        <span class="clickable glyphicon glyphicon-pencil" onclick="editable(this)"/>
+    </td>
+    <td><span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
+    </td>
 </tr>
