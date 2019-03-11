@@ -19,7 +19,7 @@
             <section id="content">
 
                 <!-- table for user to construct a hunt from tasks -->
-                <h2>Construct a Scavenger Hunt</h2>
+                <h2>Create a Scavenger Hunt</h2>
                 <div>
                     <p> Below are the possible tasks that you can add to your scavenger hunt. Click on the name of the task to add it to your scavenger hunt, and then fill in the parameters accordingly. If the task has no parameters (denoted as {} next to the task name), leave it as undefined.</p>
                     <span id="task-list">
@@ -51,8 +51,11 @@
 
                             <!-- clonable table line -->
                             <tr class="hide" id="tr-hide">
-                                <td contenteditable="true">Untitled</td>
-                                <td contenteditable="true">undefined</td>
+                                <td contenteditable="false">Untitled</td>
+                                <td contenteditable="false">undefined</td>
+                                <td>
+                                    <span class="clickable glyphicon glyphicon-pencil" onclick="editable(this)"</span>
+                                </td>
                                 <td>
                                     <span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this)"></span>
                                 </td>

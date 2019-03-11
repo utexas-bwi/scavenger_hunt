@@ -5,14 +5,14 @@ function editable(span) {
     const tr = span.parentNode.parentNode;
     console.log(tr);
     if (span.classList.contains("glyphicon-pencil")) {
-        for (let i = 1; i < tr.childNodes.length - 4; i = i + 2) {
+        for (let i = 3; i < tr.childNodes.length - 4; i = i + 2) {
             tr.childNodes[i].setAttribute("contentEditable","true");
             tr.childNodes[i].classList.add("editable");
         }
         span.classList.remove("glyphicon-pencil");
         span.classList.add("glyphicon-ok");
     } else {
-        for (let i = 1; i < tr.childNodes.length - 4; i = i + 2) {
+        for (let i = 3; i < tr.childNodes.length - 4; i = i + 2) {
             tr.childNodes[i].setAttribute("contentEditable","false");
             tr.childNodes[i].classList.remove("editable");
         }
@@ -50,5 +50,6 @@ function addTask(task) {
     row.childNodes[1].textContent = task;
     row.classList.remove("hide");
     row.classList.remove("table-line");
+    editable(row.childNodes[5].childNodes[1]);
     table.appendChild(row);
 }
