@@ -8,19 +8,9 @@ function row($data) {
     include 'components/task-table-row.html';
 }
 
-/*row('Color Shirt', 'color', 'jpg', '100', 'Take a picture of a person who wears a specific shirt');
-row('Target Search', 'object', 'jpg', '100', 'Take a picture of the specified object');
-row('Human Following', '', 'jpg', '100', 'Follow a human');
-
-row('Object Delivery', '', 'jpg', '150', 'Find and deliver an object.');
- */
-$username = "bwi";
-$password = "segbot3768";
-
-
 // Create connection
-//$con = mysqli_connect("localhost","bwi","segbot3768");
-$dbh = new PDO('mysql:host = localhost:3306; dbname=scavenger_hunt', $username, $password);
+include 'connect.php';
+$dbh = connect();
 
 try {
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -28,10 +18,12 @@ try {
     $stmt->setFetchMode(PDO::FETCH_ASSOC);
     while ($data = $stmt->fetch()):
         row($data);
-    endwhile; 
+    endwhile;
+    $stmt = null; 
 } catch (PDOException $e) {
         die($e->getMessage());
 }
 
 // Close connection
+$dbh = null;
 ?>
