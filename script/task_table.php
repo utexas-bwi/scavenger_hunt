@@ -1,5 +1,6 @@
 <?php
 function row($data) {
+    $id = $data['id'];
     $task = $data['task_type'];
     $param = $data['param_name'];
     $proof = $data['proof_type'];

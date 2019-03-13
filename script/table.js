@@ -1,4 +1,3 @@
-
 /* 
  * toggle editabiity of cell: makes editable if not editable and vice versa
  *
@@ -40,29 +39,86 @@ function editable(span, start) {
     }
 }
 
-
-/* functions to add to task table */
+/*
+ * add row to task table
+ *
+ * parameters:
+ *      cell: the span component with the "add" button, expected nesting:
+ *          <table> <-- table to add the row to
+ *              <tr>
+ *                  <th>
+ *                      <span /> <-- span with the add button
+ *                  </th>
+ *              </tr>
+ *          </table>
+ * */
 
 function addRow(cell) {
     const table = cell.parentNode.parentNode.parentNode;
     const row = document.getElementById("tr-hide").cloneNode(true);
     row.classList.remove("hide");
+    row.id = "";
     row.classList.remove("table-line");
-    editable(row.childNodes[11].childNodes[1], 1);
+    // get last used ID and add next ID to row
+    let nextId = 1;
+    if (table.childNodes.length > 6) {
+        let sub = 1;
+        let check = table.childNodes[table.childNodes.length - sub];
+        while (check.childNodes.length <= 1 || !check.childNodes[1].textContent) {
+            ++sub;
+            check = table.childNodes[table.childNodes.length - sub];
+        }
+        nextId = parseInt(check.childNodes[1].textContent) + 1;
+    }
+    row.childNodes[1].textContent = nextId; 
+    editable(row.childNodes[13].childNodes[1], 1);
     table.appendChild(row);
 }
 
+/*
+ * remove a row from the table given a cell in that row
+ *
+ * parameters:
+ *      cell: the span component with the "remove" button
+ *      expected nesting is the same as the addRow() method
+ */
 function removeRow(cell) {
     const table = cell.parentNode.parentNode.parentNode;
     table.deleteRow(cell.parentNode.parentNode.rowIndex);
 }
 
 function saveChanges() {
+    // extract data from table
     const table = document.getElementById("task-table");
-    // TODO: export data to SQL TaskType database 
+    const data = [];
+    // iterate over rows except first two rows (headers and hidden empty row)
+    for (let rdx = 2; rdx < table.rows.length; ++rdx) {
+        const rowdata = [];
+        const row = table.rows[rdx];
+        // skip last two cells but iterate over rest bc last 2 are buttons
+        for (let cdx = 0; cdx < row.cells.length - 2; ++cdx) {
+            const cell = row.cells[cdx];
+            rowdata.push(cell.textContent);
+        }
+        data.push(rowdata);
+    }
+    // send data to php function
+    const url = 'http://localhost/script/save_task_table.php';
+    $.ajax({
+        type: "POST",
+        url,
+        data: {save_tasks: true, task_table: data},
+        success: function(data){
+            console.log(data);
+        }
+    });    
 }
 
-/* functions to add to hunt table */
+/*
+ * add a task to the hunt table
+ * parameters:
+ *      task: text to add
+ */
 
 function addTask(task) {
     const table = document.getElementById("hunt-table");
