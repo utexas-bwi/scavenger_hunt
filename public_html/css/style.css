@@ -796,15 +796,10 @@ h2.title {
 }
 
 #task-list {
-    position: relative;
-    float: left;
-    width: 30%;
-    margin-right: 2%;
+    margin-top: 50px;
 }
 
 #construct-hunt-table {
-    position: relative;
-    float: right;
-    width: 65%;
+    margin-top: 50px;
 }
 
