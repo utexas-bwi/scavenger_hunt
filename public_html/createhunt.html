@@ -19,7 +19,14 @@
             <section id="content">
 
                 <!-- table for user to construct a hunt from tasks -->
-                <h2>Create a Scavenger Hunt</h2>
+                <h2><?php
+                     if (isset($_GET['type']) && isset($_GET['name'])) {
+                        echo "Edit " . $_GET['name'];
+                     } else {
+                        echo "Create a Scavenger Hunt";
+                     }
+                    ?>
+                </h2>
                 <div>
                     <p> Below are the possible tasks that you can add to your scavenger hunt. Click on the name of the task to add it to your scavenger hunt, and then fill in the parameters accordingly. If the task has no parameters (denoted as {} next to the task name), leave it as undefined.</p>
                     <div id="task-list">
@@ -40,15 +47,18 @@
                         </table>
                     </div>
                     <div id="construct-hunt-table" class="use-glyphicon">
-                        <h2>New Hunt
-                        <span class="use-glyphicon glyphicon glyphicon-pencil"/>
+                        <h2>
+                            <?php
+                                if (isset($_GET['type']) && isset($_GET['name'])) {
+                                    echo $_GET['name'];
+                                } else {
+                                    echo "New Hunt";
+                                }
+                            ?>
+                            <span class="use-glyphicon glyphicon glyphicon-pencil"/>
                         </h2>
                             <table class="table" id="hunt-table">
-                            <tr>
-                                <th>Task</th>
-                                <th>Parameters</th>
-                            </tr>
-
+                            <?php require '../script/hunt_table.php';?>
                             <!-- clonable table line -->
                             <tr class="hide" id="tr-hide">
                                 <td contenteditable="false">Untitled</td>
