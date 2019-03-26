@@ -129,3 +129,30 @@ function addTask(task) {
     editable(row.childNodes[5].childNodes[1], 3);
     table.appendChild(row);
 }
+
+function submitHunt() {
+    // extract data from table
+    const table = document.getElementById("hunt-table");
+    const data = [];
+    // iterate over rows except first two rows (headers and hidden empty row)
+    for (let rdx = 2; rdx < table.rows.length; ++rdx) {
+        const rowdata = [];
+        const row = table.rows[rdx];
+        // skip last two cells but iterate over rest bc last 2 are buttons
+        for (let cdx = 0; cdx < row.cells.length - 2; ++cdx) {
+            const cell = row.cells[cdx];
+            rowdata.push(cell.textContent);
+        }
+        data.push(rowdata);
+    }
+    // send data to php function
+    const url = 'http://localhost/script/save_hunt_table.php';
+    $.ajax({
+        type: "POST",
+        url,
+        data: {save_tasks: true, hunt_table: data},
+        success: function(data){
+            console.log(data);
+        }
+    });    
+}

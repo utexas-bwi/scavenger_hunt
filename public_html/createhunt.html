@@ -11,7 +11,8 @@
         <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
-        <script src="../script/table.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="../script/table.js"></script>
     </head>
     <body>
         <?php include 'components/navBar.html';?>
@@ -57,11 +58,14 @@
                             ?>
                             <span class="use-glyphicon glyphicon glyphicon-pencil"/>
                         </h2>
-                            <table class="table" id="hunt-table">
-                            <?php require '../script/hunt_table.php';?>
-                            <!-- clonable table line -->
+                        <table class="table" id="hunt-table">
+			    <tr>
+				<td>Task Name</td>
+				<td>Parameters</td>
+			    </tr>
+			    <!-- clonable table line -->
                             <tr class="hide" id="tr-hide">
-                                <td contenteditable="false">Untitled</td>
+			        <td contenteditable="false">Untitled</td>
                                 <td contenteditable="false">undefined</td>
                                 <td>
                                     <span class="clickable glyphicon glyphicon-pencil" onclick="editable(this, 3)"</span>
@@ -70,9 +74,9 @@
                                     <span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this, 3)"></span>
                                 </td>
                             </tr>
+			    <?php require '../script/hunt_table.php';?>
                         </table>
-                        <button id="export-btn" class="btn btn-primary">Save Draft</button>
-                        <button id="export-btn" class="btn btn-primary">Submit Hunt</button>
+                        <button id="export-btn" class="btn btn-primary" onclick="submitHunt()">Submit Hunt</button>
                     </div>
                 </div>
             </section>
