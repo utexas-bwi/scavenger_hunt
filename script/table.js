@@ -145,12 +145,29 @@ function submitHunt() {
         }
         data.push(rowdata);
     }
+    // get hunt ID of hunt
+    let id = -1;
+    if (window.location.href.indexOf("id") > -1) {
+        const vars = {};
+        const parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        id = vars["id"];
+    }
+    // get name of hunt
+    const name = document.getElementById("hunt-name").textContent;
     // send data to php function
     const url = 'http://localhost/script/save_hunt_table.php';
+    console.log(name);
     $.ajax({
         type: "POST",
         url,
-        data: {save_tasks: true, hunt_table: data},
+        data: {
+            save_hunt: true,
+            hunt_table: data,
+            hunt_id:id,
+            hunt_name: name,
+        },
         success: function(data){
             console.log(data);
         }

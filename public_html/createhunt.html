@@ -48,16 +48,13 @@
                         </table>
                     </div>
                     <div id="construct-hunt-table" class="use-glyphicon">
-                        <h2>
-                            <?php
+                        <h2 id="hunt-name"><?php
                                 if (isset($_GET['type']) && isset($_GET['name'])) {
                                     echo $_GET['name'];
                                 } else {
                                     echo "New Hunt";
                                 }
-                            ?>
-                            <span class="use-glyphicon glyphicon glyphicon-pencil"/>
-                        </h2>
+                            ?><span class="use-glyphicon glyphicon glyphicon-pencil"/></h2>
                         <table class="table" id="hunt-table">
 			    <tr>
 				<td>Task Name</td>
