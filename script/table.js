@@ -158,7 +158,6 @@ function submitHunt() {
     const name = document.getElementById("hunt-name").textContent;
     // send data to php function
     const url = 'http://localhost/script/save_hunt_table.php';
-    console.log(name);
     $.ajax({
         type: "POST",
         url,
