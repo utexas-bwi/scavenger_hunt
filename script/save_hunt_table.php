@@ -1,6 +1,5 @@
 <?php
 function typecheck($dbh, $task_type, $param_val) {
-    echo "typechecking for " . $task_type . " " . $param_val . "\n";	
     // grab parameter name given task type	
     $query = "SELECT param_name from task_table where task_type='" . $task_type . "'";
     $stmt = $dbh->query($query);
@@ -16,11 +15,12 @@ function typecheck($dbh, $task_type, $param_val) {
     }
     // check if value matches any of the possible values
     // TODO: fix typechecking for "undefined" string
-    if (in_array((string)$param_val, $values, true) == TRUE) {
+    for ($idx = 0; $idx < count($values); ++$idx) {
+	if ($param_val == $values[$idx]) {
 	    return true;
-    } else {
-	    return false;
+	}	
     }
+    return false;
 }
 
 if ($_POST['save_hunt']) {
@@ -34,7 +34,12 @@ if ($_POST['save_hunt']) {
         if ($_POST['hunt_id'] >= 0) {
 	    // typecheck to ensure all parameters match task_type allowances
 	    for ($ndx = 0; $ndx < count($newrows); ++$ndx) {
-		if (!typecheck($dbh, $newrows[$ndx][1], $newrows[$ndx][2])) {
+		// figure out where the task type and parameters are in the array
+		$task = 1;
+		if (count($newrows[$ndx]) == 2) {
+		    $task = 0;
+		}	
+		if (!typecheck($dbh, $newrows[$ndx][$task], $newrows[$ndx][$task + 1])) {
 		    // do not save, return error message
 			exit('Failed to save, parameters for task ' . $newrows[$ndx][1] . ' do not match allowed values.');
 		}
