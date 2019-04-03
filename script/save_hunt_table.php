@@ -1,4 +1,28 @@
 <?php
+function typecheck($dbh, $task_type, $param_val) {
+    echo "typechecking for " . $task_type . " " . $param_val . "\n";	
+    // grab parameter name given task type	
+    $query = "SELECT param_name from task_table where task_type='" . $task_type . "'";
+    $stmt = $dbh->query($query);
+    $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    $params = explode(", ", ($stmt->fetch())['param_name']);
+    $values = [];
+    // get possible values of parameter
+    for ($pdx = 0; $pdx < count($params); ++$pdx) {
+	$query = "SELECT possible_values from task_param_table where param_name='" . $params[$pdx] . "'";
+	$stmt = $dbh->query($query);
+	$stmt->setFetchMode(PDO::FETCH_ASSOC);
+	$values = explode(", ", ($stmt->fetch())['possible_values']);
+    }
+    // check if value matches any of the possible values
+    // TODO: fix typechecking for "undefined" string
+    if (in_array((string)$param_val, $values, true) == TRUE) {
+	    return true;
+    } else {
+	    return false;
+    }
+}
+
 if ($_POST['save_hunt']) {
     $newrows = $_POST['hunt_table'];
     // Create connection
@@ -8,7 +32,14 @@ if ($_POST['save_hunt']) {
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     try {
         if ($_POST['hunt_id'] >= 0) {
-            // get copy of old database
+	    // typecheck to ensure all parameters match task_type allowances
+	    for ($ndx = 0; $ndx < count($newrows); ++$ndx) {
+		if (!typecheck($dbh, $newrows[$ndx][1], $newrows[$ndx][2])) {
+		    // do not save, return error message
+			exit('Failed to save, parameters for task ' . $newrows[$ndx][1] . ' do not match allowed values.');
+		}
+	    }
+	    // get copy of old database
             $query = "SELECT * FROM hunt_instructions_table where hunt_id=" . $_POST['hunt_id']; 
             $stmt = $dbh->query($query);
             $stmt->setFetchMode(PDO::FETCH_ASSOC);
