@@ -202,9 +202,24 @@
   align-items: center;
 }
 
+.row-valid{
+    margin-left: -10%;
+}
+
+.row-time{
+    margin-left: 7%;
+    margin-right: 4%;
+}
+
 .row-user{
   margin-left: 30px;
   width: 230px;
+}
+
+.row-points {
+    margin-left: 3%;
+    margin-right: 4%;
+    font-weight: bold;
 }
 
 .row-user--header{
@@ -462,4 +477,8 @@
   100% {
     transform: translateY(0px);
   }
+}
+
+#huntData {
+    display: none;
 }

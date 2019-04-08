@@ -1,50 +1,45 @@
 <html>
+<head>
+  <title>Firebase Login</title>
+  <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css" />
 
-    <head>
-        <title>Login Page</title>
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
-        <link href="css/style.css" rel="stylesheet"/>
-        <link href="css/leader.css" rel="stylesheet"/>
-        <script src="https://unpkg.com/scrollreveal@4"></script>
-        <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>   
-        <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'> 
-        <style type = "text/css">
-         label {
-             font-weight:bold;
-             width:100px;
-             font-size:14px;
-         }
-         .box {
-             border:#666666 solid 1px;
-         }
-        </style>
+</head>
+<body>
 
-    </head>
+  <div id="login_div" class="main-div">
+    <h3>Login</h3>
+    <input type="email" placeholder="Email..." id="email_field" />
+    <input type="password" placeholder="Password..." id="password_field" />
 
-    <body bgcolor = "#FFFFFF">
-        <?php include 'components/navBar.html';?>
-        <div align = "center" style = "margin-top: 50px">
-            <div style = "width:300px; border: solid 1px #333333; " align = "left">
-                <div style = "background-color:#333333; color:#FFFFFF; padding:3px;"><b>Login</b></div>
+    <button onclick="login()">Login to Account</button>
+  </div>
 
-                <div style = "margin:30px">
+  <div id="user_div" class="loggedin-div">
+    <h3>Welcome User</h3>
+    <p id="user_para">You're currently logged in.</p>
+    <button onclick="logout()">Logout</button>
 
-                    <form action = "" method = "post">
-                        <label>Username  :</label><input type = "text" name = "username" class = "box"/><br /><br />
-                        <label>Password  :</label><input type = "password" name = "password" class = "box" /><br/><br />
-                        <input type = "submit" value = " Submit "/><br />
-                    </form>
+  </div>
 
-                    <div style = "font-size:11px; color:#cc0000; margin-top:10px"><?php echo $error; ?></div>
 
-                </div>
 
-            </div>
 
-        </div>
 
-    </body>
+ <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+ <script>
+   // Initialize Firebase
+   var config = {
+     apiKey: "AIzaSyCYjHj1mc4vZqxNNYG6NB5S4NWYZ7d07lY",
+     authDomain: "scavhunt-login.firebaseapp.com",
+     databaseURL: "https://scavhunt-login.firebaseio.com",
+     projectId: "scavhunt-login",
+     storageBucket: "scavhunt-login.appspot.com",
+     messagingSenderId: "446710554532"
+   };
+   firebase.initializeApp(config);
+ </script>
+  <script src="css/index.js"></script>
+
+</body>
 </html>
