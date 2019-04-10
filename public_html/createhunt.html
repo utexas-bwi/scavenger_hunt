@@ -12,7 +12,8 @@
         <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-	<script src="../script/table.js"></script>
+	<script src="../script/hunt.js"></script>
+    	<script src="../script/table.js"></script>
     </head>
     <body>
         <?php include 'components/navBar.html';?>
@@ -33,7 +34,7 @@
                     <div id="task-list">
                         <table class="table">
                             <tr><th>Possible Tasks</th><tr>
-                                    <tr class = "clickable" onclick="addTask('Color Shirt')">
+                                    <!--tr class = "clickable" onclick="addTask('Color Shirt')">
                                         <td>Color Shirt, {red, yellow, blue, green}</td>
                                     </tr>
                                     <tr class = "clickable" onclick="addTask('Target Search')">
@@ -44,15 +45,16 @@
                                     </tr>
                                     <tr class = "clickable" onclick="addTask('Object Delivery')">
                                         <td>Object Delivery, {}</td>
-                                    </tr>
-				    <!--?php require '../script/hunt_task_table.php';?-->
+                                    </tr-->
+				    <?php require_once '../script/hunt_table.php'; makeHuntTaskTable(); ?>
 			</table>
                     </div>
                     <div id="construct-hunt-table" class="use-glyphicon">
                         <h2 id="hunt-name"><?php
-                                if (isset($_GET['type']) && isset($_GET['name'])) {
-                                    echo $_GET['name'];
-                                } else {
+			        require_once '../script/hunt_table.php';
+                                if (isset($_GET['id'])) {
+                                    getHuntName($_GET['id']);
+			    	} else {
                                     echo "New Hunt";
                                 }
                             ?><span class="clickable use-glyphicon glyphicon glyphicon-pencil" onclick="editable(this, 1)"/></h2>
@@ -72,7 +74,7 @@
                                     <span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this, 3)"></span>
                                 </td>
                             </tr>
-			    <?php require '../script/hunt_table.php';?>
+			    <?php require_once '../script/hunt_table.php'; makeHuntTable(); ?>
                         </table>
                         <button id="export-btn" class="btn btn-primary" onclick="submitHunt()">Submit Hunt</button>
                     </div>
