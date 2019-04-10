@@ -2,6 +2,10 @@ function viewHunt(id) {
     window.location.href = "createhunt.html?type=edit_hunt&id=" + id;
 }
 
+function newHunt() {
+    window.location.href = "createhunt.html?type=create_hunt";
+}
+
 function submitHunt() {
     // extract data from table
     const table = document.getElementById("hunt-table");

@@ -96,20 +96,20 @@ if ($_POST['save_hunt']) {
                 }
             }
         } else {
-            // create new hunt
-            $sql = "INSERT into hunt_table VALUES (?, ?, ?, ?)";
+	    // create new hunt
+	    $sql = "INSERT into hunt_table VALUES (?, ?, ?, ?)";
             $new_hunt = array(0, $_POST['hunt_name'], date('y-m-d'), getUserId());
             $dbh->prepare($sql)->execute($new_hunt);
             $query = "SELECT hunt_id FROM hunt_table where hunt_name='" . $_POST['hunt_name'] ."'";
             $stmt = $dbh->query($query);
             $stmt->setFetchMode(PDO::FETCH_ASSOC);
-            $hunt_id = $stmt->fetch()['hunt_id'];
-            // insert all instructions into table
+            $hunt_id = ($stmt->fetch())['hunt_id'];
+	    // insert all instructions into table
             echo "add ". count($newrows). " rows\n";
-            for ($rdx = 0; $rdx < count($newrows); ++$rdx) {
+	    for ($rdx = 0; $rdx < count($newrows); ++$rdx) {
                 array_unshift($newrows[$rdx], 0);
-                array_unshift($newrows[$rdx], $name);
-                $sql = "INSERT into hunt_instructions_table VALUES (?, ?, ?, ?)";
+                array_unshift($newrows[$rdx], $hunt_id);
+		$sql = "INSERT into hunt_instructions_table VALUES (?, ?, ?, ?)";
                 $dbh->prepare($sql)->execute($newrows[$rdx]);
             }
         }
