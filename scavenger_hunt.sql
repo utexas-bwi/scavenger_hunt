@@ -16,6 +16,14 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Current Database: `scavenger_hunt`
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `scavenger_hunt` /*!40100 DEFAULT CHARACTER SET latin1 */;
+
+USE `scavenger_hunt`;
+
+--
 -- Table structure for table `hunt_instructions_table`
 --
 
@@ -32,7 +40,7 @@ CREATE TABLE `hunt_instructions_table` (
   KEY `task_type` (`task_type`),
   CONSTRAINT `hunt_instructions_table_ibfk_1` FOREIGN KEY (`hunt_id`) REFERENCES `hunt_table` (`hunt_id`),
   CONSTRAINT `hunt_instructions_table_ibfk_2` FOREIGN KEY (`task_type`) REFERENCES `task_table` (`task_type`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -41,7 +49,7 @@ CREATE TABLE `hunt_instructions_table` (
 
 LOCK TABLES `hunt_instructions_table` WRITE;
 /*!40000 ALTER TABLE `hunt_instructions_table` DISABLE KEYS */;
-INSERT INTO `hunt_instructions_table` VALUES (1,1,'Color Shirt','green');
+INSERT INTO `hunt_instructions_table` VALUES (1,5,'Color Shirt','yellow'),(1,8,'Color Shirt','red'),(1,28,'Target Search','can'),(1,29,'Object Delivery',''),(2,30,'Target Search','can'),(2,31,'Human Following',''),(2,32,'Color Shirt','red'),(2,33,'Object Delivery',''),(2,34,'Human Following',''),(2,35,'Target Search','shoe'),(2,36,'Color Shirt','red'),(3,42,'Object Delivery',''),(3,43,'Human Following','');
 /*!40000 ALTER TABLE `hunt_instructions_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -60,7 +68,7 @@ CREATE TABLE `hunt_table` (
   PRIMARY KEY (`hunt_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `hunt_table_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user_table` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -69,7 +77,7 @@ CREATE TABLE `hunt_table` (
 
 LOCK TABLES `hunt_table` WRITE;
 /*!40000 ALTER TABLE `hunt_table` DISABLE KEYS */;
-INSERT INTO `hunt_table` VALUES (1,'my hunt','2019-01-01',1);
+INSERT INTO `hunt_table` VALUES (1,'Hunt Name','2019-01-01',1),(2,'A Second Hunt','2019-04-10',1),(3,'New Hunt Test','2019-04-10',1);
 /*!40000 ALTER TABLE `hunt_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -192,4 +200,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-03-25 13:10:57
+-- Dump completed on 2019-04-15 12:41:16
