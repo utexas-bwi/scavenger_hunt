@@ -1,31 +1,100 @@
 <!DOCTYPE html>
-
 <html lang="en">
-    <head>
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
-        <link href="css/style.css" rel="stylesheet"/>
-        <link href="css/leader.css" rel="stylesheet"/>
-        <script src="https://unpkg.com/scrollreveal@4"></script>
-        <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
-    </head>
-    <body>
-        <?php include 'components/navBar.html';?>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Register</title>
 
-        <div class="content">
-            <section id="main" class="full">
-                <header class="major">
-                    <h2>Register for Scavenger Hunt</h2>
-                </header>
-            </section>
-        </div>
+    <!-- Font Icon -->
+    <link rel="stylesheet" href="css/formBE/fonts/material-icon/css/material-design-iconic-font.min.css">
 
-        <footer id="footer">
-            <span class="copyright">
-                &copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
-            </span>
-        </footer>
-    </body>
+    <!-- Main css -->
+    <link rel="stylesheet" href="css/formBE/css/style.css">
+</head>
+<body>
+    <?php include 'components/navBar.html';?>
+    <div class="main">
+
+        <!-- Sign up form -->
+        <section class="signup">
+            <div class="container">
+                <div class="signup-content">
+                    <div class="signup-form">
+                        <h2 class="form-title">Sign up</h2>
+                        <form method="POST" class="register-form" id="register-form">
+                            <div class="form-group">
+                                <label for="name"><i class="zmdi zmdi-account material-icons-name"></i></label>
+                                <input type="text" name="name" id="name" placeholder="Your Name"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="email"><i class="zmdi zmdi-email"></i></label>
+                                <input type="text" name="email" id="email" placeholder="Your Email"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="pass"><i class="zmdi zmdi-lock"></i></label>
+                                <input type="password" name="pass" id="pass" placeholder="Password"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="re-pass"><i class="zmdi zmdi-lock-outline"></i></label>
+                                <input type="password" name="re_pass" id="re_pass" placeholder="Repeat your password"/>
+                            </div>
+                            <div class="form-group">
+                                <input type="checkbox" name="agree-term" id="agree-term" class="agree-term" />
+                                <label for="agree-term" class="label-agree-term"><span><span></span></span>I agree all statements in  <a href="#" class="term-service">Terms of service</a></label>
+                            </div>
+                            <div class="form-group form-button">
+                                <input type="submit" onclick="register()"name="signup" id="signup" class="form-submit" value="Register"/>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/5.9.4/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyCYjHj1mc4vZqxNNYG6NB5S4NWYZ7d07lY",
+    authDomain: "scavhunt-login.firebaseapp.com",
+    databaseURL: "https://scavhunt-login.firebaseio.com",
+    projectId: "scavhunt-login",
+    storageBucket: "scavhunt-login.appspot.com",
+    messagingSenderId: "446710554532"
+  };
+  firebase.initializeApp(config);
+  // Handle Errors here.
+  function register() {
+    var arr = document.getElementById('pass').value;
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i].type == 'password')
+        arr[i].setAttribute('type','text');
+    }
+    console.log(arr);
+    console.log("ds" + document.getElementById('email').value);
+    var errorMessage = "a";
+    firebase.auth().createUserWithEmailAndPassword(document.getElementById('email').value, arr).catch(function(error) {
+      // Handle Errors here.
+      var errorCode = error.code;
+      errorMessage = error.message;
+      // ...
+      console.log(errorMessage);
+    });
+    if (errorMessage == "a") {
+        window.location = "login.html";
+        console.log("asdf");
+    }
+  }
+</script>
+
+
+
+
+    <!-- JS -->
+    <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+    <script src="css/formBE/js/main.js"></script>
+</body>
+</html>
