@@ -865,3 +865,20 @@ input, button {
   border: 1px solid #5d8ffc;
   cursor: pointer;
 }
+
+/*==================================================================
+Verification page
+*/
+
+.vImage {
+    width: 50%;
+    margin-top: 5%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.ques {
+    margin-left: 15%;
+    margin-top: 5%;
+}

@@ -39,10 +39,6 @@
                                 <label for="re-pass"><i class="zmdi zmdi-lock-outline"></i></label>
                                 <input type="password" name="re_pass" id="re_pass" placeholder="Repeat your password"/>
                             </div>
-                            <div class="form-group">
-                                <input type="checkbox" name="agree-term" id="agree-term" class="agree-term" />
-                                <label for="agree-term" class="label-agree-term"><span><span></span></span>I agree all statements in  <a href="#" class="term-service">Terms of service</a></label>
-                            </div>
                             <div class="form-group form-button">
                                 <input type="submit" onclick="register()"name="signup" id="signup" class="form-submit" value="Register"/>
                             </div>
@@ -68,15 +64,28 @@
   firebase.initializeApp(config);
   // Handle Errors here.
   function register() {
-    var arr = document.getElementById('pass').value;
-    for (var i = 0; i < arr.length; i++) {
-      if (arr[i].type == 'password')
-        arr[i].setAttribute('type','text');
+    var password = document.getElementById('pass').value;
+    var email = document.getElementById('email').value;
+    var re_pass = document.getElementById('re_pass').value;
+    if (password.length < 8) {
+        alert('Password must be at least 8 characters long');
+        return;
+      }
+    for (var i = 0; i < password.length; i++) {
+      if (password[i].type == 'password')
+        password[i].setAttribute('type','text');
     }
-    console.log(arr);
-    console.log("ds" + document.getElementById('email').value);
+    for (var i = 0; i < re_pass.length; i++) {
+      if (re_pass[i].type == 'password')
+        re_pass[i].setAttribute('type','text');
+    }
+    if (password != re_pass) {
+        alert('Password and verification password must be equal');
+        return;
+    }
+    console.log(document.getElementById('email').value);
     var errorMessage = "a";
-    firebase.auth().createUserWithEmailAndPassword(document.getElementById('email').value, arr).catch(function(error) {
+    firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
       // Handle Errors here.
       var errorCode = error.code;
       errorMessage = error.message;

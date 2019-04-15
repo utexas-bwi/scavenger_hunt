@@ -183,11 +183,11 @@ h2 {
   font-weight: bold;
   color: #222;
   font-family: Poppins;
-  font-size: 36px; }
+  font-size: 42px; }
 
 .main {
   background: #f8f8f8;
-  padding: 150px 0; }
+  padding: 5%; }
 
 .clear {
   clear: both; }
@@ -250,7 +250,9 @@ body {
   -ms-transform: translate(-50%, -50%); }
 
 .signup {
-  margin-bottom: 150px; }
+  margin-bottom: 150px;
+  margin: auto;
+}
 
 .signup-content {
   padding: 75px 0; }
@@ -271,6 +273,19 @@ body {
 figure {
   margin-bottom: 50px;
   text-align: center; }
+
+.subbutton {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+  }
 
 .form-submit {
   display: inline-block;
@@ -319,6 +334,7 @@ figure {
 
 input {
   width: 100%;
+  font-size: 16px;
   display: block;
   border: none;
   border-bottom: 1px solid #999;
@@ -435,7 +451,7 @@ label.valid {
     height: 100%;
     position: absolute;
     /* right: 0; */
-    font-size: 16px;
+    font-size: 25px;
     color: green; }
 
 .label-agree-term {
@@ -460,7 +476,7 @@ label.valid {
   -webkit-align-items: center;
   -o-align-items: center;
   -ms-align-items: center;
-  margin-top: 80px; }
+  margin-top: 0px; }
 
 .social-label {
   display: inline-block;

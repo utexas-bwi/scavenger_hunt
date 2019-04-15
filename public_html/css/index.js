@@ -10,8 +10,7 @@ firebase.auth().onAuthStateChanged(function(user) {
     if(user != null){
 
       var email_id = user.email;
-      document.getElementById("user_para").innerHTML = "Welcome User : " + email_id;
-
+      window.location = "rules.html";
     }
 
   } else {
@@ -42,4 +41,5 @@ function login(){
 
 function logout(){
   firebase.auth().signOut();
+  window.location = "login.html";
 }
