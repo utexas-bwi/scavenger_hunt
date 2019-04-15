@@ -42,9 +42,28 @@ function submitHunt() {
             hunt_id:id,
 	    hunt_name: new_name,
         },
-        success: function(data){
-	    console.log("saved data");
-            console.log(data);
+	success: function(data){
+	    if (!data.error) {
+                const message = document.getElementById("save-msg");
+                message.classList.remove("hidden-msg");
+	        message.classList.remove("alert-danger");
+		message.classList.add("alert-success");
+	        message.textContent = "Your hunt has been saved.";
+                setTimeout(function(){
+                    message.classList.add("hidden-msg");
+		    message.classList.remove("alert-success");
+            	}, 2000);
+	    } else {
+                const message = document.getElementById("save-msg");
+                message.classList.remove("hidden-msg");
+	        message.classList.remove("alert-success");
+		message.classList.add("alert-danger");
+	        message.textContent = data.data;
+                setTimeout(function(){
+                    message.classList.add("hidden-msg");
+	 	    message.classList.remove("alert-danger");
+                }, 10000);
+	    }
         }
     });    
 }

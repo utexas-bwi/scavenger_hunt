@@ -14,7 +14,6 @@ function typecheck($dbh, $task_type, $param_val) {
         $values = explode(", ", ($stmt->fetch())['possible_values']);
     }
     // check if value matches any of the possible values
-    // TODO: fix typechecking for "undefined" string
     for ($idx = 0; $idx < count($values); ++$idx) {
         if ($param_val == $values[$idx]) {
             return true;
@@ -41,7 +40,12 @@ if ($_POST['save_hunt']) {
                 }   
                 if (!typecheck($dbh, $newrows[$ndx][$task], $newrows[$ndx][$task + 1])) {
                     // do not save, return error message
-                    exit('Failed to save, parameters for task ' . $newrows[$ndx][1] . ' do not match allowed values.');
+		    $results = array(
+   			'error' => true,
+   			'data' => 'Failed to save hunt, parameters for task ' . $newrows[$ndx][1] . ' do not match allowed values.'
+		    );
+		    header("Content-type: application/json");
+		    die(json_encode($results));
                 }
             }
             // update name of hunt

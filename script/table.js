@@ -110,7 +110,26 @@ function saveChanges() {
         data: {save_tasks: true, task_table: data},
         success: function(data){
             console.log(data);
-        }
+            const message = document.getElementById("save-msg");
+	    message.classList.remove("hidden-msg");
+	    message.classList.add("alert-success");
+	    message.textContent = "The task library has been updated.";
+	    setTimeout(function(){
+		message.classList.add("hidden-msg");
+		message.classList.remove("alert-success");
+	    }, 2000);
+	},
+	failure: function(data) {
+	    console.log(data);
+	    const message = document.getElementById("save-msg");
+	    message.classList.remove("hidden-msg");
+	    message.classList.add("alert-danger");
+	    message.textContent = "The task library failed to update.";
+	    setTimeout(function(){
+		message.classList.add("hidden-msg");
+		message.classList.remove("alert-danger");
+	    }, 5000);
+	}
     });    
 }
 

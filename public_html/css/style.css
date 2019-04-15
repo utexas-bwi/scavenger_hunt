@@ -788,6 +788,18 @@ h2.title {
     box-shadow: rgba(102, 175, 233, .6) 0px 1px 3px 0px inset;
 }
 
+.hidden-msg {
+    visibility: hidden;
+}
+
+.save-msg {
+    position: fixed;
+    top: 0;
+    z-index: 9999;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
 /*==================================================================
 [ Create a Hunt Page ]*/
 
