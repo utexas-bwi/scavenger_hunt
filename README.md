@@ -7,6 +7,7 @@
 * php-curl
 * php-xml
 * apache2
+* libapache2-mod-php7.0
 
 ## Directory Structure
 
@@ -24,6 +25,10 @@ The following packages have been downloaded on Ozil: php, apache2, mysql, php-cu
 When configuring apache2, you will have to add the following line to /etc/apache2/apache2.conf:
 
 `AddHandler application/x-httpd-php .htm .html`
+
+After changing this line, you will have to restart apache2 for the changes to take effect:
+
+`sudo service apache2 restart`
 
 The mysql password is the same as the sudo password for the bwilab account on Ozil.
 
