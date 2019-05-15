@@ -42,7 +42,7 @@ if ($_POST['save_hunt']) {
                     // do not save, return error message
 		    $results = array(
    			'error' => true,
-   			'data' => 'Failed to save hunt, parameters for task ' . $newrows[$ndx][1] . ' do not match allowed values.'
+   			'data' => 'Failed to save hunt, parameter ' . $newrows[$ndx][1] . ' for task ' . $newrows[$ndx][0] . ' do not match allowed values.'
 		    );
 		    header("Content-type: application/json");
 		    die(json_encode($results));
