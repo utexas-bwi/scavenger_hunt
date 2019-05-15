@@ -8,6 +8,21 @@
 * php-xml
 * apache2
 * libapache2-mod-php7.0
+* php7.0-mysql
+
+## Linux Configuration
+
+When configuring apache2, to allow PHP to be housed within a .html file, you will have to add the following line to /etc/apache2/apache2.conf:
+
+`AddHandler application/x-httpd-php .htm .html`
+
+You will also have to configure PHP to use the PDO driver for connecting to the SQL database by editing /etc/php/7.0/apache2/php.ini. Find the following line and uncomment it:
+
+`extension=php_pdo_mysql.dll`
+
+After changing this line, you will have to restart apache2 for the changes to take effect:
+
+`sudo service apache2 restart`
 
 ## Directory Structure
 
@@ -19,16 +34,6 @@
 ## Notes on Ozil
 
 On a Linux machine (such as Ozil), you will have to copy the files from this repository into the /var/www/html folder on your computer to have it displayed on localhost. This folder requires sudo access to copy the files.
-
-The following packages have been downloaded on Ozil: php, apache2, mysql, php-curl, php-xml.
-
-When configuring apache2, you will have to add the following line to /etc/apache2/apache2.conf:
-
-`AddHandler application/x-httpd-php .htm .html`
-
-After changing this line, you will have to restart apache2 for the changes to take effect:
-
-`sudo service apache2 restart`
 
 The mysql password is the same as the sudo password for the bwilab account on Ozil.
 
