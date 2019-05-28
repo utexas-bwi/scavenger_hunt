@@ -10,9 +10,12 @@
         <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+        <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+        <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
     </head>
     <body>
-        <?php require '../script/nav_bar.php';?>
+        <div id="navbar"></div>
+        <script src="../script/firebase_init.js"></script>
         <button onclick="logout()">Logout</button>
         <section id="main" class = "full">
             <header class="major">
@@ -52,7 +55,7 @@
           };
           firebase.initializeApp(config);
         </script>
-         <script src="css/index.js"></script>
+        <script src="css/index.js"></script>
     </body>
 
     <html>

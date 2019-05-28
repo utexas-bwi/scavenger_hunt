@@ -2,22 +2,23 @@ firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     // User is signed in.
 
-    document.getElementById("user_div").style.display = "block";
-    document.getElementById("login_div").style.display = "none";
+    // document.getElementById("user_div").style.display = "block";
+    // document.getElementById("login_div").style.display = "none";
 
-    var user = firebase.auth().currentUser;
+    // document.getElementById('navbar').innerHTML = 'components/navBar.html';
+    $("#navbar").load("components/navBar.html");
 
-    if(user != null){
-
-      var email_id = user.email;
-      window.location = "rules.html";
-    }
+    console.log("im in");
 
   } else {
     // No user is signed in.
 
-    document.getElementById("user_div").style.display = "none";
-    document.getElementById("login_div").style.display = "block";
+    // document.getElementById("user_div").style.display = "none";
+    // document.getElementById("login_div").style.display = "block";
+
+    $("#navbar").load("components/navBar_noauth.html");
+
+    console.log("no user :(");
 
   }
 });
@@ -36,7 +37,6 @@ function login(){
 
     // ...
   });
-
 }
 
 function logout(){

@@ -8,12 +8,22 @@
 
     <!-- Font Icon -->
     <link rel="stylesheet" href="css/formBE/fonts/material-icon/css/material-design-iconic-font.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="public_html/css/style.css" rel="stylesheet"/>
+    <script src="https://unpkg.com/scrollreveal@4"></script>
+    <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
 
     <!-- Main css -->
     <link rel="stylesheet" href="css/formBE/css/style.css">
+    <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+    <script src="../script/firebase_init.js"></script>
 </head>
 <body>
-    <?php require '../script/nav_bar.php';?>
+    <div id="navbar"></div>
     <div class="main">
 
         <!-- Sing in  Form -->
@@ -67,7 +77,8 @@
       };
       firebase.initializeApp(config);
     </script>
-     <script src="css/index.js"></script>
+    <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+    <script src="css/index.js"></script>
 
 
 
