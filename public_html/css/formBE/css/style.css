@@ -1,3 +1,23 @@
+/* lazy solution to get branding correct on login page nav bar */
+nav
+{
+  position: relative;
+  z-index: 1000;
+
+}
+nav .navbar-brand
+{
+  font-size: xx-large;
+}
+
+nav .navbar-brand .red
+{
+  color: #ea433b;
+}
+a
+{
+  font-size: 18px;
+}
 /* @extend display-flex; */
 display-flex, .display-flex, .display-flex-center, .signup-content, .signin-content, .social-login, .socials {
   display: flex;
