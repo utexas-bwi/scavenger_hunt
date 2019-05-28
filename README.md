@@ -44,3 +44,20 @@ Currently, the website is hosted on Ozil, Kane, and Kif, so you will have to hav
 `ssh -L 8080:128.83.143.224:80 [username]@[ozil/kane/kif].csres.utexas.edu`
 
 Then, open a web browser and go to the website address `http://localhost:8080`, and you will be able to see the website.
+
+## Configuring MySQL 8.0 authorization
+
+Changes in MySQL 8.0 cause PDOExceptions when connecting via PHP if MySQL is not configured correctly. To fix this, locate the MySQL config file
+
+`/etc/mysql/my.cnf`
+
+and add the following lines:
+
+```
+[mysqld]
+default-authentication-plugin:mysql_native_password
+```
+
+Then, restart MySQL:
+
+`sudo service mysql restart`
