@@ -2,6 +2,10 @@
 firebase.auth().onAuthStateChanged(function(user) {
   var path = window.location.pathname;
   var page = path.split("/").pop();
+  var authRestrictedPages = [
+    "userhunts.html",
+    "task.html"
+  ];
 
   // User just signed in
   if (user) {
@@ -29,6 +33,10 @@ firebase.auth().onAuthStateChanged(function(user) {
     console.log("im in");
   // User just signed out
   } else {
+    // Bounce the logged-out user if they're on a page that requires auth
+    if (authRestrictedPages.includes(page))
+      window.location = "../index.html";
+
     $("#navbar").load(htmlComponentsPath + "navBarNoAuth.html");
 
     window.onload = function() {
