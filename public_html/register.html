@@ -6,14 +6,24 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Register</title>
 
-    <!-- Font Icon -->
-    <link rel="stylesheet" href="css/formBE/fonts/material-icon/css/material-design-iconic-font.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+    <link href="css/style.css" rel="stylesheet"/>
+    <link href="css/leader.css" rel="stylesheet"/>
 
-    <!-- Main css -->
+    <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
     <link rel="stylesheet" href="css/formBE/css/style.css">
+
+    <script src="https://unpkg.com/scrollreveal@4"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+    <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+    <script src="../script/firebase_init.js"></script>
 </head>
 <body>
-    <?php require '../script/nav_bar.php';?>
+    <div id="navbar"></div>
     <div class="main">
 
         <!-- Sign up form -->
@@ -53,57 +63,49 @@
         </section>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/5.9.4/firebase.js"></script>
-<script>
-  // Initialize Firebase
-  var config = {
-    apiKey: "AIzaSyCYjHj1mc4vZqxNNYG6NB5S4NWYZ7d07lY",
-    authDomain: "scavhunt-login.firebaseapp.com",
-    databaseURL: "https://scavhunt-login.firebaseio.com",
-    projectId: "scavhunt-login",
-    storageBucket: "scavhunt-login.appspot.com",
-    messagingSenderId: "446710554532"
-  };
-  firebase.initializeApp(config);
-  // Handle Errors here.
-  function register() {
-    var password = document.getElementById('pass').value;
-    var email = document.getElementById('email').value;
-    var re_pass = document.getElementById('re_pass').value;
-    if (password.length < 8) {
-        alert('Password must be at least 8 characters long');
-        return;
-      }
-    for (var i = 0; i < password.length; i++) {
-      if (password[i].type == 'password')
-        password[i].setAttribute('type','text');
+    <script>
+    // Handle Errors here.
+    function register() {
+        var password = document.getElementById('pass').value;
+        var email = document.getElementById('email').value;
+        var re_pass = document.getElementById('re_pass').value;
+        if (password.length < 8) {
+            alert('Password must be at least 8 characters long');
+            return;
+        }
+        for (var i = 0; i < password.length; i++) {
+        if (password[i].type == 'password')
+            password[i].setAttribute('type','text');
+        }
+        for (var i = 0; i < re_pass.length; i++) {
+        if (re_pass[i].type == 'password')
+            re_pass[i].setAttribute('type','text');
+        }
+        if (password != re_pass) {
+            alert('Password and verification password must be equal');
+            return;
+        }
+        console.log(document.getElementById('email').value);
+        var errorMessage = "a";
+        firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        errorMessage = error.message;
+        // ...
+        console.log(errorMessage);
+        });
+        if (errorMessage == "a") {
+            window.location = "login.html";
+            console.log("asdf");
+        }
     }
-    for (var i = 0; i < re_pass.length; i++) {
-      if (re_pass[i].type == 'password')
-        re_pass[i].setAttribute('type','text');
-    }
-    if (password != re_pass) {
-        alert('Password and verification password must be equal');
-        return;
-    }
-    console.log(document.getElementById('email').value);
-    var errorMessage = "a";
-    firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
-      // Handle Errors here.
-      var errorCode = error.code;
-      errorMessage = error.message;
-      // ...
-      console.log(errorMessage);
-    });
-    if (errorMessage == "a") {
-        window.location = "login.html";
-        console.log("asdf");
-    }
-  }
-</script>
+    </script>
 
-
-
+    <!-- Populate nav bar -->
+    <script>
+        var htmlComponentsPath = 'components/';
+    </script>
+    <script src="css/index.js"></script>
 
     <!-- JS -->
     <script src="css/formBE/vendor/jquery/jquery.min.js"></script>

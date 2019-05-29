@@ -4,14 +4,16 @@
     <head>
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
         <link href="css/style.css" rel="stylesheet"/>
-        <script src="https://unpkg.com/scrollreveal@4"></script>
         <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+
+        <script src="https://unpkg.com/scrollreveal@4"></script>
         <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
         <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+        <script src="../script/firebase_init.js"></script>
     </head>
     <body>
         <div id="navbar"></div>
@@ -42,18 +44,10 @@
                 &copy; Copyright 2019 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
             </span>
         </footer>
-        <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+        
+        <!-- Populate nav bar -->
         <script>
-          // Initialize Firebase
-          var config = {
-            apiKey: "AIzaSyCYjHj1mc4vZqxNNYG6NB5S4NWYZ7d07lY",
-            authDomain: "scavhunt-login.firebaseapp.com",
-            databaseURL: "https://scavhunt-login.firebaseio.com",
-            projectId: "scavhunt-login",
-            storageBucket: "scavhunt-login.appspot.com",
-            messagingSenderId: "446710554532"
-          };
-          firebase.initializeApp(config);
+            var htmlComponentsPath = 'components/';
         </script>
         <script src="css/index.js"></script>
     </body>
