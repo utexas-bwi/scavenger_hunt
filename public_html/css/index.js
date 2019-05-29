@@ -1,17 +1,14 @@
+// Page updates when the authentication state changes
 firebase.auth().onAuthStateChanged(function(user) {
   var path = window.location.pathname;
   var page = path.split("/").pop();
 
-  // User is signed in
+  // User just signed in
   if (user) {
-    // document.getElementById("user_div").style.display = "block";
-    // document.getElementById("login_div").style.display = "none";
-
-    // document.getElementById('navbar').innerHTML = 'components/navBar.html';
     $("#navbar").load(htmlComponentsPath + "navBarAuth.html");
 
-    console.log("im in");
-
+    // Point each of the nav bar items into the public_html folder (necessary
+    // for navigation from index page to work)
     window.onload = function() {
       var e = document.getElementById("navbar-rules");
       e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
@@ -24,16 +21,16 @@ firebase.auth().onAuthStateChanged(function(user) {
       e = document.getElementById("navbar-userhunts");
       e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
     };
-  // No user is signed in
-  } else {
-    // document.getElementById("user_div").style.display = "none";
-    // document.getElementById("login_div").style.display = "block";
 
+    // Graceful redirect to userhunts page upon login
+    if (page == "login.html")
+      window.location = "userhunts.html";
+
+    console.log("im in");
+  // User just signed out
+  } else {
     $("#navbar").load(htmlComponentsPath + "navBarNoAuth.html");
 
-    console.log("no user :(");
-
-    // Points each of the navbar items into the public_html folder
     window.onload = function() {
       var e = document.getElementById("navbar-rules");
       e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
@@ -46,25 +43,25 @@ firebase.auth().onAuthStateChanged(function(user) {
       e = document.getElementById("navbar-login");
       e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
     };
+
+    console.log("no user :(");
   }
 });
 
+// Called when clicking login on login page
 function login(){
   var userEmail = document.getElementById("email_field").value;
   var userPass = document.getElementById("password_field").value;
 
   firebase.auth().signInWithEmailAndPassword(userEmail, userPass).catch(function(error) {
-    // Handle Errors here.
     var errorCode = error.code;
     var errorMessage = error.message;
-
     window.alert("Error : " + errorMessage);
-
-    // ...
   });
 }
 
+// Called when clicking logout in nav bar
 function logout(){
   firebase.auth().signOut();
-  window.location = "login.html";
+  window.location = "index.html";
 }
