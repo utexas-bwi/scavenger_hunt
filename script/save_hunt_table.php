@@ -26,9 +26,9 @@ if ($_POST['save_hunt']) {
     $newrows = $_POST['hunt_table'];
     // Create connection
     include_once 'connect.php';
-    include_once 'auth.php';
     $dbh = connect();
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $results["error"] = false;
     try {
         if ($_POST['hunt_id'] >= 0) {
             // typecheck to ensure all parameters match task_type allowances
@@ -40,12 +40,10 @@ if ($_POST['save_hunt']) {
                 }   
                 if (!typecheck($dbh, $newrows[$ndx][$task], $newrows[$ndx][$task + 1])) {
                     // do not save, return error message
-		    $results = array(
-   			'error' => true,
-   			'data' => 'Failed to save hunt, parameter ' . $newrows[$ndx][1] . ' for task ' . $newrows[$ndx][0] . ' do not match allowed values.'
-		    );
-		    header("Content-type: application/json");
-		    die(json_encode($results));
+                    $results["error"] = true;
+                    $results["data"] = 'Failed to save hunt, parameter ' . $newrows[$ndx][1] . ' for task ' . $newrows[$ndx][0] . ' do not match allowed values.';
+                    header("Content-type: application/json");
+                    die(json_encode($results));
                 }
             }
             // update name of hunt
@@ -100,25 +98,30 @@ if ($_POST['save_hunt']) {
                 }
             }
         } else {
-	    // create new hunt
-	    $sql = "INSERT into hunt_table VALUES (?, ?, ?, ?)";
-            $new_hunt = array(0, $_POST['hunt_name'], date('y-m-d'), getUserId());
+            // create new hunt
+            $sql = "INSERT into hunt_table VALUES (?, ?, ?, ?)";
+            $new_hunt = array(0, $_POST['hunt_name'], date('y-m-d'), (int)$_POST['user_id']);
             $dbh->prepare($sql)->execute($new_hunt);
             $query = "SELECT hunt_id FROM hunt_table where hunt_name='" . $_POST['hunt_name'] ."'";
             $stmt = $dbh->query($query);
             $stmt->setFetchMode(PDO::FETCH_ASSOC);
             $hunt_id = ($stmt->fetch())['hunt_id'];
-	    // insert all instructions into table
+            // insert all instructions into table
             echo "add ". count($newrows). " rows\n";
-	    for ($rdx = 0; $rdx < count($newrows); ++$rdx) {
+            for ($rdx = 0; $rdx < count($newrows); ++$rdx) {
                 array_unshift($newrows[$rdx], 0);
                 array_unshift($newrows[$rdx], $hunt_id);
-		$sql = "INSERT into hunt_instructions_table VALUES (?, ?, ?, ?)";
+                $sql = "INSERT into hunt_instructions_table VALUES (?, ?, ?, ?)";
                 $dbh->prepare($sql)->execute($newrows[$rdx]);
             }
         }
     } catch (PDOException $e) {
-        die($e->getMessage());
+        $results = array(
+            "error" => true,
+            "data" => $e->getMessage()
+        );
+        header("Content-type: application/json");
+        die(json_encode($results));
     }
     // Close connection
     $dbh = null;

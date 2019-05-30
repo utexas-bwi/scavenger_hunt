@@ -1,6 +1,5 @@
 <?php
 include_once 'connect.php';
-include_once 'auth.php';
 
 /* functions to handle table that stores the hunt instructions */
 

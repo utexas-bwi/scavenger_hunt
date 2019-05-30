@@ -7,13 +7,14 @@ function row($data) {
 
 // Create connection
 include 'connect.php';
-include 'auth.php';
+include '../public_html/components/user-hunt-table-header-row.html'; 
 
 $dbh = connect();
 
 try {
+    $user_id = $_POST["user_id"];
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $query = "SELECT hunt_id, hunt_name FROM hunt_table where user_id=" . getUserId();
+    $query = "SELECT hunt_id, hunt_name FROM hunt_table where user_id=" . $user_id;
     $stmt = $dbh->query($query);
     $stmt->setFetchMode(PDO::FETCH_ASSOC);
     while ($data = $stmt->fetch()):
@@ -21,7 +22,7 @@ try {
     endwhile;
     $stmt = null; 
 } catch (PDOException $e) {
-        die($e->getMessage());
+    die($e->getMessage());
 }
 
 // Close connection

@@ -188,6 +188,7 @@ CREATE TABLE `user_table` (
 LOCK TABLES `user_table` WRITE;
 /*!40000 ALTER TABLE `user_table` DISABLE KEYS */;
 INSERT INTO `user_table` VALUES (1,'mayuri','pwd');
+INSERT INTO `user_table` VALUES (-486052703,'stefan','pwd');
 /*!40000 ALTER TABLE `user_table` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;

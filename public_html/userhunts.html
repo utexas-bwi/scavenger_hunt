@@ -2,6 +2,7 @@
 
 <html lang="en">
     <head>
+        <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
         <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
         <link href="css/style.css" rel="stylesheet"/>
         <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
@@ -14,6 +15,8 @@
         <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
         <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
         <script src="../script/firebase_init.js"></script>
+        <script src="../script/hunt.js"></script>
+        <script src="../script/string_hash.js"></script>
     </head>
     <body>
         <div id="navbar"></div>
@@ -23,20 +26,21 @@
                 <!-- table for user to construct a hunt from tasks -->
                 <h2>My Hunts</h2>
                 <div>
-                    <p>Here are all of the hunts that you have permission to edit. Click on a hunt below to see more information about it and make changes. </p>
+                    <p>Here are all of the hunts that you have permission to edit. Click on a hunt below to see more information about it and make changes.</p>
                     <div id="user-hunt-table" class="use-glyphicon">
-			    <span class="clickable use-glyphicon glyphicon glyphicon-plus" onclick="newHunt()"></span>
-                        </h2>
-                            <table class="table" id="hunt-table">
-                            <tr>
-                                <th>Hunt Name</th>
-                            </tr>
-                            <?php require '../script/user_hunt_table.php';?>
+                        <table class="table" id="hunt-table">
+                            <div id="table-contents"></div>
                         </table>
                     </div>
                 </div>
             </section>
         </section>
+
+        <!-- Build hunt table -->
+        <script src="../script/auth.js"></script>
+        <script>
+            sendUserId("../script/user_hunt_table.php", "table-contents");
+        </script>
 
         <footer id="footer" class = "foot">
             <span class="copyright">

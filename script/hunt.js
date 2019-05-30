@@ -33,6 +33,7 @@ function submitHunt() {
     const new_name = document.getElementById("hunt-name").textContent;
     // send data to php function
     const url = 'http://localhost/script/save_hunt_table.php';
+    var hash = firebase.auth().currentUser.uid.hashCode();
     $.ajax({
         type: "POST",
         url,
@@ -40,30 +41,31 @@ function submitHunt() {
             save_hunt: true,
             hunt_table: data,
             hunt_id:id,
-	    hunt_name: new_name,
+            hunt_name: new_name,
+            user_id: hash
         },
-	success: function(data){
-	    if (!data.error) {
+        success: function(data) {
+            if (!data.error) {
                 const message = document.getElementById("save-msg");
                 message.classList.remove("hidden-msg");
-	        message.classList.remove("alert-danger");
-		message.classList.add("alert-success");
-	        message.textContent = "Your hunt has been saved.";
-                setTimeout(function(){
+                message.classList.remove("alert-danger");
+                message.classList.add("alert-success");
+                message.textContent = "Your hunt has been saved.";
+                setTimeout(function() {
                     message.classList.add("hidden-msg");
-		    message.classList.remove("alert-success");
-            	}, 2000);
-	    } else {
+                    message.classList.remove("alert-success");
+                }, 2000);
+            } else {
                 const message = document.getElementById("save-msg");
                 message.classList.remove("hidden-msg");
-	        message.classList.remove("alert-success");
-		message.classList.add("alert-danger");
-	        message.textContent = data.data;
-                setTimeout(function(){
+                message.classList.remove("alert-success");
+                message.classList.add("alert-danger");
+                message.textContent = data.data;
+                setTimeout(function() {
                     message.classList.add("hidden-msg");
-	 	    message.classList.remove("alert-danger");
+                    message.classList.remove("alert-danger");
                 }, 10000);
-	    }
+            }
         }
     });    
 }
