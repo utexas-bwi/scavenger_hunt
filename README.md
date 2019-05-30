@@ -31,33 +31,55 @@ After changing this line, you will have to restart apache2 for the changes to ta
     * images: contains all images    
 * script: contains php and javascript scripts used on the webpage
 
-## Notes on Ozil
+## Configuring MySQL 8.0 Authentication
 
-On a Linux machine (such as Ozil), you will have to copy the files from this repository into the /var/www/html folder on your computer to have it displayed on localhost. This folder requires sudo access to copy the files.
+After a fresh install of MySQL 8.0, you'll need to add a server account that the website will use to access the database. The user must be called `bwi` and have the bwilab sudo password:
 
-The mysql password is the same as the sudo password for the bwilab account on Ozil.
+```
+sudo service mysql start
+sudo mysql -u root
+CREATE USER 'bwi'@'localhost'
+  IDENTIFIED BY '[sudo password]';
+GRANT ALL
+  ON *.*
+  TO 'bwi'@'localhost'
+  WITH GRANT OPTION;
+EXIT;
+```
 
-## Viewing the Website on Kane/Ozil
+Then, initialize the database with the `.sql` file in the root of this repository:
 
-Currently, the website is hosted on Ozil, Kane, and Kif, so you will have to have a BWI account to view the website. You can view the website by ssh-ing into whichever of the three machines you wish with the following command:
+```
+sudo mysql -u bwi -p
+CREATE DATABASE scavenger_hunt;
+EXIT;
+sudo mysql < scavenger_hunt.sql
+```
 
-`ssh -L 8080:128.83.143.224:80 [username]@[ozil/kane/kif].csres.utexas.edu`
-
-Then, open a web browser and go to the website address `http://localhost:8080`, and you will be able to see the website.
-
-## Configuring MySQL 8.0 authorization
-
-Changes in MySQL 8.0 cause PDOExceptions when connecting via PHP if MySQL is not configured correctly. To fix this, locate the MySQL config file
-
-`/etc/mysql/my.cnf`
-
-and add the following lines:
+Changes in MySQL 8.0 cause authentication errors when connecting via PHP if the server is not configured correctly. To fix this, locate the MySQL config file `/etc/mysql/my.cnf` and add the following lines:
 
 ```
 [mysqld]
-default-authentication-plugin:mysql_native_password
+default-authentication-plugin=mysql_native_password
 ```
 
 Then, restart MySQL:
 
 `sudo service mysql restart`
+
+## Viewing the Website
+
+The website is currently set up on Ozil, Kane, and Rodriguez. It is also technically set up on Kif, but that machine is very old and has lots of scrambled privileges. Avoid headaches; don't use Kif.
+
+To view the website, point your browser at `localhost`. You can also view it from a different machine at `localhost:8080` if you first SSH:
+
+```
+ssh -L 8080:128.83.143.224:80 bwilab@[ozil/kane/rodriguez/kif].csres.utexas.edu
+```
+
+When working on the site, you'll need to copy the repository's contents into `/var/www/html` on the host machine to see your changes propogated:
+
+```
+cd scavenger_hunt
+sudo cp -r * /var/www/html
+```
