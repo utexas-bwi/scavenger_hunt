@@ -21,6 +21,9 @@
     <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
     <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
     <script src="../script/firebase_init.js"></script>
+    <script src="../script/string_hash.js"></script>
+    <script src="../script/register.js"></script>
+    <script src="css/formBE/js/main.js"></script>
 </head>
 <body>
     <div id="navbar"></div>
@@ -53,7 +56,7 @@
                                 <label class="label-agree-term">Already have an account? <a href="login.html">Log In</a></label>
                             </div>
                             <div class="form-group form-button">
-                                <input type="submit" onclick="register()"name="signup" id="signup" class="form-submit" value="Register"/>
+                                <input type="submit" onclick="register()" name="signup" id="signup" class="form-submit" value="Register"/>
                             </div>
                         </form>
                     </div>
@@ -63,52 +66,10 @@
         </section>
     </div>
 
-    <script>
-    // Handle Errors here.
-    function register() {
-        var password = document.getElementById('pass').value;
-        var email = document.getElementById('email').value;
-        var re_pass = document.getElementById('re_pass').value;
-        if (password.length < 8) {
-            alert('Password must be at least 8 characters long');
-            return;
-        }
-        for (var i = 0; i < password.length; i++) {
-        if (password[i].type == 'password')
-            password[i].setAttribute('type','text');
-        }
-        for (var i = 0; i < re_pass.length; i++) {
-        if (re_pass[i].type == 'password')
-            re_pass[i].setAttribute('type','text');
-        }
-        if (password != re_pass) {
-            alert('Password and verification password must be equal');
-            return;
-        }
-        console.log(document.getElementById('email').value);
-        var errorMessage = "a";
-        firebase.auth().createUserWithEmailAndPassword(email, password).catch(function(error) {
-        // Handle Errors here.
-        var errorCode = error.code;
-        errorMessage = error.message;
-        // ...
-        console.log(errorMessage);
-        });
-        if (errorMessage == "a") {
-            window.location = "login.html";
-            console.log("asdf");
-        }
-    }
-    </script>
-
     <!-- Populate nav bar -->
     <script>
         var htmlComponentsPath = 'components/';
     </script>
     <script src="css/index.js"></script>
-
-    <!-- JS -->
-    <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
-    <script src="css/formBE/js/main.js"></script>
 </body>
 </html>

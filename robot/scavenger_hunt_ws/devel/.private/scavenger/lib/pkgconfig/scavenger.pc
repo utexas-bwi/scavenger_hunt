@@ -1,0 +1,8 @@
+prefix=/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/.private/scavenger
+
+Name: scavenger
+Description: Description of scavenger
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/.private/scavenger/lib 
+Requires: 

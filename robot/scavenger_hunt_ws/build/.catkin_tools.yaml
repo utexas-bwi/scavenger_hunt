@@ -1,0 +1,6 @@
+devel_space: /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel
+install: false
+install_space: /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/install
+profile: default
+source_space: /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src
+workspace: /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws
