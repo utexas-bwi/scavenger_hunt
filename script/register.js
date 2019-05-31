@@ -1,5 +1,5 @@
 /**
- * Register a new user in both Firebase and the SQL database
+ * Register a new user with Firebase
  */
 function register() {
   var password = document.getElementById('pass').value;
