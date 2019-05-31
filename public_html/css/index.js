@@ -17,7 +17,8 @@ firebase.auth().onAuthStateChanged(function(user) {
       url: "../../script/register.php",
       data: {
         "user_id": user.uid.hashCode(),
-        "user_name": "user.email"
+        "email": user.email,
+        "university": window.university
       },
       success: function(data) {
         if (page == "register.html")
