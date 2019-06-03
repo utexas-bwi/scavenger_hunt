@@ -147,11 +147,6 @@ bool ScavengerHuntClient::send_proof(std::string image_path,
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
   bool success = http_response_code == 200;
 
-  if (success)
-    std::cout << "[send_proof] Successfully sent proof to server!" << std::endl;
-  else
-    std::cout << "[send_proof] An error occurred reaching the server." << std::endl;
-
   // Cleanup
   curl_easy_cleanup(curl);
 
