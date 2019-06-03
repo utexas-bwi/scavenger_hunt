@@ -1,0 +1,8 @@
+CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.o: In function `ScavengerHuntClient::get_hunts()':
+scavenger_hunt.cpp:(.text+0x29d): undefined reference to `ScavengerHuntClient::DOWNLOAD_URL'
+CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.o: In function `ScavengerHuntClient::send_proof(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, unsigned int)':
+scavenger_hunt.cpp:(.text+0x623): undefined reference to `ScavengerHuntClient::UPLOAD_URL'
+collect2: error: ld returned 1 exit status
+make[2]: *** [/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/.private/scavenger/lib/scavenger/json_test] Error 1
+make[1]: *** [CMakeFiles/json_test.dir/all] Error 2
+make: *** [all] Error 2

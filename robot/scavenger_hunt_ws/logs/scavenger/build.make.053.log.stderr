@@ -1,0 +1,11 @@
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:[m[K In member function ‘[01m[Kvoid ScavengerHuntClient::send_proof(std::__cxx11::string, unsigned int)[m[K’:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:94:15:[m[K [01;31m[Kerror: [m[Kdeclaration of ‘[01m[Kstd::__cxx11::string instruction_id[m[K’ shadows a parameter
+   std::string instruction_id = std::to_string(intruction_id);
+[01;32m[K               ^[m[K
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:94:47:[m[K [01;31m[Kerror: [m[K‘[01m[Kintruction_id[m[K’ was not declared in this scope
+   std::string instruction_id = std::to_string(intruction_id);
+[01;32m[K                                               ^[m[K
+make[2]: *** [CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [CMakeFiles/json_test.dir/all] Error 2
+make: *** [all] Error 2

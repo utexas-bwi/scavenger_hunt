@@ -1,0 +1,7 @@
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:[m[K In member function ‘[01m[Kbool ScavengerHuntClient::send_proof(std::__cxx11::string, unsigned int)[m[K’:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:161:1:[m[K [01;31m[Kerror: [m[Kexpected ‘[01m[K}[m[K’ at end of input
+ }
+[01;32m[K ^[m[K
+make[2]: *** [CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.o] Error 1
+make[1]: *** [CMakeFiles/json_test.dir/all] Error 2
+make: *** [all] Error 2

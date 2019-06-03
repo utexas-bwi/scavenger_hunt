@@ -1,0 +1,7 @@
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:[m[K In constructor ‘[01m[KScavengerHuntClient::ScavengerHuntClient()[m[K’:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:19:3:[m[K [01;31m[Kerror: [m[K‘[01m[Khttp_parsed_data[m[K’ was not declared in this scope
+   http_parsed_data = new std::string();
+[01;32m[K   ^[m[K
+make[2]: *** [CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.o] Error 1
+make[1]: *** [CMakeFiles/json_test.dir/all] Error 2
+make: *** [all] Error 2

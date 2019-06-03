@@ -185,11 +185,15 @@ json/json.h
 /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/json_test.cpp
 scavenger/scavenger_hunt.h
 /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger/scavenger_hunt.h
+iostream
+-
 
 /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp
 scavenger/scavenger_hunt.h
 /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger/scavenger_hunt.h
 cstdint
+-
+fstream
 -
 iostream
 -

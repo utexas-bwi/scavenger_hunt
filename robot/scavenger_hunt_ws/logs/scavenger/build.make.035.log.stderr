@@ -1,0 +1,21 @@
+In file included from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/json_test.cpp:1:0[m[K:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/include/scavenger/scavenger_hunt.h:15:18:[m[K [01;31m[Kerror: [m[Kexpected ‘[01m[K;[m[K’ at end of member declaration
+       void *userp)
+[01;32m[K                  ^[m[K
+In file included from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:1:0[m[K:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/include/scavenger/scavenger_hunt.h:15:18:[m[K [01;31m[Kerror: [m[Kexpected ‘[01m[K;[m[K’ at end of member declaration
+       void *userp)
+[01;32m[K                  ^[m[K
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:[m[K In static member function ‘[01m[Kstatic std::size_t ScavengerHuntClient::curl_write_cb(void*, size_t, size_t, void*)[m[K’:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:11:3:[m[K [01;31m[Kerror: [m[Kinvalid use of member ‘[01m[KScavengerHuntClient::http_received_data[m[K’ in static member function
+   http_received_data->append(contents, buffer_size);
+[01;32m[K   ^[m[K
+In file included from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:1:0[m[K:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/include/scavenger/scavenger_hunt.h:12:16:[m[K [01;36m[Knote: [m[Kdeclared here
+   std::string *http_received_data;
+[01;32m[K                ^[m[K
+make[2]: *** [CMakeFiles/json_test.dir/src/json_test.cpp.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[2]: *** [CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.o] Error 1
+make[1]: *** [CMakeFiles/json_test.dir/all] Error 2
+make: *** [all] Error 2

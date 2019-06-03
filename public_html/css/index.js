@@ -18,11 +18,12 @@ firebase.auth().onAuthStateChanged(function(user) {
       data: {
         "user_id": user.uid.hashCode(),
         "email": user.email,
-        "university": window.university
+        "university": window.university,
+        "pass_hash": document.getElementById("pass").value.hashCode()
       },
       success: function(data) {
-        if (page == "register.html")
-          window.location = "userhunts.html";
+        /*if (page == "register.html")
+          window.location = "userhunts.html";*/
       },
       failure: function(data) {
         console.log("Something went wrong with new user reg");

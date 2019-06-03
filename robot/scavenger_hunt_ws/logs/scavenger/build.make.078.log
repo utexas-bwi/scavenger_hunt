@@ -1,0 +1,12 @@
+[35m[1mScanning dependencies of target json_test[0m
+[ 33%] [32mBuilding CXX object CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.o[0m
+[ 66%] [32mBuilding CXX object CMakeFiles/json_test.dir/src/json_test.cpp.o[0m
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:58:43:[m[K [01;31m[Kerror: [m[Kdefinition of implicitly-declared ‘[01m[KScavengerHuntClient::~ScavengerHuntClient()[m[K’
+ ScavengerHuntClient::~ScavengerHuntClient() {}
+[01;32m[K                                           ^[m[K
+CMakeFiles/json_test.dir/build.make:62: recipe for target 'CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.o' failed
+make[2]: *** [CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.o] Error 1
+make[1]: *** [CMakeFiles/json_test.dir/all] Error 2
+CMakeFiles/Makefile2:707: recipe for target 'CMakeFiles/json_test.dir/all' failed
+Makefile:138: recipe for target 'all' failed
+make: *** [all] Error 2

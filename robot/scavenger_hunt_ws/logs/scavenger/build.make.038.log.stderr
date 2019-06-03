@@ -1,0 +1,75 @@
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:[m[K In static member function ‘[01m[Kstatic std::size_t ScavengerHuntClient::curl_write_cb(void*, size_t, size_t, void*)[m[K’:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:11:50:[m[K [01;31m[Kerror: [m[Kno matching function for call to ‘[01m[Kstd::__cxx11::basic_string<char>::append(void*&, size_t&)[m[K’
+   http_received_data.append(contents, buffer_size);
+[01;32m[K                                                  ^[m[K
+In file included from [01m[K/usr/include/c++/5/string:52:0[m[K,
+                 from [01m[K/usr/include/c++/5/bits/locale_classes.h:40[m[K,
+                 from [01m[K/usr/include/c++/5/bits/ios_base.h:41[m[K,
+                 from [01m[K/usr/include/c++/5/ios:42[m[K,
+                 from [01m[K/usr/include/c++/5/istream:38[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/../jsoncpp/include/json/config.h:10[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/../jsoncpp/include/json/autolink.h:9[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/../jsoncpp/include/json/json.h:9[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/include/scavenger/scavenger_hunt.h:5[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:1[m[K:
+[01m[K/usr/include/c++/5/bits/basic_string.h:1011:7:[m[K [01;36m[Knote: [m[Kcandidate: std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(const _CharT*, std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::size_type) [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>; std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::size_type = long unsigned int] <near match>
+       append(const _CharT* __s, size_type __n)
+[01;32m[K       ^[m[K
+[01m[K/usr/include/c++/5/bits/basic_string.h:1011:7:[m[K [01;36m[Knote: [m[K  conversion of argument 1 would be ill-formed:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:11:50:[m[K [01;31m[Kerror: [m[Kinvalid conversion from ‘[01m[Kvoid*[m[K’ to ‘[01m[Kconst char*[m[K’ [-fpermissive]
+   http_received_data.append(contents, buffer_size);
+[01;32m[K                                                  ^[m[K
+In file included from [01m[K/usr/include/c++/5/string:52:0[m[K,
+                 from [01m[K/usr/include/c++/5/bits/locale_classes.h:40[m[K,
+                 from [01m[K/usr/include/c++/5/bits/ios_base.h:41[m[K,
+                 from [01m[K/usr/include/c++/5/ios:42[m[K,
+                 from [01m[K/usr/include/c++/5/istream:38[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/../jsoncpp/include/json/config.h:10[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/../jsoncpp/include/json/autolink.h:9[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/../jsoncpp/include/json/json.h:9[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/include/scavenger/scavenger_hunt.h:5[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:1[m[K:
+[01m[K/usr/include/c++/5/bits/basic_string.h:1041:7:[m[K [01;36m[Knote: [m[Kcandidate: std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::size_type, _CharT) [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>; std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::size_type = long unsigned int] <near match>
+       append(size_type __n, _CharT __c)
+[01;32m[K       ^[m[K
+[01m[K/usr/include/c++/5/bits/basic_string.h:1041:7:[m[K [01;36m[Knote: [m[K  conversion of argument 1 would be ill-formed:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:11:50:[m[K [01;31m[Kerror: [m[Kinvalid conversion from ‘[01m[Kvoid*[m[K’ to ‘[01m[Kstd::__cxx11::basic_string<char>::size_type {aka long unsigned int}[m[K’ [-fpermissive]
+   http_received_data.append(contents, buffer_size);
+[01;32m[K                                                  ^[m[K
+In file included from [01m[K/usr/include/c++/5/string:52:0[m[K,
+                 from [01m[K/usr/include/c++/5/bits/locale_classes.h:40[m[K,
+                 from [01m[K/usr/include/c++/5/bits/ios_base.h:41[m[K,
+                 from [01m[K/usr/include/c++/5/ios:42[m[K,
+                 from [01m[K/usr/include/c++/5/istream:38[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/../jsoncpp/include/json/config.h:10[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/../jsoncpp/include/json/autolink.h:9[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/../jsoncpp/include/json/json.h:9[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/include/scavenger/scavenger_hunt.h:5[m[K,
+                 from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:1[m[K:
+[01m[K/usr/include/c++/5/bits/basic_string.h:982:7:[m[K [01;36m[Knote: [m[Kcandidate: std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(const std::__cxx11::basic_string<_CharT, _Traits, _Alloc>&) [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>]
+       append(const basic_string& __str)
+[01;32m[K       ^[m[K
+[01m[K/usr/include/c++/5/bits/basic_string.h:982:7:[m[K [01;36m[Knote: [m[K  candidate expects 1 argument, 2 provided
+[01m[K/usr/include/c++/5/bits/basic_string.h:999:7:[m[K [01;36m[Knote: [m[Kcandidate: std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(const std::__cxx11::basic_string<_CharT, _Traits, _Alloc>&, std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::size_type, std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::size_type) [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>; std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::size_type = long unsigned int]
+       append(const basic_string& __str, size_type __pos, size_type __n)
+[01;32m[K       ^[m[K
+[01m[K/usr/include/c++/5/bits/basic_string.h:999:7:[m[K [01;36m[Knote: [m[K  candidate expects 3 arguments, 2 provided
+[01m[K/usr/include/c++/5/bits/basic_string.h:1024:7:[m[K [01;36m[Knote: [m[Kcandidate: std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(const _CharT*) [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>]
+       append(const _CharT* __s)
+[01;32m[K       ^[m[K
+[01m[K/usr/include/c++/5/bits/basic_string.h:1024:7:[m[K [01;36m[Knote: [m[K  candidate expects 1 argument, 2 provided
+[01m[K/usr/include/c++/5/bits/basic_string.h:1051:7:[m[K [01;36m[Knote: [m[Kcandidate: std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(std::initializer_list<_Tp>) [with _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>]
+       append(initializer_list<_CharT> __l)
+[01;32m[K       ^[m[K
+[01m[K/usr/include/c++/5/bits/basic_string.h:1051:7:[m[K [01;36m[Knote: [m[K  candidate expects 1 argument, 2 provided
+[01m[K/usr/include/c++/5/bits/basic_string.h:1070:9:[m[K [01;36m[Knote: [m[Kcandidate: template<class _InputIterator, class> std::__cxx11::basic_string<_CharT, _Traits, _Alloc>& std::__cxx11::basic_string<_CharT, _Traits, _Alloc>::append(_InputIterator, _InputIterator) [with _InputIterator = _InputIterator; <template-parameter-2-2> = <template-parameter-1-2>; _CharT = char; _Traits = std::char_traits<char>; _Alloc = std::allocator<char>]
+         append(_InputIterator __first, _InputIterator __last)
+[01;32m[K         ^[m[K
+[01m[K/usr/include/c++/5/bits/basic_string.h:1070:9:[m[K [01;36m[Knote: [m[K  template argument deduction/substitution failed:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:11:50:[m[K [01;36m[Knote: [m[K  deduced conflicting types for parameter ‘[01m[K_InputIterator[m[K’ (‘[01m[Kvoid*[m[K’ and ‘[01m[Klong unsigned int[m[K’)
+   http_received_data.append(contents, buffer_size);
+[01;32m[K                                                  ^[m[K
+make[2]: *** [CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [CMakeFiles/json_test.dir/all] Error 2
+make: *** [all] Error 2

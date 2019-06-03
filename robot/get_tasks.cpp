@@ -7,22 +7,60 @@ static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *use
 	return size * nmemb;
 }
 
+int hash(std::string str) {
+	int hash = 0;
+	if (str.length() == 0)
+		return hash;
+	const char *str_arr = str.c_str();
+	for (int i = 0; i < str.length(); i++) {
+		char c = str_arr[i];
+		hash = ((hash << 5) - hash) + c;
+	}
+	return hash;
+}
+
 int main(void) {
 
-	CURL *curl;
-	CURLcode res;
-	std::string readBuffer;
-	curl = curl_easy_init();
+	std::string url = "http://localhost/script/upload.php";
 
-	if (curl) {
-		std::cout << "Querying website..." << std::endl;
-		curl_easy_setopt(curl, CURLOPT_URL, "http://localhost/script/get_tasks.php");
-		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-		res = curl_easy_perform(curl);
-		curl_easy_cleanup(curl);
-		std::cout << "Got data:" << std::endl;
-		std::cout << readBuffer << std::endl;
-	}
-	return 0;
+	CURL* curl = curl_easy_init();
+
+	// set target url
+	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+
+	// holders
+	struct curl_httppost* beginPostList = NULL;
+	struct curl_httppost* endPostList = NULL;
+
+	std::string concat1 = "bottle.png";
+	std::string email = "aaaaa@aaaaaaa.com";
+	std::string password = "sick robots";
+	std::string password_hashed = std::to_string(hash(password));
+	std::string instr_id = "98";
+
+	curl_formadd(&beginPostList,
+	             &endPostList,
+							 CURLFORM_COPYNAME, "image",
+               CURLFORM_FILE, concat1.c_str(),
+							 CURLFORM_END);
+	curl_formadd(&beginPostList,
+               &endPostList,
+             	 CURLFORM_COPYNAME, "email",
+             	 CURLFORM_COPYCONTENTS, email.c_str(),
+             	 CURLFORM_END);
+	curl_formadd(&beginPostList,
+	             &endPostList,
+	          	 CURLFORM_COPYNAME, "pass_hash",
+	          	 CURLFORM_COPYCONTENTS, password_hashed.c_str(),
+	          	 CURLFORM_END);
+	 curl_formadd(&beginPostList,
+	 						 &endPostList,
+	 						 CURLFORM_COPYNAME, "instr_id",
+	 						 CURLFORM_COPYCONTENTS, instr_id.c_str(),
+	 						 CURLFORM_END);
+
+	// perform
+	curl_easy_setopt(curl, CURLOPT_POST, true);
+	curl_easy_setopt(curl, CURLOPT_HTTPPOST, beginPostList);
+	CURLcode code = curl_easy_perform(curl);
 }

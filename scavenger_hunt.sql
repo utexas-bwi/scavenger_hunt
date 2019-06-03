@@ -177,7 +177,26 @@ CREATE TABLE `user_table` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `email` varchar(255) DEFAULT NULL,
   `university` varchar(255) DEFAULT NULL,
+  `pass_hash` int(11) NOT NULL,
   PRIMARY KEY (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `proof_table`
+--
+
+DROP TABLE IF EXISTS `proof_table`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proof_table` (
+  `proof_id` int(11) NOT NULL AUTO_INCREMENT,
+  `uploader_id` int(11) NOT NULL,
+  `filename` varchar(255) NOT NULL,
+  `hunt_instr_id` int(11) NOT NULL,
+  `verified` tinyint(1) NOT NULL DEFAULT 0,
+  `correct` tinyint(1) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`proof_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

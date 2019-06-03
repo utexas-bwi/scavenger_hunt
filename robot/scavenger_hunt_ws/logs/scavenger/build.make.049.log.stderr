@@ -1,0 +1,19 @@
+In file included from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/json_test.cpp:1:0[m[K:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/include/scavenger/scavenger_hunt.h:12:38:[m[K [01;31m[Kerror: [m[Kin-class initialization of static data member ‘[01m[Kconst char ScavengerHuntClient::DOWNLOAD_URL [][m[K’ of incomplete type
+   static const char DOWNLOAD_URL[] = "https://jsonplaceholder.typicode.com/todos/1";
+[01;32m[K                                      ^[m[K
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/include/scavenger/scavenger_hunt.h:13:36:[m[K [01;31m[Kerror: [m[Kin-class initialization of static data member ‘[01m[Kconst char ScavengerHuntClient::UPLOAD_URL [][m[K’ of incomplete type
+   static const char UPLOAD_URL[] = "http://localhost/script/upload.php";
+[01;32m[K                                    ^[m[K
+In file included from [01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/src/scavenger_hunt.cpp:1:0[m[K:
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/include/scavenger/scavenger_hunt.h:12:38:[m[K [01;31m[Kerror: [m[Kin-class initialization of static data member ‘[01m[Kconst char ScavengerHuntClient::DOWNLOAD_URL [][m[K’ of incomplete type
+   static const char DOWNLOAD_URL[] = "https://jsonplaceholder.typicode.com/todos/1";
+[01;32m[K                                      ^[m[K
+[01m[K/home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/src/scavenger/include/scavenger/scavenger_hunt.h:13:36:[m[K [01;31m[Kerror: [m[Kin-class initialization of static data member ‘[01m[Kconst char ScavengerHuntClient::UPLOAD_URL [][m[K’ of incomplete type
+   static const char UPLOAD_URL[] = "http://localhost/script/upload.php";
+[01;32m[K                                    ^[m[K
+make[2]: *** [CMakeFiles/json_test.dir/src/json_test.cpp.o] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[2]: *** [CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.o] Error 1
+make[1]: *** [CMakeFiles/json_test.dir/all] Error 2
+make: *** [all] Error 2
