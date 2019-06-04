@@ -17,7 +17,6 @@ find_package(catkin REQUIRED COMPONENTS
 # find_package(Boost REQUIRED COMPONENTS system)
 
 FIND_LIBRARY(curl-7.65.0 curl curl-7.65.0)
-FIND_LIBRARY(jsoncpp jsoncpp jsoncpp)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -121,7 +120,6 @@ include_directories(
   ${CMAKE_SOURCE_DIR}/include
   ${catkin_INCLUDE_DIRS}
   ${CMAKE_SOURCE_DIR}/../curl-7.65.0/include
-  ${CMAKE_SOURCE_DIR}/../jsoncpp/include
 )
 
 ## Add cmake target dependencies of the library
@@ -137,8 +135,7 @@ add_executable(client_test
 target_link_libraries(client_test
     ${OpenCV_LIBS}
     ${catkin_LIBRARIES}
-    curl
-    jsoncpp)
+    curl)
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context

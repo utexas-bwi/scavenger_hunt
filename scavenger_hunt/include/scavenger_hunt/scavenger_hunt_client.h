@@ -1,10 +1,9 @@
 #ifndef SCAVENGER_HUNT_CLIENT_H
 #define SCAVENGER_HUNT_CLIENT_H
 
-#include "scavenger_hunt/scavenger_hunt_structure.h"
-
 #include <curl/curl.h>
-#include <json/json.h>
+#include <scavenger_hunt/rapidxml.hpp>
+#include <scavenger_hunt/scavenger_hunt_structure.h>
 
 /**
   Your robot's connection to Scavenger Hunt.
@@ -32,7 +31,7 @@ public:
     @param hunt_name name of hunt you wish to participate in
     @return hunt data
   */
-  ScavengerHunt get_hunt(std::string hunt_name);
+  ScavengerHunt* get_hunt(std::string hunt_name);
 
   /**
     Uploads an image proof to Scavenger Hunt.

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<hunt name="Longhorn Hunt">
+  <task name="Find Object" description="Locate an object by name." proof_format="Image" proof_description="Submit an image of the object with a box drawn around it." points="100" id="101">
+    <parameter name="target object" value="soda can"></parameter>
+  </task>
+  <task name="Visit Place" description="Visit a place." proof_format="Image" proof_description="Submit an image of the location." points="150" id="102">
+    <parameter name="target place" value="workshop"></parameter>
+  </task>
+</hunt>

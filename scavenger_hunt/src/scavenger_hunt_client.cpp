@@ -1,12 +1,15 @@
-#include "scavenger_hunt/scavenger_hunt_client.h"
-
 #include <cstdint>
 #include <fstream>
 #include <iostream>
 #include <memory>
+#include <scavenger_hunt/rapidxml.hpp>
+#include <scavenger_hunt/scavenger_hunt_client.h>
 #include <string>
+#include <string.h>
 
-static const char DOWNLOAD_URL[] = "localhost/script/get_tasks.php";
+using namespace rapidxml;
+
+static const char DOWNLOAD_URL[] = "localhost/xml/hunt.xml";
 static const char UPLOAD_URL[] = "localhost/script/upload_proof.php";
 
 static std::string user_email;
@@ -49,14 +52,59 @@ bool file_exists(std::string fname) {
   return f.good();
 }
 
+/**
+  @brief parses a ScavengerHunt object from XML text
+*/
+ScavengerHunt* parse_hunt_xml(std::string *xml) {
+  xml_document<> doc;
+  xml_node<> *root_node;
+
+  char *buffer = new char[xml->size() + 1];
+  strcpy(buffer, xml->c_str());
+
+  doc.parse<0>(buffer);
+  root_node = doc.first_node("hunt");
+  std::string hunt_name = root_node->first_attribute("name")->value();
+
+  ScavengerHunt *hunt = new ScavengerHunt(hunt_name);
+
+  for (xml_node<> *task_node = root_node->first_node("task");
+       task_node;
+       task_node = task_node->next_sibling()) {
+    // Parse task fields
+    std::string name = std::string(task_node->first_attribute("name")->value());
+    std::string description = std::string(task_node->first_attribute("description")->value());
+    std::string proof_format = std::string(task_node->first_attribute("proof_format")->value());
+    std::string proof_description = std::string(task_node->first_attribute("proof_description")->value());
+    int points = std::stoi(std::string(task_node->first_attribute("points")->value()));
+    int id = std::stoi(std::string(task_node->first_attribute("id")->value()));
+
+    Task task(name, description, proof_format, proof_description, points, id);
+
+    // Parse task parameters
+    for (xml_node<> *param_node = task_node->first_node("parameter");
+         param_node;
+         param_node = param_node->next_sibling()) {
+      std::string param_name = std::string(param_node->first_attribute("name")->value());
+      std::string param_value = std::string(param_node->first_attribute("value")->value());
+      task.add_parameter(param_name, param_value);
+    }
+
+    hunt->add_task(task);
+  }
+
+  delete buffer;
+  return hunt;
+}
+
 ScavengerHuntClient::ScavengerHuntClient(std::string email,
     std::string password) {
   user_email = email;
   user_password_hash = strhash32(password);
 }
 
-ScavengerHunt ScavengerHuntClient::get_hunt(std::string hunt_name) {
-  /*// Configure cURL request
+ScavengerHunt* ScavengerHuntClient::get_hunt(std::string hunt_name) {
+  // Configure cURL request
   CURL *curl = curl_easy_init();
   std::string http_received_data;
 
@@ -73,27 +121,24 @@ ScavengerHunt ScavengerHuntClient::get_hunt(std::string hunt_name) {
   curl_easy_perform(curl);
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
 
+  ScavengerHunt *hunt = nullptr;
+
   if (http_response_code == 200) {
     // Response good
-    std::cout << "[retrieve] Got response from Scavenger Hunt server. Parsing..." << std::endl;
+    std::cout << "[get_hunt] Got response from Scavenger Hunt server. Parsing..." << std::endl;
 
-    std::stringstream parser_stream;
-    parser_stream << http_received_data.c_str();
+    hunt = parse_hunt_xml(&http_received_data);
 
-    Json::Value json_data;
-    Json::CharReaderBuilder json_reader;
-    std::string errs;
-
-    Json::parseFromStream(json_reader, parser_stream, &json_data, &errs);
-
-    std::cout << "[retrieve] Successfully parsed task data." << std::endl;
+    std::cout << "[get_hunt] Successfully parsed task data." << std::endl;
   } else {
     // Couldn't contact website
     std::cout << "[retrieve] Failed to contact Scavenger Hunt server." << std::endl;
   }
 
   // Cleanup
-  curl_easy_cleanup(curl);*/
+  curl_easy_cleanup(curl);
+
+  return hunt;
 }
 
 bool ScavengerHuntClient::send_proof(std::string image_path, Task &task) {

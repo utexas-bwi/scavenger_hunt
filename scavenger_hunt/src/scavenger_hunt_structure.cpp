@@ -61,8 +61,7 @@ std::ostream& operator<<(std::ostream &stream, const Task &task) {
   stream << "\t}\n}\n";
 }
 
-ScavengerHunt::ScavengerHunt(std::string name) :
-                             NAME(name) {}
+ScavengerHunt::ScavengerHunt(std::string name) : NAME(name) {}
 
 std::string ScavengerHunt::get_name() {
   return NAME;

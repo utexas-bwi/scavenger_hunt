@@ -1,6 +1,7 @@
 # Libraries used by our ROS packages
 curl-7.65.0/
 jsoncpp/
+rapidxml-1.13/
 
 # IDE bloat
 .vscode
