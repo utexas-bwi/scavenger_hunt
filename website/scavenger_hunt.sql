@@ -178,6 +178,7 @@ CREATE TABLE `user_table` (
   `email` varchar(255) DEFAULT NULL,
   `university` varchar(255) DEFAULT NULL,
   `pass_hash` int(11) NOT NULL,
+  `score` int(11) DEFAULT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -197,6 +198,21 @@ CREATE TABLE `proof_table` (
   `verified` tinyint(1) NOT NULL DEFAULT 0,
   `correct` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`proof_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `score_table`
+--
+
+DROP TABLE IF EXISTS `score_table`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `score_table` (
+  `university` varchar(255) NOT NULL,
+  `score` int(11) NOT NULL,
+  `percent_success` int(11) NOT NULL,
+  PRIMARY KEY (`university`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

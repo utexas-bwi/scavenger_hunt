@@ -7,25 +7,29 @@ function show_image(src){
   document.body.appendChild(img);
 }
 
+// called when user presses submit for the question
+// parameters: the imageFilename, proofId, hunt_intsr_id, and uploaderId associated with the
+// question in which the user has pressed submit for. These are accessed from the proof_table in verify.php
+function updateTable(imageFilename, proofId, huntInstrId, uploaderId){
 
-function updateTable(proofId){
-  // the proof is correct if user inputs "yes"
-  if(document.getElementById('check_yes').checked){
+  // the proof is correct if user inputs "yes", sets correct to be true in table
+  if(document.getElementById(imageFilename).checked){
     $.ajax({
       type: "POST",
       url: '../script/set_correct.php',
-      data: {proofId: proofId},
+      data: {proofId: proofId, huntInstrId: huntInstrId, uploaderId: uploaderId},
 
       success: function(output) {
-        console.log("works!");
+        console.log("its correct");
       },
       error: function(request, status, error){
         alert("Error: " + error);
-        console.log("it wrong :(");
+        console.log("setting correct failed :(");
       }
     });
   }
-  // the proof has been verified by the user, update table
+  
+  // the proof has been verified by the user, sets verified to be true in table
   $.ajax({
     type: "POST",
     url: '../script/set_verified.php',
@@ -39,8 +43,12 @@ function updateTable(proofId){
       console.log("verification is wrong :(");
     }
   });
-  document.getElementById("check_yes").disabled = true;
-  document.getElementById("check_no").disabled = true;
-  // document.getElementById("submit").disabled = true;
-  document.getElementById("submit").style.visibility = "hidden";
+
+  // disables the radio inputs (yes and no)
+  var x = document.getElementsByName(imageFilename);
+  for (var i = 0; i < x.length - 1; i++) 
+    x[i].disabled = true;
+  
+  // sets last input (submit button) to be hidden
+  x[x.length -1].style.visibility = "hidden";
 }

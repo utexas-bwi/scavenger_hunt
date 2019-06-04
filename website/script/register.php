@@ -17,7 +17,7 @@ try {
     $user_exists = !!$stmt->fetch();
 
     if (!$user_exists)
-      $dbh->query("insert into user_table values (" . $user_id . ", '" . $user_email . "', '" . $user_uni . "', '" . $user_pass_hash . "')");
+      $dbh->query("insert into user_table values (" . $user_id . ", '" . $user_email . "', '" . $user_uni . "', '" . $user_pass_hash . "', 0)");
 } catch (PDOException $e) {
     die($e->getMessage());
 }
