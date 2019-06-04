@@ -1,5 +1,0 @@
-[35m[1mScanning dependencies of target client_test[0m
-[ 25%] [32mBuilding CXX object CMakeFiles/client_test.dir/src/scavenger_hunt_structure.cpp.o[0m
-[ 50%] [32mBuilding CXX object CMakeFiles/client_test.dir/src/client_test.cpp.o[0m
-[ 75%] [32m[1mLinking CXX executable /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/.private/scavenger/lib/scavenger/client_test[0m
-[100%] Built target client_test

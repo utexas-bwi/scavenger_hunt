@@ -1,4 +1,0 @@
-[35m[1mScanning dependencies of target json_test[0m
-[ 33%] [32mBuilding CXX object CMakeFiles/json_test.dir/src/json_test.cpp.o[0m
-[ 66%] [32m[1mLinking CXX executable /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/.private/scavenger/lib/scavenger/json_test[0m
-[100%] Built target json_test

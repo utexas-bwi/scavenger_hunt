@@ -1,8 +1,0 @@
-Symlinking /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/./setup.bash
-Symlinking /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/./setup.sh
-Symlinking /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/./setup.zsh
-Symlinking /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/./_setup_util.py
-Symlinking /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/./env.sh
-Symlinking /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/lib/pkgconfig/catkin_tools_prebuild.pc
-Symlinking /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/share/catkin_tools_prebuild/cmake/catkin_tools_prebuildConfig-version.cmake
-Symlinking /home/bwilab/scavenger_hunt/robot/scavenger_hunt_ws/devel/share/catkin_tools_prebuild/cmake/catkin_tools_prebuildConfig.cmake
