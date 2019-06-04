@@ -13,6 +13,8 @@
   while($item = $stmt -> fetch()){
     $imageFilename = $item['filename'];
     $proofId = $item['proof_id'];
+    $huntInstrId = $item['hunt_instr_id'];
+    $uploaderId = $item['uploader_id'];
     include 'components/image-verify.html';
   }
 ?>
