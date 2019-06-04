@@ -12,23 +12,25 @@ firebase.auth().onAuthStateChanged(function(user) {
     $("#navbar").load(htmlComponentsPath + "navBarAuth.html");
 
     // Attempt to add the user to the SQL database if they haven't been already
-    $.ajax({
-      type: "POST",
-      url: "../../script/register.php",
-      data: {
-        "user_id": user.uid.hashCode(),
-        "email": user.email,
-        "university": window.university,
-        "pass_hash": document.getElementById("pass").value.hashCode()
-      },
-      success: function(data) {
-        /*if (page == "register.html")
-          window.location = "userhunts.html";*/
-      },
-      failure: function(data) {
-        console.log("Something went wrong with new user reg");
-      }
-    });
+    if (page == "register.html") {
+      $.ajax({
+        type: "POST",
+        url: "../../script/register.php",
+        data: {
+          "user_id": user.uid.hashCode(),
+          "email": user.email,
+          "university": window.university,
+          "pass_hash": document.getElementById("pass").value.hashCode()
+        },
+        success: function(data) {
+          if (page == "register.html")
+            window.location = "userhunts.html";
+        },
+        failure: function(data) {
+          console.log("Something went wrong with new user reg");
+        }
+      });
+    }
 
     // Point each of the nav bar items into the public_html folder (necessary
     // for navigation from index page to work)
