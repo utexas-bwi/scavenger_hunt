@@ -71,10 +71,14 @@ void ScavengerHunt::add_task(Task t) {
   tasks.push_back(t);
 }
 
-int ScavengerHunt::size() {
+Task ScavengerHunt::get_task(unsigned int index) {
+  return tasks[index];
+}
+
+unsigned int ScavengerHunt::size() {
   return tasks.size();
 }
 
-Task& ScavengerHunt::operator[](int i) {
+Task& ScavengerHunt::operator[](unsigned int i) {
   return tasks[i];
 }

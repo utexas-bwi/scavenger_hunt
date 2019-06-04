@@ -105,15 +105,20 @@ public:
   void add_task(Task t);
 
   /**
+    @brief gets the hunt task by index on [0, this->size())
+  */
+  Task get_task(unsigned int index);
+
+  /**
     @brief gets the number of tasks in the hunt
   */
-  int size();
+  unsigned int size();
 
   /**
     @brief lets you index tasks in the hunt via bracket operator, e.g.
            Task first_task = current_hunt[0];
   */
-  Task& operator[](int i);
+  Task& operator[](unsigned int i);
 };
 
 #endif

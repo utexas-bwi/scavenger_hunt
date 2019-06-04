@@ -26,10 +26,10 @@ public:
 
   /**
     Downloads a hunt from Scavenger Hunt.
-    TODO: actually write this
 
     @param hunt_name name of hunt you wish to participate in
-    @return hunt data
+    @return pointer to ScavengerHunt object containing hunt data, or nullptr
+            if something went wrong
   */
   ScavengerHunt* get_hunt(std::string hunt_name);
 

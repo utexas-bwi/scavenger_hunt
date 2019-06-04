@@ -103,6 +103,11 @@ ScavengerHuntClient::ScavengerHuntClient(std::string email,
   user_password_hash = strhash32(password);
 }
 
+std::string get_telemetry_tag(std::string user_email,
+    std::string method_name) {
+  return "[" + user_email + "//" + method_name + "] ";
+}
+
 ScavengerHunt* ScavengerHuntClient::get_hunt(std::string hunt_name) {
   // Configure cURL request
   CURL *curl = curl_easy_init();
@@ -125,14 +130,17 @@ ScavengerHunt* ScavengerHuntClient::get_hunt(std::string hunt_name) {
 
   if (http_response_code == 200) {
     // Response good
-    std::cout << "[get_hunt] Got response from Scavenger Hunt server. Parsing..." << std::endl;
+    std::cout << get_telemetry_tag(user_email, "get_hunt") <<
+        "Got response from Scavenger Hunt server. Parsing..." << std::endl;
 
     hunt = parse_hunt_xml(&http_received_data);
 
-    std::cout << "[get_hunt] Successfully parsed task data." << std::endl;
+    std::cout << get_telemetry_tag(user_email, "get_hunt") <<
+        "Successfully parsed " << hunt->size() << " task(s)." << std::endl;
   } else {
     // Couldn't contact website
-    std::cout << "[retrieve] Failed to contact Scavenger Hunt server." << std::endl;
+    std::cout << get_telemetry_tag(user_email, "get_hunt") <<
+        "Failed to contact Scavenger Hunt." << std::endl;
   }
 
   // Cleanup
@@ -142,11 +150,13 @@ ScavengerHunt* ScavengerHuntClient::get_hunt(std::string hunt_name) {
 }
 
 bool ScavengerHuntClient::send_proof(std::string image_path, Task &task) {
-  std::cout << "[send_proof] Preparing to send proof..." << std::endl;
+  std::cout << get_telemetry_tag(user_email, "send_proof") <<
+      "Preparing to send proof..." << std::endl;
 
   // Ensure path is valid
   if (!file_exists(image_path)) {
-    std::cout << "[send_proof] Could not find file \"" << image_path << "\". Are you sure that's the relative path?" << std::endl;
+    std::cout << get_telemetry_tag(user_email, "send_proof") <<
+        "Could not find file \"" << image_path << "\"." << std::endl;
     return false;
   }
 
@@ -193,6 +203,9 @@ bool ScavengerHuntClient::send_proof(std::string image_path, Task &task) {
 
   // Cleanup
   curl_easy_cleanup(curl);
+
+  std::cout << get_telemetry_tag(user_email, "send_proof") <<
+      "Proof uploaded!" << std::endl;
 
   return success;
 }
