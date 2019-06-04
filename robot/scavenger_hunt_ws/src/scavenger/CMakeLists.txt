@@ -129,11 +129,12 @@ include_directories(
 ## either from message generation or dynamic reconfigure
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_executable(json_test
-  src/scavenger_hunt.cpp
-  src/json_test.cpp)
+add_executable(client_test
+  src/scavenger_hunt_client.cpp
+  src/scavenger_hunt_structure.cpp
+  src/client_test.cpp)
 
-target_link_libraries(json_test
+target_link_libraries(client_test
     ${OpenCV_LIBS}
     ${catkin_LIBRARIES}
     curl

@@ -89,6 +89,17 @@ rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/usr/local/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
+
 # Special rule for the target test
 test:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
@@ -110,17 +121,6 @@ install/local: preinstall
 install/local/fast: install/local
 
 .PHONY : install/local/fast
-
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/usr/local/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
 
 # Special rule for the target install/strip
 install/strip: preinstall
@@ -426,17 +426,17 @@ std_msgs_generate_messages_eus/fast:
 .PHONY : std_msgs_generate_messages_eus/fast
 
 #=============================================================================
-# Target rules for targets named json_test
+# Target rules for targets named client_test
 
 # Build rule for target.
-json_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 json_test
-.PHONY : json_test
+client_test: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 client_test
+.PHONY : client_test
 
 # fast build rule for target.
-json_test/fast:
-	$(MAKE) -f CMakeFiles/json_test.dir/build.make CMakeFiles/json_test.dir/build
-.PHONY : json_test/fast
+client_test/fast:
+	$(MAKE) -f CMakeFiles/client_test.dir/build.make CMakeFiles/client_test.dir/build
+.PHONY : client_test/fast
 
 #=============================================================================
 # Target rules for targets named gmock
@@ -490,59 +490,86 @@ gtest_main/fast:
 	$(MAKE) -f gtest/gtest/CMakeFiles/gtest_main.dir/build.make gtest/gtest/CMakeFiles/gtest_main.dir/build
 .PHONY : gtest_main/fast
 
-src/json_test.o: src/json_test.cpp.o
+src/client_test.o: src/client_test.cpp.o
 
-.PHONY : src/json_test.o
-
-# target to build an object file
-src/json_test.cpp.o:
-	$(MAKE) -f CMakeFiles/json_test.dir/build.make CMakeFiles/json_test.dir/src/json_test.cpp.o
-.PHONY : src/json_test.cpp.o
-
-src/json_test.i: src/json_test.cpp.i
-
-.PHONY : src/json_test.i
-
-# target to preprocess a source file
-src/json_test.cpp.i:
-	$(MAKE) -f CMakeFiles/json_test.dir/build.make CMakeFiles/json_test.dir/src/json_test.cpp.i
-.PHONY : src/json_test.cpp.i
-
-src/json_test.s: src/json_test.cpp.s
-
-.PHONY : src/json_test.s
-
-# target to generate assembly for a file
-src/json_test.cpp.s:
-	$(MAKE) -f CMakeFiles/json_test.dir/build.make CMakeFiles/json_test.dir/src/json_test.cpp.s
-.PHONY : src/json_test.cpp.s
-
-src/scavenger_hunt.o: src/scavenger_hunt.cpp.o
-
-.PHONY : src/scavenger_hunt.o
+.PHONY : src/client_test.o
 
 # target to build an object file
-src/scavenger_hunt.cpp.o:
-	$(MAKE) -f CMakeFiles/json_test.dir/build.make CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.o
-.PHONY : src/scavenger_hunt.cpp.o
+src/client_test.cpp.o:
+	$(MAKE) -f CMakeFiles/client_test.dir/build.make CMakeFiles/client_test.dir/src/client_test.cpp.o
+.PHONY : src/client_test.cpp.o
 
-src/scavenger_hunt.i: src/scavenger_hunt.cpp.i
+src/client_test.i: src/client_test.cpp.i
 
-.PHONY : src/scavenger_hunt.i
+.PHONY : src/client_test.i
 
 # target to preprocess a source file
-src/scavenger_hunt.cpp.i:
-	$(MAKE) -f CMakeFiles/json_test.dir/build.make CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.i
-.PHONY : src/scavenger_hunt.cpp.i
+src/client_test.cpp.i:
+	$(MAKE) -f CMakeFiles/client_test.dir/build.make CMakeFiles/client_test.dir/src/client_test.cpp.i
+.PHONY : src/client_test.cpp.i
 
-src/scavenger_hunt.s: src/scavenger_hunt.cpp.s
+src/client_test.s: src/client_test.cpp.s
 
-.PHONY : src/scavenger_hunt.s
+.PHONY : src/client_test.s
 
 # target to generate assembly for a file
-src/scavenger_hunt.cpp.s:
-	$(MAKE) -f CMakeFiles/json_test.dir/build.make CMakeFiles/json_test.dir/src/scavenger_hunt.cpp.s
-.PHONY : src/scavenger_hunt.cpp.s
+src/client_test.cpp.s:
+	$(MAKE) -f CMakeFiles/client_test.dir/build.make CMakeFiles/client_test.dir/src/client_test.cpp.s
+.PHONY : src/client_test.cpp.s
+
+src/scavenger_hunt_client.o: src/scavenger_hunt_client.cpp.o
+
+.PHONY : src/scavenger_hunt_client.o
+
+# target to build an object file
+src/scavenger_hunt_client.cpp.o:
+	$(MAKE) -f CMakeFiles/client_test.dir/build.make CMakeFiles/client_test.dir/src/scavenger_hunt_client.cpp.o
+.PHONY : src/scavenger_hunt_client.cpp.o
+
+src/scavenger_hunt_client.i: src/scavenger_hunt_client.cpp.i
+
+.PHONY : src/scavenger_hunt_client.i
+
+# target to preprocess a source file
+src/scavenger_hunt_client.cpp.i:
+	$(MAKE) -f CMakeFiles/client_test.dir/build.make CMakeFiles/client_test.dir/src/scavenger_hunt_client.cpp.i
+.PHONY : src/scavenger_hunt_client.cpp.i
+
+src/scavenger_hunt_client.s: src/scavenger_hunt_client.cpp.s
+
+.PHONY : src/scavenger_hunt_client.s
+
+# target to generate assembly for a file
+src/scavenger_hunt_client.cpp.s:
+	$(MAKE) -f CMakeFiles/client_test.dir/build.make CMakeFiles/client_test.dir/src/scavenger_hunt_client.cpp.s
+.PHONY : src/scavenger_hunt_client.cpp.s
+
+src/scavenger_hunt_structure.o: src/scavenger_hunt_structure.cpp.o
+
+.PHONY : src/scavenger_hunt_structure.o
+
+# target to build an object file
+src/scavenger_hunt_structure.cpp.o:
+	$(MAKE) -f CMakeFiles/client_test.dir/build.make CMakeFiles/client_test.dir/src/scavenger_hunt_structure.cpp.o
+.PHONY : src/scavenger_hunt_structure.cpp.o
+
+src/scavenger_hunt_structure.i: src/scavenger_hunt_structure.cpp.i
+
+.PHONY : src/scavenger_hunt_structure.i
+
+# target to preprocess a source file
+src/scavenger_hunt_structure.cpp.i:
+	$(MAKE) -f CMakeFiles/client_test.dir/build.make CMakeFiles/client_test.dir/src/scavenger_hunt_structure.cpp.i
+.PHONY : src/scavenger_hunt_structure.cpp.i
+
+src/scavenger_hunt_structure.s: src/scavenger_hunt_structure.cpp.s
+
+.PHONY : src/scavenger_hunt_structure.s
+
+# target to generate assembly for a file
+src/scavenger_hunt_structure.cpp.s:
+	$(MAKE) -f CMakeFiles/client_test.dir/build.make CMakeFiles/client_test.dir/src/scavenger_hunt_structure.cpp.s
+.PHONY : src/scavenger_hunt_structure.cpp.s
 
 # Help Target
 help:
@@ -553,6 +580,7 @@ help:
 	@echo "... list_install_components"
 	@echo "... install"
 	@echo "... rebuild_cache"
+	@echo "... edit_cache"
 	@echo "... test"
 	@echo "... install/local"
 	@echo "... roscpp_generate_messages_py"
@@ -575,19 +603,21 @@ help:
 	@echo "... std_msgs_generate_messages_py"
 	@echo "... roscpp_generate_messages_lisp"
 	@echo "... std_msgs_generate_messages_eus"
-	@echo "... edit_cache"
-	@echo "... json_test"
+	@echo "... client_test"
 	@echo "... install/strip"
 	@echo "... gmock"
 	@echo "... gmock_main"
 	@echo "... gtest"
 	@echo "... gtest_main"
-	@echo "... src/json_test.o"
-	@echo "... src/json_test.i"
-	@echo "... src/json_test.s"
-	@echo "... src/scavenger_hunt.o"
-	@echo "... src/scavenger_hunt.i"
-	@echo "... src/scavenger_hunt.s"
+	@echo "... src/client_test.o"
+	@echo "... src/client_test.i"
+	@echo "... src/client_test.s"
+	@echo "... src/scavenger_hunt_client.o"
+	@echo "... src/scavenger_hunt_client.i"
+	@echo "... src/scavenger_hunt_client.s"
+	@echo "... src/scavenger_hunt_structure.o"
+	@echo "... src/scavenger_hunt_structure.i"
+	@echo "... src/scavenger_hunt_structure.s"
 .PHONY : help
 
 

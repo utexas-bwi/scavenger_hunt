@@ -1,4 +1,4 @@
-#include "scavenger/scavenger_hunt.h"
+#include "scavenger/scavenger_hunt_client.h"
 
 #include <cstdint>
 #include <fstream>
