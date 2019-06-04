@@ -10,24 +10,22 @@
         <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
         <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+        <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+        <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+        <script src="../script/firebase_init.js"></script>
     </head>
+
+
     <body>
-        <?php require '../script/nav_bar.php';?>
-        <button onclick="logout()">Logout</button>
+        <div id="navbar"></div>
         <section id="main" class = "full">
             <header class="major">
                 <h2>Verification</h2>
-            </header>
-            <img src="https://previews.123rf.com/images/sirikornt/sirikornt1501/sirikornt150100229/35858450-bottle-of-water-with-light-and-shadow-on-wooden-table.jpg" class = "vImage">
-
-            <p class = "ques">
-                Is this a water bottle?
-                <br>
-            <input type="radio" value="yes"> Yes<br>
-            <input type="radio" value="no"> No<br>
-            <input type="radio" value="maybe" checked> Not Sure<br><br>
-            <input type="submit" class="button scrolly"  value="submit">
-            </p>
+            </header>o
+            <!-- <img src="https://previews.123rf.cm/images/sirikornt/sirikornt1501/sirikornt150100229/35858450-bottle-of-water-with-light-and-shadow-on-wooden-table.jpg" class = "vImage"> -->
+            
+            <!-- populates all unverified images onto the page for the user to check proofs -->
+            <?php include '../script/verify.php';?>
         </section>
 
         <footer id="footer" class = "foot">
@@ -35,19 +33,11 @@
                 &copy; Copyright 2019 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
             </span>
         </footer>
-        <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
-        <script>
-          // Initialize Firebase
-          var config = {
-            apiKey: "AIzaSyCYjHj1mc4vZqxNNYG6NB5S4NWYZ7d07lY",
-            authDomain: "scavhunt-login.firebaseapp.com",
-            databaseURL: "https://scavhunt-login.firebaseio.com",
-            projectId: "scavhunt-login",
-            storageBucket: "scavhunt-login.appspot.com",
-            messagingSenderId: "446710554532"
-          };
-          firebase.initializeApp(config);
-        </script>
+       
+        
+         <script>
+                var htmlComponentsPath = 'components/';
+            </script>
          <script src="css/index.js"></script>
     </body>
 

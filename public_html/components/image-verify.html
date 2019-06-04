@@ -1,0 +1,15 @@
+<img src = "../proof/<?php echo $imageFilename; ?>" class="vImage">
+
+<script src="../../script/verify.js"></script>
+
+<!-- Question associated with the Task-id -->
+<!-- TODO vary question based on the task -->
+<div id="question">
+  <p class = "ques">
+      Is this a water bottle?
+      <br>
+  <input type="radio" name="check" id="check_yes" value="yes"> Yes<br>
+  <input type="radio" name="check" id="check_no" value="no"> No<br>
+  <input type="submit" class="button scrolly" id="submit" value="submit" onclick="this.value = 'Submitted'; updateTable('<?php echo $proofId; ?>')">  
+</p>
+</div>
