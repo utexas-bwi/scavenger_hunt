@@ -55,8 +55,8 @@ ScavengerHuntClient::ScavengerHuntClient(std::string email,
   user_password_hash = strhash32(password);
 }
 
-void ScavengerHuntClient::get_hunts() {
-  // Configure cURL request
+ScavengerHunt ScavengerHuntClient::get_hunt(std::string hunt_name) {
+  /*// Configure cURL request
   CURL *curl = curl_easy_init();
   std::string http_received_data;
 
@@ -93,11 +93,10 @@ void ScavengerHuntClient::get_hunts() {
   }
 
   // Cleanup
-  curl_easy_cleanup(curl);
+  curl_easy_cleanup(curl);*/
 }
 
-bool ScavengerHuntClient::send_proof(std::string image_path,
-    unsigned int instruction_id) {
+bool ScavengerHuntClient::send_proof(std::string image_path, Task &task) {
   std::cout << "[send_proof] Preparing to send proof..." << std::endl;
 
   // Ensure path is valid
@@ -114,7 +113,7 @@ bool ScavengerHuntClient::send_proof(std::string image_path,
 	struct curl_httppost *post_end = NULL;
 
   std::string password_hash_str = std::to_string(user_password_hash);
-  std::string instruction_id_str = std::to_string(instruction_id);
+  std::string instruction_id_str = std::to_string(task.get_hunt_task_id());
 
   // Create upload form
   curl_formadd(&post_begin,

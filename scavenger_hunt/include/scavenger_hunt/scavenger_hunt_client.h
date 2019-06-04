@@ -1,6 +1,8 @@
 #ifndef SCAVENGER_HUNT_CLIENT_H
 #define SCAVENGER_HUNT_CLIENT_H
 
+#include "scavenger_hunt/scavenger_hunt_structure.h"
+
 #include <curl/curl.h>
 #include <json/json.h>
 
@@ -24,19 +26,23 @@ public:
   ScavengerHuntClient(std::string email, std::string password);
 
   /**
-    @brief not working currently; do not call or computer explode
+    Downloads a hunt from Scavenger Hunt.
+    TODO: actually write this
+
+    @param hunt_name name of hunt you wish to participate in
+    @return hunt data
   */
-  void get_hunts();
+  ScavengerHunt get_hunt(std::string hunt_name);
 
   /**
     Uploads an image proof to Scavenger Hunt.
 
     @param image_path path of proof
-    @param task_id ID of task you are proving completion of
+    @param task task you are proving completion of
     @return if a response was received from the server; not necessarily a
             successful upload
   */
-  bool send_proof(std::string image_path, unsigned int task_id);
+  bool send_proof(std::string image_path, Task &task);
 };
 
 #endif
