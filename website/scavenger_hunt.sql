@@ -44,16 +44,6 @@ CREATE TABLE `hunt_instructions_table` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `hunt_instructions_table`
---
-
-LOCK TABLES `hunt_instructions_table` WRITE;
-/*!40000 ALTER TABLE `hunt_instructions_table` DISABLE KEYS */;
-INSERT INTO `hunt_instructions_table` VALUES (1,5,'Color Shirt','yellow'),(1,8,'Color Shirt','red'),(1,28,'Target Search','can'),(1,29,'Object Delivery',''),(2,30,'Target Search','can'),(2,31,'Human Following',''),(2,32,'Color Shirt','red'),(2,33,'Object Delivery',''),(2,34,'Human Following',''),(2,35,'Target Search','shoe'),(2,36,'Color Shirt','red'),(3,42,'Object Delivery',''),(3,43,'Human Following','');
-/*!40000 ALTER TABLE `hunt_instructions_table` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `hunt_table`
 --
 
@@ -70,16 +60,6 @@ CREATE TABLE `hunt_table` (
   CONSTRAINT `hunt_table_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user_table` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `hunt_table`
---
-
-LOCK TABLES `hunt_table` WRITE;
-/*!40000 ALTER TABLE `hunt_table` DISABLE KEYS */;
-INSERT INTO `hunt_table` VALUES (1,'Hunt Name','2019-01-01',1),(2,'A Second Hunt','2019-04-10',1),(3,'New Hunt Test','2019-04-10',1);
-/*!40000 ALTER TABLE `hunt_table` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `task_param_table`
@@ -103,7 +83,7 @@ CREATE TABLE `task_param_table` (
 
 LOCK TABLES `task_param_table` WRITE;
 /*!40000 ALTER TABLE `task_param_table` DISABLE KEYS */;
-INSERT INTO `task_param_table` VALUES (1,'object','can, pencil, shoe'),(2,'color','yellow, red, blue, green'),(3,'','');
+INSERT INTO `task_param_table` VALUES (1,'object','soda can'),(2,'location','workshop'),(3,'','');
 /*!40000 ALTER TABLE `task_param_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -127,16 +107,6 @@ CREATE TABLE `task_table` (
   CONSTRAINT `task_table_ibfk_1` FOREIGN KEY (`param_name`) REFERENCES `task_param_table` (`param_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `task_table`
---
-
-LOCK TABLES `task_table` WRITE;
-/*!40000 ALTER TABLE `task_table` DISABLE KEYS */;
-INSERT INTO `task_table` VALUES (1,'Color Shirt','color','picture (jpg) of the person wearing the shirt',100,'Take a picture of a person who is wearing a specific color shirt.'),(2,'Target Search','object','picture (jpg) of the specified object',100,'Take a picture of the specified object.'),(3,'Human Following','','picture (jpg) of the human and picture (jpg) of the trajectories walked by the human and robot',100,'Follow a human for a certain distance.'),(4,'Object Delivery','','time-stamped description of object by person who gives the task and time-stamped description of object by person at ending location',150,'Find a person who is willing to specify an object to deliver from one location to another. Objects and locations can be selected through the robot UI in real time. Once the robot delivers the object, it should find a person at the ending location who can describe the object.');
-/*!40000 ALTER TABLE `task_table` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `task_table_backup`
