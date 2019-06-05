@@ -5,6 +5,7 @@ include_once 'auth.php';
 $dbh = connect();
 $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 try {
+	global $dom, $node, $parnode;
 	// get the current hunt tasks from the database
 	$query = "SELECT DISTINCT hunt_id FROM hunt_instructions_table";
 	$stmt = $dbh->query($query);
@@ -34,28 +35,30 @@ try {
 		  //$xml->writeAttribute('hunt_instr_id', $row['hunt_instr_id']);
 
 		  $xml->startElement('task');
-		  $xml->writeAttribute('name', $row[task_type]);
-		  $xml->writeAttribute('description', $task[description]);
-		  $xml->writeAttribute('proof_format', $task[proof_type]);
+		  $xml->writeAttribute('name', $row['task_type']);
+		  $xml->writeAttribute('description', $task['description']);
+		  $xml->writeAttribute('proof_format', $task['proof_type']);
       $xml->writeAttribute('proof_description', "");
-		  $xml->writeAttribute('points', $task[score]);
-		  $xml->writeAttribute('id', $task[id]);
+		  $xml->writeAttribute('points', $task['score']);
+		  $xml->writeAttribute('id', $task['id']);
 
-		  $xml->startElement('parameters');
-		  $xml->writeAttribute('name', $task[param_name]);
-		  $xml->writeAttribute('value', $row[param_value]);
+		  $xml->startElement('parameter');
+		  $xml->writeAttribute('name', $task['param_name']);
+		  $xml->writeAttribute('value', $row['param_value']);
       $xml->endElement();
-      
+
 		  $xml->endElement();
     }
 
     $xml->endElement();
   }
+	$xml->endDocument();
 	$xml->flush();
 
 	// send back to robot
 	header('Content-type: text/xml');
 	echo($xml);
+	exit(0);
 } catch (PDOException $e) {
 	die($e->getMessage());
 }

@@ -1,3 +1,0 @@
-make: /usr/local/bin/cmake: Command not found
-make: *** [cmake_check_build_system] Error 127
-Makefile:602: recipe for target 'cmake_check_build_system' failed

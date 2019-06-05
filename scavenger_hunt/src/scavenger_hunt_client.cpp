@@ -9,7 +9,7 @@
 
 using namespace rapidxml;
 
-static const char DOWNLOAD_URL[] = "localhost/xml/hunt.xml";
+static const char DOWNLOAD_URL[] = "localhost/script/get_tasks.php";
 static const char UPLOAD_URL[] = "localhost/script/upload_proof.php";
 
 static std::string user_email;
@@ -124,11 +124,10 @@ ScavengerHunt* ScavengerHuntClient::get_hunt(std::string hunt_name) {
   int http_response_code = 0;
 
   curl_easy_perform(curl);
-  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
 
   ScavengerHunt *hunt = nullptr;
 
-  if (http_response_code == 200) {
+  if (http_received_data.length() > 0) {
     // Response good
     std::cout << get_telemetry_tag(user_email, "get_hunt") <<
         "Got response from Scavenger Hunt server. Parsing..." << std::endl;
