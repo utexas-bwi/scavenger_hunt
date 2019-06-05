@@ -104,10 +104,10 @@ FIND_LIBRARY(curl-7.65.0 curl curl-7.65.0)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES scavenger_hunt
-#  CATKIN_DEPENDS roscpp rospy std_msgs
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES scavenger_hunt
+  CATKIN_DEPENDS roscpp std_msgs
+  DEPENDS curl
 )
 
 ###########
@@ -136,6 +136,10 @@ target_link_libraries(client_test
     ${OpenCV_LIBS}
     ${catkin_LIBRARIES}
     curl)
+
+add_library(scavenger_hunt
+  src/scavenger_hunt_client.cpp
+  src/scavenger_hunt_structure.cpp)
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
@@ -204,3 +208,9 @@ target_link_libraries(client_test
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+## Install project namespaced headers
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN ".svn" EXCLUDE)

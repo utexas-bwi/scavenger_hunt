@@ -1,4 +1,4 @@
-#include "scavenger_hunt/scavenger_hunt_structure.h"
+#include <scavenger_hunt/scavenger_hunt_structure.h>
 
 Task::Task(std::string name,
            std::string task_description,

@@ -1,21 +1,14 @@
-#include <fstream>
-#include <iostream>
-#include <scavenger_hunt/rapidxml.hpp>
+#include <ros/ros.h>
 #include <scavenger_hunt/scavenger_hunt.h>
-#include <string>
-#include <vector>
 
-#include <actionlib/client/simple_action_client.h>
-#include <move_base_msgs/MoveBaseAction.h>
+int main(int argc, char **argv) {
+  ros::init(argc, argv, "test");
+  ROS_INFO("hello");
 
-
-using namespace rapidxml;
-
-int main(int argc, char** argv) {
   ScavengerHuntClient client("stefandebruyn@utexas.edu", "sick robots");
   ScavengerHunt *hunt = client.get_hunt("Longhorn Hunt");
 
-  if (hunt != nullptr) {
+  if (hunt != NULL) {
     for (int i = 0; i < hunt->size(); i++)
       std::cout << hunt->get_task(i); // (*hunt)[i] also works
 
