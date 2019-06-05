@@ -6,8 +6,9 @@ $dbh = connect();
 $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 try {
 	global $dom, $node, $parnode;
-	// get the current hunt tasks from the database
-	$query = "SELECT * FROM hunt_table";
+  // get the current hunt tasks from the database
+  $name = $_POST['hunt_name'];
+	$query = "SELECT * FROM hunt_table WHERE hunt_name = $name";
 	$stmt = $dbh->query($query);
 	$stmt->setFetchMode(PDO::FETCH_ASSOC);
 	// convert to XML
