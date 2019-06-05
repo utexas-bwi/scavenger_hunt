@@ -1,0 +1,8 @@
+Symlinking /home/bwilab/scavenger_hunt/scavenger_hunt/devel/./setup.sh
+Symlinking /home/bwilab/scavenger_hunt/scavenger_hunt/devel/./setup.zsh
+Symlinking /home/bwilab/scavenger_hunt/scavenger_hunt/devel/./setup.bash
+Symlinking /home/bwilab/scavenger_hunt/scavenger_hunt/devel/./_setup_util.py
+Symlinking /home/bwilab/scavenger_hunt/scavenger_hunt/devel/./env.sh
+Symlinking /home/bwilab/scavenger_hunt/scavenger_hunt/devel/lib/pkgconfig/catkin_tools_prebuild.pc
+Symlinking /home/bwilab/scavenger_hunt/scavenger_hunt/devel/share/catkin_tools_prebuild/cmake/catkin_tools_prebuildConfig.cmake
+Symlinking /home/bwilab/scavenger_hunt/scavenger_hunt/devel/share/catkin_tools_prebuild/cmake/catkin_tools_prebuildConfig-version.cmake

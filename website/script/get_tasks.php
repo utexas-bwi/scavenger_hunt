@@ -7,7 +7,7 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 try {
 	global $dom, $node, $parnode;
 	// get the current hunt tasks from the database
-	$query = "SELECT DISTINCT hunt_id FROM hunt_instructions_table";
+	$query = "SELECT * FROM hunt_table";
 	$stmt = $dbh->query($query);
 	$stmt->setFetchMode(PDO::FETCH_ASSOC);
 	// convert to XML
@@ -17,9 +17,10 @@ try {
 	$xml->startDocument();
 	$xml->setIndent(true);
 
-	while ($huntId = $stmt->fetch()) {
-    $huntName = $huntId['hunt_id'];
-    $query = "SELECT * FROM hunt_instructions_table WHERE hunt_id = $huntName";
+	while ($huntTable = $stmt->fetch()) {
+    $huntName = $huntTable['hunt_name'];
+    $huntId = $huntTable['hunt_id'];
+    $query = "SELECT * FROM hunt_instructions_table WHERE hunt_id = $huntId";
 	  $newStmt = $dbh->query($query);
     $newStmt->setFetchMode(PDO::FETCH_ASSOC);
 
