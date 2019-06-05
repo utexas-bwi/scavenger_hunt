@@ -64,6 +64,10 @@ ScavengerHunt* parse_hunt_xml(std::string *xml) {
 
   doc.parse<0>(buffer);
   root_node = doc.first_node("hunt");
+
+  if (root_node == nullptr)
+    return nullptr;
+
   std::string hunt_name = root_node->first_attribute("name")->value();
 
   ScavengerHunt *hunt = new ScavengerHunt(hunt_name);
@@ -145,8 +149,12 @@ ScavengerHunt* ScavengerHuntClient::get_hunt(std::string hunt_name) {
 
     hunt = parse_hunt_xml(&http_received_data);
 
-    std::cout << get_telemetry_tag(user_email, "get_hunt") <<
-        "Successfully parsed " << hunt->size() << " task(s)." << std::endl;
+    if (hunt != nullptr)
+      std::cout << get_telemetry_tag(user_email, "get_hunt") <<
+          "Successfully parsed " << hunt->size() << " task(s)." << std::endl;
+    else
+      std::cout << get_telemetry_tag(user_email, "get_hunt") <<
+          "Could not find hunt with name \"" << hunt_name << "\"." << std::endl;
   } else {
     // Couldn't contact website
     std::cout << get_telemetry_tag(user_email, "get_hunt") <<
