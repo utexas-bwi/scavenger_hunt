@@ -120,6 +120,17 @@ ScavengerHunt* ScavengerHuntClient::get_hunt(std::string hunt_name) {
       curl_write_cb);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &http_received_data);
 
+  struct curl_httppost *post_begin = NULL;
+	struct curl_httppost *post_end = NULL;
+
+  curl_formadd(&post_begin,
+               &post_end,
+             	 CURLFORM_COPYNAME, "hunt_name",
+             	 CURLFORM_COPYCONTENTS, hunt_name.c_str(),
+             	 CURLFORM_END);
+  curl_easy_setopt(curl, CURLOPT_POST, true);
+  curl_easy_setopt(curl, CURLOPT_HTTPPOST, post_begin);
+
   // Fetch website response
   int http_response_code = 0;
 
