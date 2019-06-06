@@ -69,17 +69,19 @@ Then, restart MySQL:
 
 ## Viewing the Website
 
-The website is currently set up on Ozil, Kane, and Rodriguez. It is also technically set up on Kif, but that machine is very old and has lots of scrambled privileges. Avoid headaches; don't use Kif.
+The website is currently set up on Ozil, Kane, Rodriguez, and Lukaku. It is also technically set up on Kif, but that machine is very old and has lots of scrambled privileges. Avoid headaches; don't use Kif.
 
-To view the website, point your browser at `localhost`. You can also view it from a different machine at `localhost:8080` if you first SSH:
+To view the website, point your browser at `localhost`. You can also view it from a different machine at `localhost:8080` if you first open an SSH tunnel on the client machine:
 
 ```
-ssh -L 8080:128.83.143.224:80 bwilab@[ozil/kane/rodriguez/kif].csres.utexas.edu
+ssh -L 8080:localhost:80 bwilab@[ozil/kane/rodriguez/lukaku/kif].csres.utexas.edu
 ```
+
+This is how we enable robots to see the website. Note that, for this to work, the host machine must be turned on and have Apache running. To verify this, see if the site populates on the host machine's `localhost`.
 
 When working on the site, you'll need to copy the repository's contents into `/var/www/html` on the host machine to see your changes propogated:
 
 ```
-cd scavenger_hunt
+cd website
 sudo cp -r * /var/www/html
 ```
