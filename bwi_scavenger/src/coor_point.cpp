@@ -2,7 +2,7 @@
 #include <geometry_msgs>
 
 void explore(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr &curPose){
-  sdt::cout << "Coordinate Point: (" << curPose->pose->pose->position->x << ", " << curPose->pose->pose->position->x << ")" std::endl;;
+  sdt::cout << "Coordinate Point: (" << curPose->pose->pose->position->x << ", " << curPose.pose.pose.position.x << ")" << std::endl;;
 }
 
 int main(int arc, char **argv){

@@ -17,6 +17,10 @@ find_package(catkin REQUIRED COMPONENTS
   darknet_ros_msgs
   cv_bridge
   actionlib
+  geometry_msgs
+  move_base_msgs
+  actionlib
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -139,6 +143,15 @@ include_directories(
 
 add_executable(client_test
   src/client_test.cpp)
+
+
+add_executable(move_robot
+  src/move_robot.cpp)
+
+
+target_link_libraries(move_robot
+    ${OpenCV_LIBS}
+    ${catkin_LIBRARIES})
 
 target_link_libraries(client_test
     ${OpenCV_LIBS}
