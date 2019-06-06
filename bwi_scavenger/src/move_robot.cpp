@@ -10,10 +10,7 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 
 std::string gridFrameId;
 bool moved = false;
-
-void map(const nav_msgs::OccupancyGrid::ConstPtr &grid){
-  gridFrameId = grid->header.frame_id;
-}
+tf::TransformListener tfL;
 
 void move(){
   if(!moved){
@@ -52,8 +49,6 @@ void move(){
     goalPose.pose.orientation.w = 1;
 
     geometry_msgs::PoseStamped tag_rel_pose;
-    
-    tf::TransformListener tfL;
 
     tfL.waitForTransform("base_link", goalPose.header.frame_id, ros::Time::now(), ros::Duration(4));
     tfL.transformPose("base_link", goalPose, tag_rel_pose);
@@ -66,8 +61,13 @@ void move(){
     ac.waitForResult();
     moved = true;
   }
-
 } 
+
+void map(const nav_msgs::OccupancyGrid::ConstPtr &grid){
+  gridFrameId = grid->header.frame_id;
+  move();
+}
+
 
 int main(int argc, char **argv){
 
