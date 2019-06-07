@@ -65,7 +65,7 @@ void RobotMotion::turn(float degrees) {
 
   goal_pose.header.seq = 0;
   goal_pose.header.stamp = ros::Time(0);
-  goal_pose.header.frame_id = grid_frame_id;
+  goal_pose.header.frame_id = "base_link";
 
   goal_pose.pose.position.x = goal_pose.pose.position.y = goal_pose.pose.position.z = 0;
   goal_pose.pose.orientation = geom_quat;

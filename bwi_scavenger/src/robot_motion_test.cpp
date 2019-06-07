@@ -9,7 +9,7 @@ void set_id(const nav_msgs::OccupancyGrid::ConstPtr &grid) {
     set_grid_frame_id = true;
 
     RobotMotion rm(gfid);
-    rm.turn(90);
+    rm.turn(45);
   }
 
 }
