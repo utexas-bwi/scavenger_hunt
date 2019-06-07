@@ -8,26 +8,12 @@
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-std::string gridFrameId;
+std::string gridFrameId = "";
 bool moved = false;
-tf::TransformListener tfL;
+tf::TransformListener* tfl = NULL;
 
 void move(){
-  if(!moved){
-
-    // tf::StampedTransform initialBaseTransform;
-
-    // tfL.waitForTransform(gridFrameId, "base_link", ros::Time::now(), ros::Duration(4));
-    // tfL.lookupTransform(gridFrameId, "base_link", ros::Time(0), initialBaseTransform);
-
-    // initialPose.position.x = initialBaseTransform.getOrigin().getX();
-    // initialPose.position.y = initialBaseTransform.getOrigin().getY();
-    // initialPose.position.z = initialBaseTransform.getOrigin().getZ();
-
-    // initialPose.orientation.x = initialBaseTransform.getRotation().getX();
-    // initialPose.orientation.y = initialBaseTransform.getRotation().getY();
-    // initialPose.orientation.z = initialBaseTransform.getRotation().getZ();
-    // initialPose.orientation.w = initialBaseTransform.getRotation().getW();
+  if(!moved && gridFrameId != ""){
 
     MoveBaseClient ac("move_base", true);
 
@@ -39,19 +25,26 @@ void move(){
 
     geometry_msgs::PoseStamped goalPose;
 
-    //set goalPose to target goal
     goalPose.header.seq = 0;
-    goalPose.header.stamp = ros::Time::now();
+    goalPose.header.stamp = ros::Time(0);
     goalPose.header.frame_id = gridFrameId;
 
+    //temp goalPose at a point outside bwi lab next to grad student cubicles
     goalPose.pose.position.x = -39.33;
     goalPose.pose.position.y = -11.23;
+
+    // test points for simulation
+    // goalPose.pose.position.x = 14.956;
+    // goalPose.pose.position.y = 109.94;
+
+    //TODO adjust this so it doesn't stay the same orientation all the time
     goalPose.pose.orientation.w = 1;
 
     geometry_msgs::PoseStamped tag_rel_pose;
 
-    tfL.waitForTransform("base_link", goalPose.header.frame_id, ros::Time::now(), ros::Duration(4));
-    tfL.transformPose("base_link", goalPose, tag_rel_pose);
+    tfl->waitForTransform("base_link", goalPose.header.frame_id, ros::Time::now(), ros::Duration(4));
+    //ERROR exrtapolation into past
+    tfl->transformPose("base_link", goalPose, tag_rel_pose);
 
     tag_rel_pose.pose.position.z = 0;
     goal.target_pose = tag_rel_pose;
@@ -68,17 +61,10 @@ void map(const nav_msgs::OccupancyGrid::ConstPtr &grid){
   move();
 }
 
-
 int main(int argc, char **argv){
-
-  ros::init(argc, argv, "coor_point");
-
+  ros::init(argc, argv, "move_robot");
   ros::NodeHandle node;
-
+  tfl = new (tf::TransformListener);
   ros::Subscriber mapSub = node.subscribe("/level_mux/map", 1, map);
-  move();
-
   ros::spin();
-  
-
 }

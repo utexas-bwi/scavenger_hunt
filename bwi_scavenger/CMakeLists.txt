@@ -146,15 +146,6 @@ include_directories(
 add_executable(client_test
   src/client_test.cpp)
 
-
-add_executable(move_robot
-  src/move_robot.cpp)
-
-
-target_link_libraries(move_robot
-    ${OpenCV_LIBS}
-    ${catkin_LIBRARIES})
-
 target_link_libraries(client_test
     ${OpenCV_LIBS}
     ${catkin_LIBRARIES}
@@ -166,6 +157,20 @@ add_executable(yolo_test
 
 target_link_libraries(yolo_test
     ${OpenCV_LIBS}
+    ${catkin_LIBRARIES})
+
+add_executable(move_robot
+  src/move_robot.cpp)
+
+target_link_libraries(move_robot
+    ${OpenCV_LIBS}
+    ${catkin_LIBRARIES})
+
+add_executable(coor_point
+  src/coor_point.cpp)
+
+target_link_libraries(coor_point
+    ${OepnCV_LIBS}
     ${catkin_LIBRARIES})
 
 add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
