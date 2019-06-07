@@ -14,12 +14,12 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 
 enum environment_location {
   BWI_LAB_RIGHT,
-  BWI_LAB_LEFT,
+  CLEARING_RIGHT,
   WHITEBOARD_ROOM,
   CLEARING_LEFT,
-  CLEARING_RIGHT,
   ALCOVE,
-  KITCHEN
+  KITCHEN,
+  BWI_LAB_LEFT
 };
 
 static std::map<environment_location, std::pair<float, float>>

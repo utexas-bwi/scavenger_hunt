@@ -1,1 +1,1 @@
-sensor_msgs/Image data
+sensor_msgs/Image image

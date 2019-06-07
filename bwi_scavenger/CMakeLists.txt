@@ -174,6 +174,14 @@ target_link_libraries(coor_point
     ${OepnCV_LIBS}
     ${catkin_LIBRARIES})
 
+add_executable(find_object_test
+    src/find_object.cpp
+    src/robot_motion.cpp)
+
+target_link_libraries(find_object_test
+    ${OpenCV_LIBS}
+    ${catkin_LIBRARIES})
+
 add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
