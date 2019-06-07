@@ -49,11 +49,12 @@ void RobotMotion::move_to_location(environment_location location) {
 
 void RobotMotion::turn(float degrees) {
   double start = ros::Time::now().toSec();
+  float radians = degrees * (PI / 180);
 
-  ROS_INFO("[RobotMotion] Executing relative turn of %f degrees", degrees);
+  ROS_INFO("[RobotMotion] Executing relative turn of %f degrees (%f radians)", degrees, radians);
 
   tf::Quaternion quat;
-  quat.setRPY(0, 0, degrees * (PI / 180));
+  quat.setRPY(0, 0, radians);
   quat.normalize();
 
   geometry_msgs::Quaternion geom_quat;
@@ -66,7 +67,9 @@ void RobotMotion::turn(float degrees) {
   goal_pose.header.stamp = ros::Time(0);
   goal_pose.header.frame_id = grid_frame_id;
 
+  goal_pose.pose.position.x = goal_pose.pose.position.y = goal_pose.pose.position.z = 0;
   goal_pose.pose.orientation = geom_quat;
+  goal.target_pose = goal_pose;
 
   ac->sendGoal(goal);
   ac->waitForResult();
