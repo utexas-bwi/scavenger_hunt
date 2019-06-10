@@ -151,6 +151,14 @@ target_link_libraries(client_test
     ${catkin_LIBRARIES}
     curl)
 
+add_executable(state_machine_test
+  src/state_machine_test.cpp
+  src/state_machine.cpp)
+
+target_link_libraries(state_machine_test
+    ${OpenCV_LIBS}
+    ${catkin_LIBRARIES})
+
 add_executable(yolo_test
   src/yolo_test.cpp
   src/cv_sweep.cpp)
