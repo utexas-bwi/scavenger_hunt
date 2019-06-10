@@ -181,7 +181,8 @@ DROP TABLE IF EXISTS `score_table`;
 CREATE TABLE `score_table` (
   `university` varchar(255) NOT NULL,
   `score` int(11) NOT NULL,
-  `percent_success` int(11) NOT NULL,
+  `num_verified` int(11) NOT NULL,
+  `num_correct` int(11) NOT NULL,
   PRIMARY KEY (`university`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
