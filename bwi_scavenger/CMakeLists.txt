@@ -62,6 +62,7 @@ catkin REQUIRED COMPONENTS
  add_message_files(
    FILES
    proof.msg
+   scavenger_move.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -156,6 +157,14 @@ add_executable(state_machine_test
   src/state_machine.cpp)
 
 target_link_libraries(state_machine_test
+    ${OpenCV_LIBS}
+    ${catkin_LIBRARIES})
+
+add_executable(find_object_node
+  src/find_object_node.cpp
+  src/state_machine.cpp)
+
+target_link_libraries(find_object_node
     ${OpenCV_LIBS}
     ${catkin_LIBRARIES})
 

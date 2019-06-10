@@ -47,6 +47,10 @@ void StateMachine::init(state_id_t initial_state_id) {
 }
 
 bool StateMachine::run(SystemStateVector *ssv) {
+  if (iterations == 0)
+    current_state->on_transition_to(ssv);
+  iterations++;
+
   current_state->update(ssv);
   State *current_state_old = current_state;
   current_state = current_state->attempt_transition(ssv);

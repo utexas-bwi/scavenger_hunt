@@ -93,6 +93,7 @@ protected:
   std::vector<State*> states;
   std::vector<state_id_t> end_states;
   State *current_state;
+  int iterations = 0;
 
 public:
   /**
