@@ -10,74 +10,57 @@
 #include <std_msgs/String.h>
 #include <std_msgs/Int8.h>
 #include <sensor_msgs/Image.h>
+#include <string>
 
 
 const std::string thisTask = "Find Object";
-std::string objectToFind = "";
+std::string objectToFind = "chair";
 ros::Publisher proofPub;
+ros::Publisher findPub;
 bool objectFound = false;
+bool saved = false;
 sensor_msgs::Image image;
-RobotMotion *rm;
+std_msgs::String found;
 
 // goes through the objects in view and checks if the object has been found
-void objects(const darknet_ros_msgs::BoundingBoxes::ConstPtr &objects){
-  for(int i = 0; i < objects -> bounding_boxes.size(); i++){
-    if (objects -> bounding_boxes[i].Class == objectToFind){
-      objectFound = true;
+void objectsCb(const darknet_ros_msgs::BoundingBoxes::ConstPtr &objects){
+  if(!objectFound){
+    for(int i = 0; i < objects -> bounding_boxes.size(); i++){
+      if (objects -> bounding_boxes[i].Class == objectToFind){
+        objectFound = true;
+        found.data = "found";
+        findPub.publish(found);
+      }
     }
   }
 }
 
 // saves the image that YOLO produces if the object has been found in that image
 void imageCb(const sensor_msgs::Image::ConstPtr &img){
-  if(objectFound = true){
+  if(objectFound && !saved){
+    std::cout << "found object, now \"saving\" it!" << std::endl;
     cv_bridge::CvImagePtr cv_ptr;
     cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
-    // names the image by its header sequence
-    cv::imwrite(img->header.seq + "", cv_ptr -> image);
-    // give back image name to the 
-    proofPub.publish(*img);
-    objectFound = false;
+    // cv::imshow("HI", cv_ptr->image);
+    //names the image by its header sequence
+    std::string name = std::to_string(img->header.seq);
+    cv::imwrite(name + ".jpg", cv_ptr -> image);
+    //give back image name to the 
+    // proofPub.publish(*img);
+    saved = true;
   }
-}
-
-// callback for if the task is to find the object
-// void findObject(const std_msgs::String::ConstPtr &task){
-void findObject(const nav_msgs::OccupancyGrid::ConstPtr &grid){
-  // if(task->data == thisTask){
-    //TODO get name of the object to find
-    objectToFind = "chair";
-    int numLocations = 7;
-    int rotation = 45;
-    // loop through points that the robot will explore and send to move_robot
-    for(int location = 0; location < numLocations; location++){
-      environment_location goal = static_cast<environment_location>(location);
-      rm->move_to_location(goal);
-      // rotate enough to make a 360
-      for(int i = 0; i < 360 / rotation; i++){
-        if(objectFound)
-          break; // then return home
-        rm->turn(rotation);
-        //buffer for robot to look for object because YOLO is slow on the computers
-        ros::Duration(2).sleep();
-      }
-    }
-  // }
 }
 
 int main(int argc, char **argv){
   ros::init(argc, argv, "find_object");
-  ros::NodeHandle node;
+  ros::NodeHandle yoloNode;
 
-  //TODO get the grid frame id 
-  rm = new RobotMotion("asdf");
+  ros::Subscriber boundingBoxSub = yoloNode.subscribe("/darknet_ros/bounding_boxes/", 100, objectsCb);
+  ros::Subscriber imageSub = yoloNode.subscribe("/darknet_ros/detection_image/", 100, imageCb);
 
-  ros::Subscriber boundingBoxSub = node.subscribe("/darknet_ros/bounding_boxes/", 100, objects);
-  ros::Subscriber imageSub = node.subscribe("/darknet_ros/detection_image/", 100, imageCb);
+  findPub = yoloNode.advertise<std_msgs::String>("/objectFinder", 100);
 
-  ros::Subscriber taskSub = node.subscribe("/level_mux/map", 100, findObject);
-
-  proofPub = node.advertise<bwi_scavenger::proof>("proof", 100);
+  proofPub = yoloNode.advertise<bwi_scavenger::proof>("proof", 100);
 
   ros::spin();
 }
