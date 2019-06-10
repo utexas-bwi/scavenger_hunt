@@ -13,6 +13,11 @@ RobotMotion::RobotMotion(std::string grid_frame_id) {
   ROS_INFO("[RobotMotion] Connected to MoveBaseClient.");
 }
 
+void RobotMotion::end_movement(){
+  move_base_msgs::MoveBaseGoal goal;
+  ac->cancelGoal();
+}
+
 void RobotMotion::move_to_location(environment_location location) {
   std::pair<float, float> coordinates =
       environment_location_coordinates[location];
@@ -41,7 +46,8 @@ void RobotMotion::move_to_location(environment_location location) {
   goal.target_pose = tag_rel_pose;
 
   ac->sendGoal(goal);
-  ac->waitForResult();
+  // keep moving until completed goal or if cancelled goal
+  while(ac->getState() != actionlib::SimpleClientGoalState::SUCCEEDED && ac->getState() != actionlib::SimpleClientGoalState::PREEMPTED){}
 
   double end = ros::Time::now().toSec();
   ROS_INFO("[RobotMotion] Arrived at location after %f seconds", end - start);

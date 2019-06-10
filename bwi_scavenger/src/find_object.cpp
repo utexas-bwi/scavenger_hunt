@@ -58,7 +58,7 @@ int main(int argc, char **argv){
   ros::Subscriber boundingBoxSub = yoloNode.subscribe("/darknet_ros/bounding_boxes/", 100, objectsCb);
   ros::Subscriber imageSub = yoloNode.subscribe("/darknet_ros/detection_image/", 100, imageCb);
 
-  findPub = yoloNode.advertise<std_msgs::String>("/objectFinder", 100);
+  findPub = yoloNode.advertise<std_msgs::String>("/scavenger/target_seen", 100);
 
   proofPub = yoloNode.advertise<bwi_scavenger::proof>("proof", 100);
 
