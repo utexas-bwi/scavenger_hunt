@@ -46,7 +46,7 @@ void RobotMotion::move_to_location(environment_location location) {
   goal.target_pose = tag_rel_pose;
 
   ac->sendGoal(goal);
-  // keep moving until completed goal or if cancelled goal
+  // Keep moving until goal is completed or stopped
   while(ac->getState() != actionlib::SimpleClientGoalState::SUCCEEDED && ac->getState() != actionlib::SimpleClientGoalState::PREEMPTED){}
 
   double end = ros::Time::now().toSec();

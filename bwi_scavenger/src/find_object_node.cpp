@@ -2,6 +2,7 @@
 #include <bwi_scavenger/state_machine.h>
 #include <std_msgs/Bool.h>
 #include <bwi_scavenger/scavenger_move.h>
+#include <bwi_scavenger/scavenger_stop.h>
 
 using namespace taskmaster;
 
@@ -12,6 +13,7 @@ static state_id_t STATE_END = 2;
 static const double T_TIMEOUT = 10;
 
 static ros::Publisher pub_move;
+static ros::Publisher pub_stop;
 
 static int location_id = 0;
 
@@ -118,7 +120,10 @@ public:
 };
 
 void target_seen_cb(const std_msgs::Bool::ConstPtr &msg) {
+  ROS_INFO("Target has been seen, tell move node to stop movement");
   ssv.target_seen = true;
+  bwi_scavenger::scavenger_stop stop;
+  pub_stop.publish(stop);
 }
 
 void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
@@ -130,6 +135,7 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh;
 
   pub_move = nh.advertise<bwi_scavenger::scavenger_move>("scavenger/move", 1);
+  pub_stop = nh.advertise<bwi_scavenger::scavenger_stop>("scavenger/stop", 1);
 
   ros::Subscriber sub0 = nh.subscribe("scavenger/target_seen", 1, target_seen_cb);
   ros::Subscriber sub1 = nh.subscribe("scavenger/move_finished", 1, move_finished_cb);
@@ -158,9 +164,12 @@ int main(int argc, char **argv) {
 
   bool state_machine_active = true;
 
+  double org = ros::Time::now().toSec();
   while (ros::ok() && state_machine_active) {
+    // ros::Duration(5).sleep();
     state_machine_active = !sm.run(&ssv);
-    ssv.t = ros::Time::now().toSec();
+    ssv.t = ros::Time::now().toSec() - org;
+    // ros::Duration(10).sleep();
     ros::spinOnce();
   }
 }

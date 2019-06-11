@@ -63,6 +63,7 @@ catkin REQUIRED COMPONENTS
    FILES
    proof.msg
    scavenger_move.msg
+   scavenger_stop.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -184,6 +185,14 @@ target_link_libraries(robot_motion_test
     ${OpenCV_LIBS}
     ${catkin_LIBRARIES})
 
+add_executable(move_robot
+  src/move_node.cpp
+  src/robot_motion.cpp)
+
+target_link_libraries(move_robot
+    ${OpenCV_LIBS}
+    ${catkin_LIBRARIES})
+
 add_executable(coor_point
   src/coor_point.cpp)
 
@@ -198,6 +207,8 @@ add_executable(find_object_test
 target_link_libraries(find_object_test
     ${OpenCV_LIBS}
     ${catkin_LIBRARIES})
+
+
 
 add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
 

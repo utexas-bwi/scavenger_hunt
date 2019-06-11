@@ -23,6 +23,7 @@ void move(const bwi_scavenger::scavenger_move::ConstPtr &data){
     rm -> move_to_location(goal);
     movePub.publish(result);
   } else if (data -> type == SPIN){
+    ROS_INFO("Sending goal to spin");
     rm -> turn (data->degrees);
     movePub.publish(result);
   } 
@@ -39,7 +40,7 @@ int main(int argc, char **argv){
 
   ros::Subscriber mapSub = moveNode.subscribe("/level_mux/map", 100, getMapId);
 
-  ros::Subscriber findObjectSub = moveNode.subscribe("/scavenger/move_instruction", 100, move);
+  ros::Subscriber findObjectSub = moveNode.subscribe("/scavenger/move", 100, move);
   ros::Subscriber stopMoveSub = moveNode.subscribe("/scavenger/stop", 100, stop);
 
   movePub = moveNode.advertise<std_msgs::Bool>("/scavenger/move_finished", 100);
