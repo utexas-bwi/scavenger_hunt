@@ -38,7 +38,7 @@ void objectsCb(const darknet_ros_msgs::BoundingBoxes::ConstPtr &objects){
 // saves the image that YOLO produces if the object has been found in that image
 void imageCb(const sensor_msgs::Image::ConstPtr &img){
   if(objectFound && !saved){
-    std::cout << "found object, now saving it!" << std::endl;
+    ROS_INFO("[Yolo_node] Found object, now saving it.");
     cv_bridge::CvImagePtr cv_ptr;
     cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
     //names the image by its header sequence
@@ -51,7 +51,7 @@ void imageCb(const sensor_msgs::Image::ConstPtr &img){
 }
 
 int main(int argc, char **argv){
-  ros::init(argc, argv, "find_object");
+  ros::init(argc, argv, "yolo_node");
   ros::NodeHandle yoloNode;
 
   ros::Subscriber boundingBoxSub = yoloNode.subscribe("/darknet_ros/bounding_boxes/", 100, objectsCb);

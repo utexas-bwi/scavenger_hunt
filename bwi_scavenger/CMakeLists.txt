@@ -145,13 +145,6 @@ include_directories(
 ## either from message generation or dynamic reconfigure
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-add_executable(client_test
-  src/client_test.cpp)
-
-target_link_libraries(client_test
-    ${OpenCV_LIBS}
-    ${catkin_LIBRARIES}
-    curl)
 
 add_executable(state_machine_test
   src/state_machine_test.cpp
@@ -169,48 +162,24 @@ target_link_libraries(find_object_node
     ${OpenCV_LIBS}
     ${catkin_LIBRARIES})
 
-add_executable(yolo_test
-  src/yolo_test.cpp
-  src/cv_sweep.cpp)
-
-target_link_libraries(yolo_test
-    ${OpenCV_LIBS}
-    ${catkin_LIBRARIES})
-
-add_executable(robot_motion_test
-  src/robot_motion.cpp
-  src/robot_motion_test.cpp)
-
-target_link_libraries(robot_motion_test
-    ${OpenCV_LIBS}
-    ${catkin_LIBRARIES})
-
-add_executable(move_robot
+add_executable(move_node
   src/move_node.cpp
   src/robot_motion.cpp)
 
-target_link_libraries(move_robot
+target_link_libraries(move_node
     ${OpenCV_LIBS}
     ${catkin_LIBRARIES})
 
-add_executable(coor_point
-  src/coor_point.cpp)
+add_executable(yolo_node
+    src/find_object.cpp)
 
-target_link_libraries(coor_point
-    ${OepnCV_LIBS}
-    ${catkin_LIBRARIES})
-
-add_executable(find_object_test
-    src/find_object.cpp
-    src/robot_motion.cpp)
-
-target_link_libraries(find_object_test
+target_link_libraries(yolo_node
     ${OpenCV_LIBS}
     ${catkin_LIBRARIES})
 
 
 
-add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
+# add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
