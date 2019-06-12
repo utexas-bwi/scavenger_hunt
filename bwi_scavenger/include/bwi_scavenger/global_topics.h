@@ -6,5 +6,6 @@ const char TPC_MOVE_NODE_GO[] = "/bwi_scavenger/move_node/go";
 const char TPC_MOVE_NODE_FINISHED[] = "/bwi_scavenger/move_node/finished";
 
 const char TPC_YOLO_NODE_TARGET_SEEN[] = "/bwi_scavenger/yolo_node/target_seen";
+const char TPC_YOLO_NODE_TARGET_IMAGE[] = "/bwi_scavenger/yolo_node/target_image";
 
 #endif

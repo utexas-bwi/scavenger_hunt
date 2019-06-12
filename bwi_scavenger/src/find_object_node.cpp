@@ -4,6 +4,11 @@
 #include <bwi_scavenger/state_machine.h>
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
+#include "opencv2/opencv.hpp"
+#include <sensor_msgs/image_encodings.h>
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <sensor_msgs/Image.h>
 
 using namespace scavenger_fsm;
 
@@ -156,6 +161,16 @@ void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
   ssv.move_finished = true;
 }
 
+// Called when image of object is recieved
+void image_cb(const sensor_msgs::Image::ConstPtr &img){
+  ROS_INFO("Saving image");
+  cv_bridge::CvImagePtr cv_ptr;
+  cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
+  // gives unique name to image as defined by its header sequence
+  std::string name = std::to_string(img->header.seq);
+  cv::imwrite(name + ".jpg", cv_ptr -> image);
+}
+
 /*------------------------------------------------------------------------------
 NODE ENTRYPOINT
 ------------------------------------------------------------------------------*/
@@ -170,6 +185,7 @@ int main(int argc, char **argv) {
 
   ros::Subscriber sub0 = nh.subscribe(TPC_YOLO_NODE_TARGET_SEEN, 1, target_seen_cb);
   ros::Subscriber sub1 = nh.subscribe(TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
+  ros::Subscriber sub2 = nh.subscribe(TPC_YOLO_NODE_TARGET_IMAGE, 1, image_cb);
 
   // Build state machine
   State *s_traveling = new FindObjectTravelingState(STATE_TRAVELING);
