@@ -61,9 +61,9 @@ catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
  add_message_files(
    FILES
-   proof.msg
-   scavenger_move.msg
-   scavenger_stop.msg
+   TaskProof.msg
+   RobotMove.msg
+   RobotStop.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -143,8 +143,6 @@ include_directories(
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
 
 add_executable(state_machine_test
   src/state_machine_test.cpp
@@ -158,6 +156,9 @@ add_executable(find_object_node
   src/find_object_node.cpp
   src/state_machine.cpp)
 
+add_dependencies(find_object_node
+  bwi_scavenger_generate_messages_cpp)
+
 target_link_libraries(find_object_node
     ${OpenCV_LIBS}
     ${catkin_LIBRARIES})
@@ -166,12 +167,15 @@ add_executable(move_node
   src/move_node.cpp
   src/robot_motion.cpp)
 
+add_dependencies(move_node
+  bwi_scavenger_generate_messages_cpp)
+
 target_link_libraries(move_node
     ${OpenCV_LIBS}
     ${catkin_LIBRARIES})
 
 add_executable(yolo_node
-    src/find_object.cpp)
+    src/yolo_node.cpp)
 
 target_link_libraries(yolo_node
     ${OpenCV_LIBS}

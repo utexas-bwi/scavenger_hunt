@@ -6,7 +6,7 @@
 
 #include <vector>
 
-namespace taskmaster {
+namespace scavenger_fsm {
 
 /**
   A vector detailing the complete state of the system, usually the robot.

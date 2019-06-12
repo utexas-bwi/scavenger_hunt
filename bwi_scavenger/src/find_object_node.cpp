@@ -1,28 +1,34 @@
-#include <ros/ros.h>
+#include <bwi_scavenger/global_topics.h>
+#include <bwi_scavenger/RobotMove.h>
+#include <bwi_scavenger/RobotStop.h>
 #include <bwi_scavenger/state_machine.h>
+#include <ros/ros.h>
 #include <std_msgs/Bool.h>
-#include <bwi_scavenger/scavenger_move.h>
-#include <bwi_scavenger/scavenger_stop.h>
 
-using namespace taskmaster;
+using namespace scavenger_fsm;
 
-static state_id_t STATE_TRAVELING = 0;
-static state_id_t STATE_SCANNING = 1;
-static state_id_t STATE_END = 2;
+static const state_id_t STATE_TRAVELING = 0;
+static const state_id_t STATE_SCANNING = 1;
+static const state_id_t STATE_END = 2;
 
-static const double T_TIMEOUT = 10;
+static const double T_TIMEOUT = 10 * 60;
+static const char TELEM_TAG[] = "[find_object_node]";
 
 static ros::Publisher pub_move;
 static ros::Publisher pub_stop;
 
 static int location_id = 0;
 
-struct FindObjectStateVector : SystemStateVector {
-  double t;
-  bool target_seen;
-  bool move_finished;
-  bool move_in_progress;
-  int destination;
+/*------------------------------------------------------------------------------
+STATE MACHINE DEFINITION
+------------------------------------------------------------------------------*/
+
+struct FindObjectSystemStateVector : SystemStateVector {
+  double t = 0;
+  bool target_seen = false;
+  bool move_finished = false;
+  bool move_in_progress = false;
+  int destination = location_id;
 } ssv;
 
 class FindObjectEndState : public State {
@@ -30,10 +36,16 @@ public:
   FindObjectEndState(state_id_t id) : State(id) {}
 
   bool can_transition(State *from, SystemStateVector *vec) {
-    FindObjectStateVector *svec = (FindObjectStateVector*)vec;
-    if (svec->target_seen || // Object was found
-        from->get_id() == STATE_TRAVELING && svec->t > T_TIMEOUT) // Timed out
+    FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
+    // Enter END because target was seen
+    if (svec->target_seen) {
+      ROS_INFO("%s Target was seen. Transitioning to END.", TELEM_TAG);
       return true;
+    // Enter END because task timed out
+    } else if (from->get_id() == STATE_TRAVELING && svec->t > T_TIMEOUT) {
+      ROS_INFO("%s Task timed out. Transitioning to END.", TELEM_TAG);
+      return true;
+    }
     // Continue in current state otherwise
     return false;
   }
@@ -41,44 +53,49 @@ public:
   void update(SystemStateVector *vec) {}
 
   void on_transition_to(SystemStateVector *vec) {
-    ROS_INFO("Entering state END");
+    ROS_INFO("%s Entering state END", TELEM_TAG);
   }
 };
 
+// Find Object traveling state
 class FindObjectTravelingState : public State {
 public:
   FindObjectTravelingState(state_id_t id) : State(id) {}
 
   bool can_transition(State *from, SystemStateVector *vec) {
-    FindObjectStateVector *svec = (FindObjectStateVector*)vec;
-    // Scanning; object was not found
+    FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
+    // Enter TRAVELING because scan failed
     if (from->get_id() == STATE_SCANNING &&
         svec->move_finished &&
-        !svec->target_seen)
+        !svec->target_seen) {
+      ROS_INFO("%s Scan saw nothing. Transitioning to TRAVELING.", TELEM_TAG);
       return true;
+    }
     // Continue in current state otherwise
     return false;
   }
 
   void update(SystemStateVector *vec) {
-    FindObjectStateVector *svec = (FindObjectStateVector*)vec;
+    FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
+    // One-time travel command send
     if (!svec->move_in_progress) {
       svec->move_in_progress = true;
-      bwi_scavenger::scavenger_move msg;
+      bwi_scavenger::RobotMove msg;
       msg.type = 0;
-      msg.location = location_id++ % 7;
+      msg.location = location_id % 7;
+      location_id++;
       pub_move.publish(msg);
     }
   }
 
   void on_transition_from(SystemStateVector *vec) {
-    FindObjectStateVector *svec = (FindObjectStateVector*)vec;
+    FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     svec->move_finished = false;
     svec->move_in_progress = false;
   }
 
   void on_transition_to(SystemStateVector *vec) {
-    ROS_INFO("Entering state TRAVELING");
+    ROS_INFO("%s Entering state TRAVELING", TELEM_TAG);
   }
 };
 
@@ -87,21 +104,25 @@ public:
   FindObjectScanningState(state_id_t id) : State(id) {}
 
   bool can_transition(State *from, SystemStateVector *vec) {
-    FindObjectStateVector *svec = (FindObjectStateVector*)vec;
-    // Traveling; destination was reached and the task has not timed out
+    FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
+    // Enter SCANNING because TRAVELING reached destination and task has not yet
+    // timed out
     if (from->get_id() == STATE_TRAVELING &&
         svec->move_finished &&
-        svec->t < T_TIMEOUT)
+        svec->t < T_TIMEOUT) {
+      ROS_INFO("%s Reached destination. Transitioning to SCANNING.", TELEM_TAG);
       return true;
+    }
     // Continue in current state otherwise
     return false;
   }
 
   void update(SystemStateVector *vec) {
-    FindObjectStateVector *svec = (FindObjectStateVector*)vec;
+    FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
+    // One-time turn command send
     if (!svec->move_in_progress) {
       svec->move_in_progress = true;
-      bwi_scavenger::scavenger_move msg;
+      bwi_scavenger::RobotMove msg;
       msg.type = 1;
       msg.degrees = 360;
       pub_move.publish(msg);
@@ -109,43 +130,48 @@ public:
   }
 
   void on_transition_from(SystemStateVector *vec) {
-    FindObjectStateVector *svec = (FindObjectStateVector*)vec;
+    FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     svec->move_finished = false;
     svec->move_in_progress = false;
   }
 
   void on_transition_to(SystemStateVector *vec) {
-    ROS_INFO("Entering state SCANNING");
+    ROS_INFO("%s Entering state SCANNING", TELEM_TAG);
   }
 };
 
+/*------------------------------------------------------------------------------
+SYSTEM STATE VECTOR UPDATE CALLBACKS
+------------------------------------------------------------------------------*/
+
+// Called when target is seen - prompts stop
 void target_seen_cb(const std_msgs::Bool::ConstPtr &msg) {
-  ROS_INFO("Target has been seen, tell move node to stop movement");
   ssv.target_seen = true;
-  bwi_scavenger::scavenger_stop stop;
+  bwi_scavenger::RobotStop stop;
   pub_stop.publish(stop);
 }
 
+// Called when move finished - prompts state transition
 void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
   ssv.move_finished = true;
 }
+
+/*------------------------------------------------------------------------------
+NODE ENTRYPOINT
+------------------------------------------------------------------------------*/
 
 int main(int argc, char **argv) {
   ros::init(argc, argv, "find_object_node");
   ros::NodeHandle nh;
 
-  pub_move = nh.advertise<bwi_scavenger::scavenger_move>("scavenger/move", 1);
-  pub_stop = nh.advertise<bwi_scavenger::scavenger_stop>("scavenger/stop", 1);
+  // Setup SSV update callbacks
+  pub_move = nh.advertise<bwi_scavenger::RobotMove>(TPC_MOVE_NODE_GO, 1);
+  pub_stop = nh.advertise<bwi_scavenger::RobotStop>(TPC_MOVE_NODE_STOP, 1);
 
-  ros::Subscriber sub0 = nh.subscribe("scavenger/target_seen", 1, target_seen_cb);
-  ros::Subscriber sub1 = nh.subscribe("scavenger/move_finished", 1, move_finished_cb);
+  ros::Subscriber sub0 = nh.subscribe(TPC_YOLO_NODE_TARGET_SEEN, 1, target_seen_cb);
+  ros::Subscriber sub1 = nh.subscribe(TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
 
-  ssv.t = 0;
-  ssv.target_seen = false;
-  ssv.move_finished = false;
-  ssv.move_in_progress = false;
-  ssv.destination = 0;
-
+  // Build state machine
   State *s_traveling = new FindObjectTravelingState(STATE_TRAVELING);
   State *s_scanning = new FindObjectScanningState(STATE_SCANNING);
   State *s_end = new FindObjectEndState(STATE_END);
@@ -162,14 +188,18 @@ int main(int argc, char **argv) {
   sm.add_end_state(s_end);
   sm.init(s_traveling);
 
-  bool state_machine_active = true;
+  // Wait for ROS services to spin up
+  ros::Duration(1.0).sleep();
 
+  bool state_machine_active = true;
   double org = ros::Time::now().toSec();
-  while (ros::ok() && state_machine_active) {
-    // ros::Duration(5).sleep();
+
+  ROS_INFO("%s Entering Find Object state machine...", TELEM_TAG);
+
+  // Run until state machine exit
+  while (ros::ok() || state_machine_active) {
     state_machine_active = !sm.run(&ssv);
     ssv.t = ros::Time::now().toSec() - org;
-    // ros::Duration(10).sleep();
     ros::spinOnce();
   }
 }

@@ -4,7 +4,7 @@
 
 using namespace std;
 using namespace chrono;
-using namespace taskmaster;
+using namespace scavenger_fsm;
 
 state_id_t STATE_TRAVELING = 0;
 state_id_t STATE_SCANNING = 1;

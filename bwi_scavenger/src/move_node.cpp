@@ -1,22 +1,23 @@
+#include <bwi_scavenger/global_topics.h>
 #include <bwi_scavenger/move_node.h>
 
-void stop(const bwi_scavenger::scavenger_stop::ConstPtr &data){
+void stop(const bwi_scavenger::RobotStop::ConstPtr &data){
     ROS_INFO("[Move_node] Cancel goal");
     rm -> end_movement();
     movePub.publish(result);
 }
 
-void move(const bwi_scavenger::scavenger_move::ConstPtr &data){
+void move(const bwi_scavenger::RobotMove::ConstPtr &data){
   if(data -> type == MOVE){
-    ROS_INFO("[Move_node] Sending goal to move");
+    ROS_INFO("[move_node] Sending goal to move");
     environment_location goal = static_cast<environment_location>(data -> location);
     rm -> move_to_location(goal);
     movePub.publish(result);
   } else if (data -> type == SPIN){
-    ROS_INFO("[Move_node] Sending goal to spin");
+    ROS_INFO("[move_node] Sending goal to spin");
     rm -> turn (data->degrees);
     movePub.publish(result);
-  } 
+  }
 }
 
 void getMapId(const nav_msgs::OccupancyGrid::ConstPtr &grid){
@@ -29,10 +30,10 @@ int main(int argc, char **argv){
 
   ros::Subscriber mapSub = moveNode.subscribe("/level_mux/map", 1, getMapId);
 
-  ros::Subscriber findObjectSub = moveNode.subscribe("/scavenger/find_object/move", 1, move);
-  ros::Subscriber stopMoveSub = moveNode.subscribe("/scavenger/find_object/stop", 1, stop);
+  ros::Subscriber findObjectSub = moveNode.subscribe(TPC_MOVE_NODE_GO, 1, move);
+  ros::Subscriber stopMoveSub = moveNode.subscribe(TPC_MOVE_NODE_STOP, 1, stop);
 
-  movePub = moveNode.advertise<std_msgs::Bool>("/scavenger/find_object/move_finished", 1);
+  movePub = moveNode.advertise<std_msgs::Bool>(TPC_MOVE_NODE_FINISHED, 1);
 
   ros::MultiThreadedSpinner spinner(2);
   spinner.spin();

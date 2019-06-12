@@ -2,8 +2,8 @@
 #define MOVE_NODE_H
 
 #include <bwi_scavenger/robot_motion.h>
-#include <bwi_scavenger/scavenger_move.h>
-#include <bwi_scavenger/scavenger_stop.h>
+#include <bwi_scavenger/RobotMove.h>
+#include <bwi_scavenger/RobotStop.h>
 #include <std_msgs/Bool.h>
 
 RobotMotion *rm;
@@ -17,16 +17,16 @@ int SPIN = 1;
 
   @param scavener_stop msg, placeholder to signal robot to stop
 */
-void stop(const bwi_scavenger::scavenger_stop::ConstPtr &data);
+void stop(const bwi_scavenger::RobotStop::ConstPtr &data);
 
 /**
   Callback for robot movement. Robot will move towards or a location
   or will spin in place.
 
-  @param scavenger_move msg, signifies movement towards a location 
+  @param scavenger_move msg, signifies movement towards a location
   or rotation by some degrees
  */
-void move(const bwi_scavenger::scavenger_move::ConstPtr &data);
+void move(const bwi_scavenger::RobotMove::ConstPtr &data);
 
 
 /**
