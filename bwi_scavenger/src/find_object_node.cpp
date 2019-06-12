@@ -30,9 +30,16 @@ STATE MACHINE DEFINITION
 
 struct FindObjectSystemStateVector : SystemStateVector {
   double t = 0;
+
   bool target_seen = false;
-  bool move_finished = false;
-  bool move_in_progress = false;
+
+  bool travel_in_progress = false;
+  bool travel_finished = false;
+
+  bool turn_in_progress = false;
+  bool turn_finished = false;
+  int turn_angle_traversed = 0;
+
   int destination = location_id;
 } ssv;
 
@@ -71,7 +78,7 @@ public:
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     // Enter TRAVELING because scan failed
     if (from->get_id() == STATE_SCANNING &&
-        svec->move_finished &&
+        svec->turn_finished &&
         !svec->target_seen) {
       ROS_INFO("%s Scan saw nothing. Transitioning to TRAVELING.", TELEM_TAG);
       return true;
@@ -83,8 +90,8 @@ public:
   void update(SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     // One-time travel command send
-    if (!svec->move_in_progress) {
-      svec->move_in_progress = true;
+    if (!svec->travel_in_progress) {
+      svec->travel_in_progress = true;
       bwi_scavenger::RobotMove msg;
       msg.type = 0;
       msg.location = location_id % 7;
@@ -95,8 +102,8 @@ public:
 
   void on_transition_from(SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
-    svec->move_finished = false;
-    svec->move_in_progress = false;
+    svec->travel_in_progress = false;
+    svec->travel_finished = false;
   }
 
   void on_transition_to(SystemStateVector *vec) {
@@ -113,7 +120,7 @@ public:
     // Enter SCANNING because TRAVELING reached destination and task has not yet
     // timed out
     if (from->get_id() == STATE_TRAVELING &&
-        svec->move_finished &&
+        svec->travel_finished &&
         svec->t < T_TIMEOUT) {
       ROS_INFO("%s Reached destination. Transitioning to SCANNING.", TELEM_TAG);
       return true;
@@ -125,23 +132,27 @@ public:
   void update(SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     // One-time turn command send
-    if (!svec->move_in_progress) {
-      svec->move_in_progress = true;
+    if (!svec->turn_in_progress) {
+      ROS_INFO("TURN AMOUNT %d", svec->turn_angle_traversed);
+      svec->turn_in_progress = true;
+      const int TURN_AMOUNT = 180;
       bwi_scavenger::RobotMove msg;
       msg.type = 1;
-      msg.degrees = 360;
+      msg.degrees = TURN_AMOUNT;
       pub_move.publish(msg);
+      svec->turn_angle_traversed += TURN_AMOUNT;
     }
   }
 
-  void on_transition_from(SystemStateVector *vec) {
-    FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
-    svec->move_finished = false;
-    svec->move_in_progress = false;
-  }
+  void on_transition_from(SystemStateVector *vec) {}
 
   void on_transition_to(SystemStateVector *vec) {
     ROS_INFO("%s Entering state SCANNING", TELEM_TAG);
+
+    FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
+    svec->turn_finished = false;
+    svec->turn_in_progress = false;
+    svec->turn_angle_traversed = 0;
   }
 };
 
@@ -158,7 +169,13 @@ void target_seen_cb(const std_msgs::Bool::ConstPtr &msg) {
 
 // Called when move finished - prompts state transition
 void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
-  ssv.move_finished = true;
+  if (ssv.travel_in_progress && !ssv.travel_finished)
+    ssv.travel_finished = true;
+  if (ssv.turn_in_progress) {
+    if (ssv.turn_angle_traversed >= 360)
+      ssv.turn_finished = true;
+    ssv.turn_in_progress = false;
+  }
 }
 
 // Called when image of object is recieved
@@ -168,7 +185,7 @@ void image_cb(const sensor_msgs::Image::ConstPtr &img){
   cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
   // gives unique name to image as defined by its header sequence
   std::string name = std::to_string(img->header.seq);
-  cv::imwrite(name + ".jpg", cv_ptr -> image);
+  cv::imwrite("/home/bwilab/scavenger_hunt/" + name + ".jpg", cv_ptr -> image);
 }
 
 /*------------------------------------------------------------------------------

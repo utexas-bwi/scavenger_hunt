@@ -55,7 +55,8 @@ bool StateMachine::run(SystemStateVector *ssv) {
   State *current_state_old = current_state;
   current_state = current_state->attempt_transition(ssv);
 
-  if (current_state_old != current_state) {
+  if (current_state_old != current_state &&
+      current_state_old->get_id() != current_state->get_id()) {
     current_state_old->on_transition_from(ssv);
     current_state->on_transition_to(ssv);
   }
