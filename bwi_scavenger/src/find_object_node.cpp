@@ -222,7 +222,7 @@ int main(int argc, char **argv) {
   sm.init(s_traveling);
 
   // Wait for ROS services to spin up
-  ros::Duration(1.0).sleep();
+  ros::Duration(5.0).sleep();
 
   bool state_machine_active = true;
   double org = ros::Time::now().toSec();

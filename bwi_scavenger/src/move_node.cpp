@@ -4,7 +4,7 @@
 #include <math.h>
 #include <limits.h>
 
-int closest = 0;
+int closest = -1;
 
 void stop(const bwi_scavenger::RobotStop::ConstPtr &data){
     ROS_INFO("[move_node] Cancel goal");
@@ -13,6 +13,7 @@ void stop(const bwi_scavenger::RobotStop::ConstPtr &data){
 }
 
 void move(const bwi_scavenger::RobotMove::ConstPtr &data){
+  if(closest != -1){
   if(data -> type == MOVE){
     ROS_INFO("[move_node] Sending goal to move");
     environment_location goal = static_cast<environment_location>((data -> location + closest) % 7);
@@ -23,6 +24,7 @@ void move(const bwi_scavenger::RobotMove::ConstPtr &data){
     rm -> turn (data->degrees);
     movePub.publish(result);
   }
+  }
 }
 
 void getMapId(const nav_msgs::OccupancyGrid::ConstPtr &grid){
@@ -30,15 +32,17 @@ void getMapId(const nav_msgs::OccupancyGrid::ConstPtr &grid){
   rm = new RobotMotion(grid->header.frame_id, *tfl);
 
   tf::StampedTransform robotTransform;
-  tfl->waitForTransform("base_link", grid->header.frame_id, ros::Time::now(), ros::Duration(4));
-  tfl->lookupTransform("base_link", grid->header.frame_id, ros::Time(0), robotTransform);
+  tfl->waitForTransform(grid->header.frame_id, "base_link", ros::Time::now(), ros::Duration(4));
+  tfl->lookupTransform(grid->header.frame_id, "base_link", ros::Time(0), robotTransform);
   float x = robotTransform.getOrigin().x();
   float y = robotTransform.getOrigin().y();
+  ROS_INFO("[move_node] position of robot: (%f, %f)", x, y);
 
   float minDistance = std::numeric_limits<float>::max();
   for(int i = 0; i < 7; i++){
     std::pair<float, float> coordinates = environment_location_coordinates[static_cast<environment_location>(i)];
     float distance = sqrt(pow(coordinates.first - x, 2) + pow(coordinates.second - y, 2));
+    ROS_INFO("[move_node] distance to location %d: %f", i, distance);
     if (distance < minDistance){
       minDistance = distance;
       closest = i;
