@@ -1,14 +1,4 @@
-#include "bwi_scavenger/robot_motion.h"
-#include "bwi_scavenger/scavenger_move.h"
-#include "bwi_scavenger/scavenger_stop.h"
-#include <std_msgs/Bool.h>
-
-RobotMotion *rm;
-ros::Publisher movePub;
-std_msgs::Bool result;
-int MOVE = 0;
-int SPIN = 1;
-int STOP = 2;
+#include <bwi_scavenger/move_node.h>
 
 void stop(const bwi_scavenger::scavenger_stop::ConstPtr &data){
     ROS_INFO("[Move_node] Cancel goal");
@@ -34,16 +24,15 @@ void getMapId(const nav_msgs::OccupancyGrid::ConstPtr &grid){
 }
 
 int main(int argc, char **argv){
-  result.data = true;
   ros::init(argc, argv, "move_node");
   ros::NodeHandle moveNode;
 
-  ros::Subscriber mapSub = moveNode.subscribe("/level_mux/map", 100, getMapId);
+  ros::Subscriber mapSub = moveNode.subscribe("/level_mux/map", 1, getMapId);
 
-  ros::Subscriber findObjectSub = moveNode.subscribe("/scavenger/find_object/move", 100, move);
-  ros::Subscriber stopMoveSub = moveNode.subscribe("/scavenger/find_object/stop", 100, stop);
+  ros::Subscriber findObjectSub = moveNode.subscribe("/scavenger/find_object/move", 1, move);
+  ros::Subscriber stopMoveSub = moveNode.subscribe("/scavenger/find_object/stop", 1, stop);
 
-  movePub = moveNode.advertise<std_msgs::Bool>("/scavenger/find_object/move_finished", 100);
+  movePub = moveNode.advertise<std_msgs::Bool>("/scavenger/find_object/move_finished", 1);
 
   ros::MultiThreadedSpinner spinner(2);
   spinner.spin();
