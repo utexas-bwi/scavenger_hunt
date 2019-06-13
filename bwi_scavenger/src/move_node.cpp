@@ -4,7 +4,7 @@
 void stop(const bwi_scavenger::RobotStop::ConstPtr &data){
     ROS_INFO("[Move_node] Cancel goal");
     rm -> end_movement();
-    movePub.publish(result);
+    // movePub.publish(result);
 }
 
 void move(const bwi_scavenger::RobotMove::ConstPtr &data){

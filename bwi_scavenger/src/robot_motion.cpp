@@ -47,7 +47,8 @@ void RobotMotion::move_to_location(environment_location location) {
 
   ac->sendGoal(goal);
   // Keep moving until goal is completed or stopped
-  while(ac->getState() != actionlib::SimpleClientGoalState::SUCCEEDED && ac->getState() != actionlib::SimpleClientGoalState::PREEMPTED){}
+  while(ac->getState() != actionlib::SimpleClientGoalState::SUCCEEDED &&
+        ac->getState() != actionlib::SimpleClientGoalState::PREEMPTED);
 
   double end = ros::Time::now().toSec();
   ROS_INFO("[RobotMotion] Arrived at location after %f seconds", end - start);
@@ -78,7 +79,8 @@ void RobotMotion::turn(float degrees) {
   goal.target_pose = goal_pose;
 
   ac->sendGoal(goal);
-  ac->waitForResult();
+  while(ac->getState() != actionlib::SimpleClientGoalState::SUCCEEDED &&
+        ac->getState() != actionlib::SimpleClientGoalState::PREEMPTED);
 
   double end = ros::Time::now().toSec();
   ROS_INFO("[RobotMotion] Finished turn after %f seconds", end - start);
