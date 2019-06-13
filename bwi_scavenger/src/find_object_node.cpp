@@ -25,8 +25,8 @@ static ros::Publisher pub_stop;
 
 static int location_id = 0;
 
-static const float INSPECT_DURATION = 3.0;
-static const float INSPECT_GOOD_CONFIRMATIONS = 1000000;
+static const float INSPECT_DURATION = 8.0;
+static const float INSPECT_GOOD_CONFIRMATIONS = 4;
 
 static StateMachine sm;
 
@@ -159,7 +159,7 @@ public:
     if (!svec->turn_in_progress) {
       ROS_INFO("SCANNING STATE UPDATE CALLED");
       svec->turn_in_progress = true;
-      const int TURN_AMOUNT = 180;
+      const int TURN_AMOUNT = 45;
       bwi_scavenger::RobotMove msg;
       msg.type = 1;
       msg.degrees = TURN_AMOUNT;
@@ -168,7 +168,14 @@ public:
     }
   }
 
-  void on_transition_from(SystemStateVector *vec) {}
+  void on_transition_from(SystemStateVector *vec) {
+    FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
+    if (!svec->turn_finished) {
+      ROS_INFO("%s Leaving SCANNING. Suspected early stop.", TELEM_TAG);
+      bwi_scavenger::RobotStop stop;
+      pub_stop.publish(stop);
+    }
+  }
 
   void on_transition_to(SystemStateVector *vec) {
     ROS_INFO("%s Entering state SCANNING", TELEM_TAG);
@@ -241,8 +248,10 @@ void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
   if (ssv.turn_in_progress) {
     if (ssv.turn_angle_traversed >= 360)
       ssv.turn_finished = true;
-    else
+    else {
       ssv.turn_in_progress = false;
+      ros::Duration(2.0).sleep();
+    }
   }
 }
 
