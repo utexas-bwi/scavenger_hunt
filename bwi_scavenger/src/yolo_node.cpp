@@ -13,31 +13,26 @@
 std::string objectToFind = "chair";
 ros::Publisher proofPub;
 ros::Publisher findPub;
-bool objectFound = false;
-bool saved = false;
 sensor_msgs::Image image;
 std_msgs::Bool found;
 
 // goes through the objects in view and checks if the object has been found
 void objectsCb(const darknet_ros_msgs::BoundingBoxes::ConstPtr &objects){
-  if(!objectFound){
-    for(int i = 0; i < objects -> bounding_boxes.size(); i++){
-      if (objects -> bounding_boxes[i].Class == objectToFind){
-        objectFound = true;
-        findPub.publish(found);
-      }
+  for(int i = 0; i < objects -> bounding_boxes.size(); i++){
+    if (objects -> bounding_boxes[i].Class == objectToFind){
+      findPub.publish(found);
     }
   }
 }
 
 // saves the image that YOLO produces if the object has been found in that image
 void imageCb(const sensor_msgs::Image::ConstPtr &img){
-  if(objectFound && !saved){
+  /*if(objectFound && !saved){
     ROS_INFO("[yolo_node] Found object, publish to main node.");
-    // Give image to the main node 
+    // Give image to the main node
     proofPub.publish(*img);
     saved = true;
-  }
+  }*/
 }
 
 int main(int argc, char **argv){

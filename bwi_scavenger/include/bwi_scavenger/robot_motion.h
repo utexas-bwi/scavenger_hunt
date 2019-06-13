@@ -24,14 +24,14 @@ enum environment_location {
 
 static std::map<environment_location, std::pair<float, float>>
     environment_location_coordinates {
-  // {BWI_LAB_RIGHT, std::pair<float, float>(14.956, 109.94)},
-  {BWI_LAB_RIGHT, std::pair<float, float>(-39.3304, -11.2288)},
-  {CLEARING_RIGHT, std::pair<float, float>(-13.999, -12.024)},
+  {BWI_LAB_RIGHT, std::pair<float, float>(14.956, 109.94)},
+  // {BWI_LAB_RIGHT, std::pair<float, float>(-39.3304, -11.2288)},
+  {BWI_LAB_LEFT, std::pair<float, float>(-38.2976, -4.32444)},
   {WHITEBOARD_ROOM, std::pair<float, float>(-8.98598, -12.0676)},
   {CLEARING_LEFT, std::pair<float, float>(-13.7639, -5.56475)},
+  {CLEARING_RIGHT, std::pair<float, float>(-13.999, -12.024)},
   {ALCOVE, std::pair<float, float>(-18.2928, -4.93057)},
-  {KITCHEN, std::pair<float, float>(-30.1798, -4.59807)},
-  {BWI_LAB_LEFT, std::pair<float, float>(-38.2976, -4.32444)}
+  {KITCHEN, std::pair<float, float>(-30.1798, -4.59807)}
 };
 
 static std::string grid_frame_id;
@@ -45,7 +45,7 @@ protected:
   tf::TransformListener *tfl;
 
 public:
-  RobotMotion(std::string grid_frame_id, tf::TransformListener &tfl);
+  RobotMotion(std::string grid_frame_id);
 
   void end_movement();
 
