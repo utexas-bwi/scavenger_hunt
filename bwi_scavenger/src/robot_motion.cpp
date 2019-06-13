@@ -4,10 +4,10 @@
 
 #define PI 3.14159265359
 
-RobotMotion::RobotMotion(std::string grid_frame_id) {
+RobotMotion::RobotMotion(std::string grid_frame_id, tf::TransformListener &tfl) {
   this->grid_frame_id = grid_frame_id;
   ac = new MoveBaseClient("move_base", true);
-  tfl = new tf::TransformListener();
+  this->tfl = &tfl;
   while(!ac->waitForServer(ros::Duration(5.0)))
     ROS_INFO("[RobotMotion] Waiting for MoveBaseClient server to open...");
   ROS_INFO("[RobotMotion] Connected to MoveBaseClient.");
