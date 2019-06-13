@@ -7,7 +7,8 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 try {
 	global $dom, $node, $parnode;
   // get the current hunt tasks from the database
-  $name = $_POST['hunt_name'];
+  // $name = $_POST['hunt_name'];
+	$name = "Longhorn Hunt";
 	$query = "SELECT * FROM hunt_table WHERE hunt_name = '" . $name . "'";
 	$stmt = $dbh->query($query);
 	$stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -42,7 +43,7 @@ try {
 		  $xml->writeAttribute('proof_format', $task['proof_type']);
       $xml->writeAttribute('proof_description', "");
 		  $xml->writeAttribute('points', $task['score']);
-		  $xml->writeAttribute('id', $task['id']);
+		  $xml->writeAttribute('id', $row['hunt_instr_id']);
 
 		  $xml->startElement('parameter');
 		  $xml->writeAttribute('name', $task['param_name']);
