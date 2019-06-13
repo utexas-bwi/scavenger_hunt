@@ -25,14 +25,9 @@ void objectsCb(const darknet_ros_msgs::BoundingBoxes::ConstPtr &objects){
   }
 }
 
-// saves the image that YOLO produces if the object has been found in that image
-void imageCb(const sensor_msgs::Image::ConstPtr &img){
-  /*if(objectFound && !saved){
-    ROS_INFO("[yolo_node] Found object, publish to main node.");
-    // Give image to the main node
-    proofPub.publish(*img);
-    saved = true;
-  }*/
+void getTargetCb(const std_msgs::String::ConstPtr &msg){
+  objectToFind = msg->data;
+  ROS_INFO("[yolo_node] Updated target object to %s", objectToFind.c_str());
 }
 
 int main(int argc, char **argv){
@@ -40,10 +35,9 @@ int main(int argc, char **argv){
   ros::NodeHandle yoloNode;
 
   ros::Subscriber boundingBoxSub = yoloNode.subscribe("/darknet_ros/bounding_boxes/", 1, objectsCb);
-  ros::Subscriber imageSub = yoloNode.subscribe("/darknet_ros/detection_image/", 1, imageCb);
+  ros::Subscriber targetSub = yoloNode.subscribe(TPC_YOLO_NODE_TARGET, 1, getTargetCb);
 
   findPub = yoloNode.advertise<std_msgs::Bool>(TPC_YOLO_NODE_TARGET_SEEN, 1);
-  proofPub = yoloNode.advertise<sensor_msgs::Image>(TPC_YOLO_NODE_TARGET_IMAGE, 1);
 
   ros::spin();
 }

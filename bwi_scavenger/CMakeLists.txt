@@ -160,8 +160,8 @@ add_dependencies(find_object_node
   bwi_scavenger_generate_messages_cpp)
 
 target_link_libraries(find_object_node
-    ${OpenCV_LIBS}
-    ${catkin_LIBRARIES})
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
 
 add_executable(move_node
   src/move_node.cpp
@@ -171,15 +171,23 @@ add_dependencies(move_node
   bwi_scavenger_generate_messages_cpp)
 
 target_link_libraries(move_node
-    ${OpenCV_LIBS}
-    ${catkin_LIBRARIES})
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
 
 add_executable(yolo_node
-    src/yolo_node.cpp)
+  src/yolo_node.cpp)
 
 target_link_libraries(yolo_node
-    ${OpenCV_LIBS}
-    ${catkin_LIBRARIES})
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
+
+add_executable(main_node
+  src/main_node.cpp)
+
+target_link_libraries(main_node
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES}
+  curl)
 
 
 

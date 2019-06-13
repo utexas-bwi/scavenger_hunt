@@ -13,27 +13,27 @@ Task::Task(std::string name,
            POINT_VALUE(point_value),
            HUNT_TASK_ID(hunt_task_id) {}
 
-std::string Task::get_name() {
+std::string Task::get_name() const {
   return NAME;
 }
 
-std::string Task::get_proof_format() {
+std::string Task::get_proof_format() const {
   return PROOF_FORMAT;
 }
 
-int Task::get_point_value() {
+int Task::get_point_value() const {
   return POINT_VALUE;
 }
 
-std::string Task::get_proof_format_description() {
+std::string Task::get_proof_format_description() const {
   return PROOF_FORMAT_DESCRIPTION;
 }
 
-std::string Task::get_task_description() {
+std::string Task::get_task_description() const {
   return TASK_DESCRIPTION;
 }
 
-std::map<std::string, std::string> Task::get_parameters() {
+std::map<std::string, std::string> Task::get_parameters() const {
   return parameters;
 }
 
@@ -41,7 +41,7 @@ void Task::add_parameter(std::string param_name, std::string param_value) {
   parameters[param_name] = param_value;
 }
 
-int Task::get_hunt_task_id() {
+int Task::get_hunt_task_id() const {
   return HUNT_TASK_ID;
 }
 
@@ -71,14 +71,14 @@ void ScavengerHunt::add_task(Task t) {
   tasks.push_back(t);
 }
 
-Task ScavengerHunt::get_task(unsigned int index) {
-  return tasks[index];
+Task* ScavengerHunt::get_task(unsigned int index) {
+  return &tasks[index];
 }
 
 unsigned int ScavengerHunt::size() {
   return tasks.size();
 }
 
-Task& ScavengerHunt::operator[](unsigned int i) {
-  return tasks[i];
+Task* ScavengerHunt::operator[](unsigned int i) {
+  return &tasks[i];
 }

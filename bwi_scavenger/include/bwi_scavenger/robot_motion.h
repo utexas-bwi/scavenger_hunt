@@ -45,7 +45,7 @@ protected:
   tf::TransformListener *tfl;
 
 public:
-  RobotMotion(std::string grid_frame_id);
+  RobotMotion(std::string grid_frame_id, tf::TransformListener &tfl);
 
   void end_movement();
 

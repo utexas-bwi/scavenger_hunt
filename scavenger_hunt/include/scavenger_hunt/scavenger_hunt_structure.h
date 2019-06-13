@@ -33,33 +33,33 @@ public:
   /**
     @brief gets the task's type
   */
-  std::string get_name();
+  std::string get_name() const;
 
   /**
     @brief gets the task's preferred proof format
   */
-  std::string get_proof_format();
+  std::string get_proof_format() const;
 
   /**
     @brief gets the points awarded for successful completion of task
   */
-  int get_point_value();
+  int get_point_value() const;
 
   /**
     @brief gets a written description of the proof format
   */
-  std::string get_proof_format_description();
+  std::string get_proof_format_description() const;
 
   /**
     @brief gets a written description of the task
   */
-  std::string get_task_description();
+  std::string get_task_description() const;
 
   /**
     @brief gets the task's parameters; a mapping of parameter names to parameter
            values, e.g. "target object" => "soda can"
   */
-  std::map<std::string, std::string> get_parameters();
+  std::map<std::string, std::string> get_parameters() const;
 
   /**
     @brief adds a task parameter; the client should never have to call this!
@@ -70,7 +70,7 @@ public:
     @brief gets the ID of the corresponding server-side task; the client should
            never have to call this!
   */
-  int get_hunt_task_id();
+  int get_hunt_task_id() const;
 
   /**
     @brief pretty-prints information about this task when inserting into a
@@ -107,7 +107,7 @@ public:
   /**
     @brief gets the hunt task by index on [0, this->size())
   */
-  Task get_task(unsigned int index);
+  Task* get_task(unsigned int index);
 
   /**
     @brief gets the number of tasks in the hunt
@@ -118,7 +118,7 @@ public:
     @brief lets you index tasks in the hunt via bracket operator, e.g.
            Task first_task = current_hunt[0];
   */
-  Task& operator[](unsigned int i);
+  Task* operator[](unsigned int i);
 };
 
 #endif

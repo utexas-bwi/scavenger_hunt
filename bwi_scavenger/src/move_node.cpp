@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <limits.h>
+#include <std_msgs/String.h>
 
 int closest = -1;
 
@@ -14,16 +15,16 @@ void stop(const bwi_scavenger::RobotStop::ConstPtr &data){
 
 void move(const bwi_scavenger::RobotMove::ConstPtr &data){
   if(closest != -1){
-  if(data -> type == MOVE){
-    ROS_INFO("[move_node] Sending goal to move");
-    environment_location goal = static_cast<environment_location>((data -> location + closest) % 7);
-    rm -> move_to_location(goal);
-    movePub.publish(result);
-  } else if (data -> type == SPIN){
-    ROS_INFO("[move_node] Sending goal to spin");
-    rm -> turn (data->degrees);
-    movePub.publish(result);
-  }
+    if(data -> type == MOVE){
+      ROS_INFO("[move_node] Sending goal to move");
+      environment_location goal = static_cast<environment_location>((data -> location + closest) % 7);
+      rm -> move_to_location(goal);
+      movePub.publish(result);
+    } else if (data -> type == SPIN){
+      ROS_INFO("[move_node] Sending goal to spin");
+      rm -> turn (data->degrees);
+      movePub.publish(result);
+    }
   }
 }
 
@@ -48,7 +49,7 @@ void getMapId(const nav_msgs::OccupancyGrid::ConstPtr &grid){
       closest = i;
     }
   }
-  
+
 }
 
 int main(int argc, char **argv){

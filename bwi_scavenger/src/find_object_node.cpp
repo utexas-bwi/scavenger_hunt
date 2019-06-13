@@ -9,6 +9,7 @@
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <sensor_msgs/Image.h>
+#include <std_msgs/String.h>
 
 using namespace scavenger_fsm;
 
@@ -22,6 +23,7 @@ static const char TELEM_TAG[] = "[find_object_node]";
 
 static ros::Publisher pub_move;
 static ros::Publisher pub_stop;
+static ros::Publisher pub_task_complete;
 
 static int location_id = 0;
 
@@ -29,6 +31,10 @@ static const float INSPECT_DURATION = 8.0;
 static const float INSPECT_GOOD_CONFIRMATIONS = 4;
 
 static StateMachine sm;
+
+static bool proof_found = false;
+static bool proof_saved = false;
+static bool node_active = false;
 
 /*------------------------------------------------------------------------------
 STATE MACHINE DEFINITION
@@ -77,6 +83,10 @@ public:
 
   void on_transition_to(SystemStateVector *vec) {
     ROS_INFO("%s Entering state END", TELEM_TAG);
+    FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
+    if(svec->target_confirmed)
+      proof_found = true;
+    node_active = false;
   }
 };
 
@@ -228,6 +238,38 @@ public:
   }
 };
 
+static State *s_traveling = new FindObjectTravelingState(STATE_TRAVELING);
+static State *s_scanning = new FindObjectScanningState(STATE_SCANNING);
+static State *s_inspecting = new FindObjectInspectingState(STATE_INSPECTING);
+static State *s_end = new FindObjectEndState(STATE_END);
+
+void wipe_ssv() {
+  proof_found = false;
+  proof_saved = false;
+
+  location_id = 0;
+
+  ssv.t = 0;
+
+  ssv.target_seen = false;
+  ssv.target_confirmed = false;
+
+  ssv.travel_in_progress = false;
+  ssv.travel_finished = false;
+
+  ssv.inspect_finished = false;
+  ssv.inspect_confirmations = 0;
+  ssv.t_inspect_begin = 0;
+
+  ssv.turn_in_progress = false;
+  ssv.turn_finished = false;
+  ssv.turn_angle_traversed = 0;
+
+  ssv.destination = 0;
+
+  sm.init(s_traveling);
+}
+
 /*------------------------------------------------------------------------------
 SYSTEM STATE VECTOR UPDATE CALLBACKS
 ------------------------------------------------------------------------------*/
@@ -257,12 +299,23 @@ void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
 
 // Called when image of object is recieved
 void image_cb(const sensor_msgs::Image::ConstPtr &img) {
-  ROS_INFO("Saving image");
-  cv_bridge::CvImagePtr cv_ptr;
-  cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
-  // gives unique name to image as defined by its header sequence
-  std::string name = std::to_string(img->header.seq);
-  cv::imwrite("/home/bwilab/scavenger_hunt/" + name + ".jpg", cv_ptr -> image);
+  if (proof_found && !proof_saved) {
+    ROS_INFO("Saving image");
+    cv_bridge::CvImagePtr cv_ptr;
+    cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
+    cv::imwrite("proof.jpg", cv_ptr -> image);
+    proof_saved = true;
+    std_msgs::Bool complete_msg;
+    pub_task_complete.publish(complete_msg);
+  }
+}
+
+// Called when the main node is starting a task
+void task_start_cb(const std_msgs::String::ConstPtr &msg) {
+  if (msg -> data == "Find Object") {
+    node_active = true;
+    wipe_ssv();
+  }
 }
 
 /*------------------------------------------------------------------------------
@@ -276,17 +329,14 @@ int main(int argc, char **argv) {
   // Setup SSV update callbacks
   pub_move = nh.advertise<bwi_scavenger::RobotMove>(TPC_MOVE_NODE_GO, 1);
   pub_stop = nh.advertise<bwi_scavenger::RobotStop>(TPC_MOVE_NODE_STOP, 1);
+  pub_task_complete = nh.advertise<std_msgs::Bool>(TPC_TASK_COMPLETE, 1);
 
   ros::Subscriber sub0 = nh.subscribe(TPC_YOLO_NODE_TARGET_SEEN, 1, target_seen_cb);
   ros::Subscriber sub1 = nh.subscribe(TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
-  ros::Subscriber sub2 = nh.subscribe(TPC_YOLO_NODE_TARGET_IMAGE, 1, image_cb);
+  ros::Subscriber sub2 = nh.subscribe("/darknet_ros/detection_image", 1, image_cb);
+  ros::Subscriber sub3 = nh.subscribe(TPC_MAIN_NODE_TASK_START, 1, task_start_cb);
 
   // Build state machine
-  State *s_traveling = new FindObjectTravelingState(STATE_TRAVELING);
-  State *s_scanning = new FindObjectScanningState(STATE_SCANNING);
-  State *s_inspecting = new FindObjectInspectingState(STATE_INSPECTING);
-  State *s_end = new FindObjectEndState(STATE_END);
-
   s_traveling->add_output(s_end);
   s_traveling->add_output(s_scanning);
   s_traveling->add_output(s_inspecting);
@@ -301,20 +351,22 @@ int main(int argc, char **argv) {
   sm.add_state(s_inspecting);
   sm.add_state(s_end);
   sm.add_end_state(s_end);
-  sm.init(s_traveling);
 
   // Wait for ROS services to spin up
   ros::Duration(5.0).sleep();
 
-  bool state_machine_active = true;
   double org = ros::Time::now().toSec();
 
   ROS_INFO("%s Entering Find Object state machine...", TELEM_TAG);
 
   // Run until state machine exit
-  while (ros::ok() || state_machine_active) {
-    state_machine_active = !sm.run(&ssv);
-    ssv.t = ros::Time::now().toSec() - org;
+  while (ros::ok()) {
     ros::spinOnce();
+
+    if (!node_active)
+      continue;
+
+    sm.run(&ssv);
+    ssv.t = ros::Time::now().toSec() - org;
   }
 }
