@@ -17,7 +17,7 @@ void move(const bwi_scavenger::RobotMove::ConstPtr &data){
   if(closest != -1){
     if(data -> type == MOVE){
       ROS_INFO("[move_node] Sending goal to move");
-      environment_location goal = static_cast<environment_location>((data -> location + closest) % 7);
+      environment_location goal = static_cast<environment_location>((data -> location + closest) % NUM_ENVIRONMENT_LOCATIONS);
       rm -> move_to_location(goal);
       movePub.publish(result);
     } else if (data -> type == SPIN){

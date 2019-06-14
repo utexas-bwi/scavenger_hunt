@@ -1,14 +1,16 @@
 #include <bwi_scavenger/global_topics.h>
 #include <bwi_scavenger/RobotMove.h>
 #include <bwi_scavenger/RobotStop.h>
+#include <bwi_scavenger/robot_motion.h>
 #include <bwi_scavenger/state_machine.h>
-#include <ros/ros.h>
-#include <std_msgs/Bool.h>
-#include "opencv2/opencv.hpp"
-#include <sensor_msgs/image_encodings.h>
+
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/opencv.hpp>
+#include <ros/ros.h>
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/image_encodings.h>
+#include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
 
 using namespace scavenger_fsm;
@@ -115,7 +117,7 @@ public:
       svec->travel_in_progress = true;
       bwi_scavenger::RobotMove msg;
       msg.type = 0;
-      msg.location = location_id % 7;
+      msg.location = location_id % NUM_ENVIRONMENT_LOCATIONS;
       pub_move.publish(msg);
     }
   }
