@@ -17,8 +17,8 @@ using namespace scavenger_fsm;
 
 static const state_id_t STATE_TRAVELING = 0;
 static const state_id_t STATE_SCANNING = 1;
-static const state_id_t STATE_INSPECTING = 3;
-static const state_id_t STATE_END = 2;
+static const state_id_t STATE_INSPECTING = 2;
+static const state_id_t STATE_END = 4;
 
 static const double T_TIMEOUT = 10 * 60;
 static const char TELEM_TAG[] = "[find_object_node]";
@@ -31,6 +31,8 @@ static int location_id = 0;
 
 static const float INSPECT_DURATION = 8.0;
 static const float INSPECT_GOOD_CONFIRMATIONS = 4;
+
+static const double T_TURN_SLEEP = 2.0;
 
 static StateMachine sm;
 
@@ -168,8 +170,7 @@ public:
   void update(SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     // One-time turn command send
-    if (!svec->turn_in_progress) {
-      ROS_INFO("SCANNING STATE UPDATE CALLED");
+    if (!svec->turn_in_progress && !svec->turn_sleeping) {
       svec->turn_in_progress = true;
       const int TURN_AMOUNT = 45;
       bwi_scavenger::RobotMove msg;
@@ -177,6 +178,12 @@ public:
       msg.degrees = TURN_AMOUNT;
       pub_move.publish(msg);
       svec->turn_angle_traversed += TURN_AMOUNT;
+    }
+
+    // Exiting sleep
+    if (svec->turn_sleeping && svec->t - svec->t_turn_sleep_begin >= T_TURN_SLEEP) {
+      ROS_INFO("%s TURNING is exiting sleep.", TELEM_TAG);
+      svec->turn_sleeping = false;
     }
   }
 
@@ -266,6 +273,8 @@ void wipe_ssv() {
   ssv.turn_in_progress = false;
   ssv.turn_finished = false;
   ssv.turn_angle_traversed = 0;
+  ssv.turn_sleeping = false;
+  ssv.t_turn_sleep_begin = 0;
 
   ssv.destination = 0;
 
@@ -294,7 +303,9 @@ void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
       ssv.turn_finished = true;
     else {
       ssv.turn_in_progress = false;
-      ros::Duration(2.0).sleep();
+      ROS_INFO("%s SCANNING has entered sleep.", TELEM_TAG);
+      ssv.turn_sleeping = true;
+      ssv.t_turn_sleep_begin = ssv.t;
     }
   }
 }
