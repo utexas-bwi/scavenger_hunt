@@ -324,7 +324,7 @@ void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
 // Called when image of object is recieved
 void image_cb(const sensor_msgs::Image::ConstPtr &img) {
   if (proof_found && !proof_saved) {
-    ROS_INFO("Saving image");
+    ROS_INFO("&s Saving proof locally...", TELEM_TAG);
     cv_bridge::CvImagePtr cv_ptr;
     cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
     cv::imwrite("proof.jpg", cv_ptr -> image);

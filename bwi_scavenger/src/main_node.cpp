@@ -15,7 +15,7 @@ static ros::Publisher pub_task_start, pub_yolo_node_target;
 static bool initial_task = true;
 
 void next_task(bool upload=false) {
-  if (!initial_task) {
+  if (!initial_task && upload) {
     client.send_proof("proof.jpg", *current_task);
     task_index++;
   }
