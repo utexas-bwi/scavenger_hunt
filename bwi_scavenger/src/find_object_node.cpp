@@ -36,9 +36,9 @@ static const double T_TURN_SLEEP = 4.0;
 
 static StateMachine sm;
 
-static bool proof_found = false;
-static bool proof_saved = false;
 static bool node_active = false;
+
+static sensor_msgs::Image::ConstPtr last_darknet_img;
 
 /*------------------------------------------------------------------------------
 STATE MACHINE DEFINITION
@@ -91,16 +91,18 @@ public:
   void on_transition_to(SystemStateVector *vec) {
     ROS_INFO("%s Entering state END", TELEM_TAG);
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
-    if(svec->target_confirmed)
-      proof_found = true;
-    node_active = false;
 
-    // Spin the proof subscriber
-    ros::spinOnce();
+    if(svec->target_confirmed) {
+      ROS_INFO("%s Saving proof locally...", TELEM_TAG);
+      cv_bridge::CvImagePtr cv_ptr;
+      cv_ptr = cv_bridge::toCvCopy(last_darknet_img, sensor_msgs::image_encodings::BGR8);
+      cv::imwrite("proof.jpg", cv_ptr -> image);
+    }
 
     std_msgs::Bool complete_msg;
-    complete_msg.data = proof_found;
+    complete_msg.data = svec->target_confirmed;
     pub_task_complete.publish(complete_msg);
+    node_active = false;
   }
 };
 
@@ -263,9 +265,6 @@ static State *s_inspecting = new FindObjectInspectingState(STATE_INSPECTING);
 static State *s_end = new FindObjectEndState(STATE_END);
 
 void wipe_ssv() {
-  proof_found = false;
-  proof_saved = false;
-
   location_id = 0;
 
   ssv.t = 0;
@@ -323,13 +322,7 @@ void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
 
 // Called when image of object is recieved
 void image_cb(const sensor_msgs::Image::ConstPtr &img) {
-  if (proof_found && !proof_saved) {
-    ROS_INFO("&s Saving proof locally...", TELEM_TAG);
-    cv_bridge::CvImagePtr cv_ptr;
-    cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
-    cv::imwrite("proof.jpg", cv_ptr -> image);
-    proof_saved = true;
-  }
+  last_darknet_img = img;
 }
 
 // Called when the main node is starting a task
