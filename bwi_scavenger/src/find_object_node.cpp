@@ -32,7 +32,7 @@ static int location_id = 0;
 static const float INSPECT_DURATION = 8.0;
 static const float INSPECT_GOOD_CONFIRMATIONS = 3;
 
-static const double T_TURN_SLEEP = 2.0;
+static const double T_TURN_SLEEP = 4.0;
 
 static StateMachine sm;
 
@@ -94,6 +94,13 @@ public:
     if(svec->target_confirmed)
       proof_found = true;
     node_active = false;
+
+    // Spin the proof subscriber
+    ros::spinOnce();
+
+    std_msgs::Bool complete_msg;
+    complete_msg.data = proof_found;
+    pub_task_complete.publish(complete_msg);
   }
 };
 
@@ -322,8 +329,6 @@ void image_cb(const sensor_msgs::Image::ConstPtr &img) {
     cv_ptr = cv_bridge::toCvCopy(img, sensor_msgs::image_encodings::BGR8);
     cv::imwrite("proof.jpg", cv_ptr -> image);
     proof_saved = true;
-    std_msgs::Bool complete_msg;
-    pub_task_complete.publish(complete_msg);
   }
 }
 

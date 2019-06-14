@@ -14,7 +14,7 @@ static ros::Publisher pub_task_start, pub_yolo_node_target;
 
 static bool initial_task = true;
 
-void next_task() {
+void next_task(bool upload=false) {
   if (!initial_task) {
     client.send_proof("proof.jpg", *current_task);
     task_index++;
@@ -45,7 +45,7 @@ void next_task() {
 }
 
 void next_task_cb(const std_msgs::Bool::ConstPtr &msg) {
-  next_task();
+  next_task(msg->data);
 }
 
 int main(int argc, char **argv) {
