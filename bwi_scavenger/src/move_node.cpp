@@ -41,7 +41,7 @@ void start(const std_msgs::String::ConstPtr &msg){
     ROS_INFO("[move_node] position of robot: (%f, %f)", x, y);
 
     float minDistance = std::numeric_limits<float>::max();
-    for(int i = 0; i < 7; i++){
+    for(int i = 0; i < NUM_ENVIRONMENT_LOCATIONS; i++){
       std::pair<float, float> coordinates = environment_location_coordinates[static_cast<environment_location>(i)];
       float distance = sqrt(pow(coordinates.first - x, 2) + pow(coordinates.second - y, 2));
       ROS_INFO("[move_node] distance to location %d: %f", i, distance);
