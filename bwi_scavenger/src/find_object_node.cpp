@@ -337,6 +337,7 @@ void task_start_cb(const std_msgs::String::ConstPtr &msg) {
   if (msg -> data == "Find Object") {
     node_active = true;
     wipe_ssv();
+    ros::Duration(5.0).sleep();
   }
 }
 
