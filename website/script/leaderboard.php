@@ -94,7 +94,7 @@
     $percent = 0;
     if ($university['num_verified'] != 0)
       $percent = $university ['num_correct'] / $university['num_verified'] * 100;
-    echo $percent;
+    echo round($percent, 2);
     echo '</div> </div>';
 
     // total score
@@ -104,4 +104,5 @@
   } 
 
   echo '</div>';
+  $dbh = null;
 ?>
