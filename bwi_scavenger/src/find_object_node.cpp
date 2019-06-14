@@ -30,7 +30,7 @@ static ros::Publisher pub_task_complete;
 static int location_id = 0;
 
 static const float INSPECT_DURATION = 8.0;
-static const float INSPECT_GOOD_CONFIRMATIONS = 4;
+static const float INSPECT_GOOD_CONFIRMATIONS = 3;
 
 static const double T_TURN_SLEEP = 2.0;
 
@@ -46,6 +46,7 @@ STATE MACHINE DEFINITION
 
 struct FindObjectSystemStateVector : SystemStateVector {
   double t = 0;
+  double t_system_epoch = 0;
 
   bool target_seen = false;
   bool target_confirmed = false;
@@ -184,7 +185,7 @@ public:
 
     // Exiting sleep
     if (svec->turn_sleeping && svec->t - svec->t_turn_sleep_begin >= T_TURN_SLEEP) {
-      ROS_INFO("%s TURNING is exiting sleep.", TELEM_TAG);
+      ROS_INFO("%s SCANNING is exiting sleep.", TELEM_TAG);
       svec->turn_sleeping = false;
     }
   }
@@ -261,6 +262,7 @@ void wipe_ssv() {
   location_id = 0;
 
   ssv.t = 0;
+  ssv.t_system_epoch = ros::Time::now().toSec();
 
   ssv.target_seen = false;
   ssv.target_confirmed = false;
@@ -370,8 +372,6 @@ int main(int argc, char **argv) {
   // Wait for ROS services to spin up
   ros::Duration(5.0).sleep();
 
-  double org = ros::Time::now().toSec();
-
   ROS_INFO("%s Entering Find Object state machine...", TELEM_TAG);
 
   // Run until state machine exit
@@ -382,6 +382,6 @@ int main(int argc, char **argv) {
       continue;
 
     sm.run(&ssv);
-    ssv.t = ros::Time::now().toSec() - org;
+    ssv.t = ros::Time::now().toSec() - ssv.t_system_epoch;
   }
 }
