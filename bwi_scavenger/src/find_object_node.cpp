@@ -297,7 +297,7 @@ SYSTEM STATE VECTOR UPDATE CALLBACKS
 ------------------------------------------------------------------------------*/
 
 // Called when target is seen - prompts stop
-void target_seen_cb(const darknet_ros_msgs::BoundingBox:::ConstPtr &msg) {
+void target_seen_cb(const darknet_ros_msgs::BoundingBox::ConstPtr &msg) {
   if(msg->probability > 0.5){
     state_id_t state = sm.get_current_state()->get_id();
     if (state == STATE_SCANNING || state == STATE_TRAVELING)
