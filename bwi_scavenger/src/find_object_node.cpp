@@ -60,6 +60,8 @@ struct FindObjectSystemStateVector : SystemStateVector {
   bool turn_in_progress = false;
   bool turn_finished = false;
   int turn_angle_traversed = 0;
+  bool turn_sleeping = false;
+  double t_turn_sleep_begin = 0;
 
   int destination = location_id;
 } ssv;
