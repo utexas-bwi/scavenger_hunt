@@ -12,6 +12,7 @@
 #include <sensor_msgs/image_encodings.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
+#include <darknet_ros_msgs/BoundingBox.h>
 
 using namespace scavenger_fsm;
 
@@ -296,12 +297,14 @@ SYSTEM STATE VECTOR UPDATE CALLBACKS
 ------------------------------------------------------------------------------*/
 
 // Called when target is seen - prompts stop
-void target_seen_cb(const std_msgs::Bool::ConstPtr &msg) {
-  state_id_t state = sm.get_current_state()->get_id();
-  if (state == STATE_SCANNING || state == STATE_TRAVELING)
-    ssv.target_seen = true;
-  else if (!ssv.inspect_finished)
-    ssv.inspect_confirmations++;
+void target_seen_cb(const darknet_ros_msgs::BoundingBox:::ConstPtr &msg) {
+  if(msg->probability > 0.5){
+    state_id_t state = sm.get_current_state()->get_id();
+    if (state == STATE_SCANNING || state == STATE_TRAVELING)
+      ssv.target_seen = true;
+    else if (!ssv.inspect_finished)
+      ssv.inspect_confirmations++;
+  }
 }
 
 // Called when move finished - prompts state transition

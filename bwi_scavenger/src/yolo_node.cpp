@@ -14,13 +14,12 @@ std::string objectToFind = "chair";
 ros::Publisher proofPub;
 ros::Publisher findPub;
 sensor_msgs::Image image;
-std_msgs::Bool found;
 
 // goes through the objects in view and checks if the object has been found
 void objectsCb(const darknet_ros_msgs::BoundingBoxes::ConstPtr &objects){
   for(int i = 0; i < objects -> bounding_boxes.size(); i++){
     if (objects -> bounding_boxes[i].Class == objectToFind){
-      findPub.publish(found);
+      findPub.publish(objects -> bounding_boxes[i]);
     }
   }
 }
@@ -37,7 +36,7 @@ int main(int argc, char **argv){
   ros::Subscriber boundingBoxSub = yoloNode.subscribe("/darknet_ros/bounding_boxes/", 1, objectsCb);
   ros::Subscriber targetSub = yoloNode.subscribe(TPC_YOLO_NODE_TARGET, 1, getTargetCb);
 
-  findPub = yoloNode.advertise<std_msgs::Bool>(TPC_YOLO_NODE_TARGET_SEEN, 1);
+  findPub = yoloNode.advertise<darknet_ros_msgs::BoundingBox>(TPC_YOLO_NODE_TARGET_SEEN, 1);
 
   ros::spin();
 }
