@@ -2,24 +2,36 @@
 
 <html lang="en">
     <head>
-        <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
-        <link href="css/style.css" rel="stylesheet"/>
-        <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
-        
-        <script src="https://unpkg.com/scrollreveal@4"></script>
-        <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
-        <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
-        <script src="../script/firebase_init.js"></script>
-        <script src="../script/hunt.js"></script>
-        <script src="../script/string_hash.js"></script>
+      <!-- Metadata -->
+      <title>Scavenger Hunt</title>
+
+      <!-- Theme stylesheets -->
+      <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
+      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+      <link href="css/style.css" rel="stylesheet"/>
+      <link href="css/leader.css" rel="stylesheet"/>
+
+      <!-- Fonts -->
+      <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+
+      <!-- Global scripts -->
+      <script src="https://unpkg.com/scrollreveal@4"></script>
+      <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+      <script src="../script/firebase_init.js"></script>
+      <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+      <script src="css/formBE/js/main.js"></script>
+
+      <!-- Page-specific scripts -->
+      <script src="../script/hunt.js"></script>
+      <script src="../script/string_hash.js"></script>
     </head>
     <body>
         <div id="navbar"></div>
+        <div class="content">
         <section id="main" class = "full">
             <section id="content">
 
@@ -41,6 +53,7 @@
         <script>
             sendUserId("../script/user_hunt_table.php", "table-contents");
         </script>
+      </div>
 
         <footer id="footer" class = "foot">
             <span class="copyright">

@@ -44,7 +44,7 @@ main
 
     /* center contents */
     text-align: center;
-    
+
 }
 
 html, body {
@@ -638,7 +638,7 @@ header.major {
     float: left;
     margin-left: 5%;
     margin-right: 5%;
-    margin-top: 2.5%;
+    margin-top: 4%;
     width: 70%;
     border-radius: 20px;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);

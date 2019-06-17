@@ -1,170 +1,81 @@
 <!DOCTYPE html>
 
 <html lang="en">
-    <head>
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
-        <link href="css/style.css" rel="stylesheet"/>
-        <link href="css/leader.css" rel="stylesheet"/>
-        <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
-        <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+<head>
+  <!-- Metadata -->
+  <title>Scavenger Hunt</title>
 
-        <script src="https://unpkg.com/scrollreveal@4"></script>
-        <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
-        <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
-        <script src="../script/firebase_init.js"></script>
-    </head>
-    <body>
-        <div id="navbar"></div>
-        <header class="major">
-            <h2>Hunt Results</h2>
-        </header>
-        <div class="content" id="main1">
-            <header class="major">
-                <h2>All Time Leaderboard</h2>
-            </header>
-            <div class="leaderboard flex column wrap">
-                <div class="leaderboard-table flex column">
-                    <div class="leaderboard-header flex column grow">
+  <!-- Theme stylesheets -->
+  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="css/style.css" rel="stylesheet"/>
+  <link href="css/leader.css" rel="stylesheet"/>
 
-                        <div class="leaderboard-row flex align-center row--header" style="border-radius: 0 !important;">
-                            <div class="row-position">Position</div>
-                            <div class="row-collapse flex align-center">
-                                <div class="row-user--header" style = "padding-left: 7%">University</div>
-                                <div class="row-user--header" style = "padding-left: 9%"># of Tasks</div>
-                                <div class="row-team--header" style = "padding-left: 4%">Percent Success</div>
-                                <div class="row-team--header" style = "padding-left: 9%">Points</div>
-                            </div>
-                        </div>
-                    </div>
+  <!-- Fonts -->
+  <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
 
-                    <?php include '../script/leaderboard.php';?>
+  <!-- Global scripts -->
+  <script src="https://unpkg.com/scrollreveal@4"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+  <script src="../script/firebase_init.js"></script>
+  <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+  <script src="css/formBE/js/main.js"></script>
 
-                </div>
-
+  <!-- Page-specific scripts -->
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="content">
+    <section id="main" class = "full">
+      <header class="major">
+        <h2>All Time Leaderboard</h2>
+      </header>
+      <div class="leaderboard flex column wrap">
+        <div class="leaderboard-table flex column">
+          <div class="leaderboard-header flex column grow">
+            <div class="leaderboard-row flex align-center row--header" style="border-radius: 0 !important;">
+              <div class="row-position">Position</div>
+              <div class="row-collapse flex align-center">
+              <div class="row-user--header" style = "padding-left: 7%">University</div>
+              <div class="row-user--header" style = "padding-left: 9%">Tasks Attempted</div>
+              <div class="row-team--header" style = "padding-left: 4%">Percent Success</div>
+              <div class="row-team--header" style = "padding-left: 9%">Points</div>
             </div>
-
+          </div>
         </div>
-        <div class="content" id="main1">
-            <header class="major">
-                <h2>Hunt 1</h2>
-            </header>
-            <div class="leaderboard flex column wrap">
-                <div class="leaderboard-table flex column">
-                    <div class="leaderboard-header flex column grow">
-
-                        <div class="leaderboard-row flex align-center row--header" style="border-radius: 0 !important;">
-                            <div class="row-position">Position</div>
-                            <div class="row-collapse flex align-center">
-                                <div class="row-user--header" style = "padding-left: 4%">University</div>
-                                <div class="row-user--header" style = "padding-left: 14%"># of Tries</div>
-                                <div class="row-team--header" style = "padding-left: 4%">Avg. Search Time</div>
-                                <div class="row-team--header" style = "padding-left: 4%"> High Score</div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <div class="leaderboard-body flex column grow">
-                        <div class="leaderboard-row flex align-center">
-                            <div class="row-position">1</div>
-                            <div class="row-collapse flex align-center">
-                                <div class="row-caller flex">
-                                    <img class="avatar" src="images/ut-logo.png" />
-                                    <div class="row-user">University of Texas at Austin</div>
-                                </div>
-                                <div class="row-team">12</div>
-                                <div class="row-rank">12 min</div>
-                            </div>
-                            <div class="row-calls">200</div>
-                        </div>
-
-                        <div class="leaderboard-row flex row-alt align-center">
-                            <div class="row-position">2</div>
-                            <div class="row-collapse flex align-center">
-                                <div class="row-caller flex">
-                                    <img class="avatar" src="images/upenn-logo.png" />
-                                    <div class="row-user">University of Pennsylvania</div>
-                                </div>
-                                <div class="row-team">21</div>
-                                <div class="row-rank">14 min</div>
-                            </div>
-                            <div class="row-calls">150</div>
-                        </div>
-
-                        <div class="leaderboard-row flex align-center">
-                            <div class="row-position">3</div>
-                            <div class="row-collapse flex align-center">
-                                <div class="row-caller flex">
-                                    <img class="avatar" src="images/mich-logo.png" />
-                                    <div class="row-user">University of Michigan</div>
-                                </div>
-                                <div class="row-team">14</div>
-                                <div class="row-rank">13 min</div>
-                            </div>
-                            <div class="row-calls">125</div>
-                        </div>
-
-                        <div class="leaderboard-row flex row-alt align-center">
-                            <div class="row-position">4</div>
-                            <div class="row-collapse flex align-center">
-                                <div class="row-caller flex">
-                                    <img class="avatar" src="images/ill-logo.png" />
-                                    <div class="row-user">University of Illinois</div>
-                                </div>
-                                <div class="row-team">3</div>
-                                <div class="row-rank">19 min</div>
-                            </div>
-                            <div class="row-calls">125</div>
-                        </div>
-
-                        <div class="leaderboard-row flex align-center">
-                            <div class="row-position">5</div>
-                            <div class="row-collapse flex align-center">
-                                <div class="row-caller flex">
-                                    <img class="avatar" src="images/cali-logo.png" />
-                                    <div class="row-user">University of California, Berkeley</div>
-                                </div>
-                                <div class="row-team">19</div>
-                                <div class="row-rank">22 min</div>
-                            </div>
-                            <div class="row-calls">75</div>
-                        </div>
-
-                    </div>
-                </div>
-
-            </div>
-            <ul class="action">
-                <li><a class="button big scrolly" id = "more">See More</a></li>
-            </ul>
+        <?php include '../script/leaderboard.php';?>
         </div>
+      </div>
+    </section>
+  </div>
 
-        <!-- Populate nav bar -->
-        <script>
-            var htmlComponentsPath = 'components/';
-        </script>
-        <script src="css/index.js"></script>
+  <!-- Populate nav bar -->
+  <script>
+    var htmlComponentsPath = 'components/';
+  </script>
+  <script src="css/index.js"></script>
 
-        <footer id="footer">
-            <span class="copyright">
-                <br>
-                <br>
-                <br>
-                &copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
-            </span>
-        </footer>
+  <footer id="footer">
+    <span class="copyright">
+    <br>
+    <br>
+    <br>
+    &copy; Copyright 2018 University of Texas at Austin Learning Agents Research Lab. All rights reserved.</a>
+    </span>
+  </footer>
 
-        <script>
-        function myFunction() {
-        var x = document.getElementById("huntData");
-        if (x.style.display === "none") {
-            x.style.display = "block";
-        } else {
-            x.style.display = "none";
-        }
-        }
-        </script>
-    </body>
+  <script>
+  function myFunction() {
+    var x = document.getElementById("huntData");
+    if (x.style.display === "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
+    }
+  }
+  </script>
+</body>
