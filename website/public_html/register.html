@@ -6,6 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Register</title>
 
+    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
     <link href="css/style.css" rel="stylesheet"/>
     <link href="css/leader.css" rel="stylesheet"/>
@@ -28,6 +29,8 @@
 <body>
     <div id="navbar"></div>
     <div class="main">
+    <section id="content">
+        <p class="hidden-msg alert alert-msg" id="alert-msg"></p>
 
         <!-- Sign up form -->
         <section class="signup">
@@ -39,10 +42,6 @@
                             <div class="form-group">
                                 <label for="name"><i class="zmdi zmdi-account material-icons-name"></i></label>
                                 <input type="text" name="name" id="name" placeholder="Name"/>
-                            </div>
-                            <div class="form-group">
-                                <label for="uni"><i class="zmdi zmdi-account material-icons-name"></i></label>
-                                <input type="text" name="uni" id="uni" placeholder="University"/>
                             </div>
                             <div class="form-group">
                                 <label for="email"><i class="zmdi zmdi-email"></i></label>
@@ -60,7 +59,7 @@
                                 <label class="label-agree-term">Already have an account? <a href="login.html">Log In</a></label>
                             </div>
                             <div class="form-group form-button">
-                                    <button type='button' onclick='register()'>Register</button> 
+                                    <button type='button' onclick='register()'>Register</button>
                             </div>
                         </form>
                     </div>
@@ -69,6 +68,7 @@
             </div>
         </section>
     </div>
+    </section>
 
     <!-- Populate nav bar -->
     <script>
