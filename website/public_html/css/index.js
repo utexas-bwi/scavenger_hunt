@@ -21,8 +21,10 @@ firebase.auth().onAuthStateChanged(function(user) {
   ];
 
   // Nav bar changes based on user verification
-  if (!user || !verified)
+  if (!user)
     $("#navbar").load(htmlComponentsPath + "navBarNoAuth.html");
+  else if(!verified)
+    $("#navbar").load(htmlComponentsPath + "navBarUnverified.html");
   else
     $("#navbar").load(htmlComponentsPath + "navBarAuth.html");
 
@@ -75,14 +77,16 @@ firebase.auth().onAuthStateChanged(function(user) {
     window.onload = function() {
       var e = document.getElementById("navbar-rules");
       e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
-      e = document.getElementById("navbar-task");
-      e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
       e = document.getElementById("navbar-leaderboard");
       e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
       e = document.getElementById("navbar-contact");
       e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
-      e = document.getElementById("navbar-userhunts");
-      e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
+      if(verified){
+        e = document.getElementById("navbar-task");
+        e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
+        e = document.getElementById("navbar-userhunts");
+        e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
+      }
     };
 
     // Graceful redirect to userhunts page upon login
