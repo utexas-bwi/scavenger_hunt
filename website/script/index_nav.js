@@ -1,0 +1,14 @@
+var e = document.getElementById("navbar-rules");
+if (e) e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
+e = document.getElementById("navbar-task");
+if (e) e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
+e = document.getElementById("navbar-leaderboard");
+if (e) e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
+e = document.getElementById("navbar-contact");
+if (e) e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
+e = document.getElementById("navbar-userhunts");
+if (e) e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
+e = document.getElementById("navbar-register");
+if (e) e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
+e = document.getElementById("navbar-login");
+if (e) e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
