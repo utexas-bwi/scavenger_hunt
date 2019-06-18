@@ -1,19 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+  <!-- Metadata -->
+  <title>Scavenger Hunt</title>
 
-    <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="public_html/css/style.css" rel="stylesheet"/>
+  <!-- Theme stylesheets -->
+  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="public_html/css/style.css" rel="stylesheet"/>
+  <link href="public_html/css/leader.css" rel="stylesheet"/>
 
-    <script src="https://unpkg.com/scrollreveal@4"></script>
-    <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
-    <script src="../script/firebase_init.js"></script>
-    <script src="public_html/css/formBE/vendor/jquery/jquery.min.js"></script>
+  <!-- Fonts -->
+  <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+
+  <!-- Global scripts -->
+  <script src="https://unpkg.com/scrollreveal@4"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+  <script src="script/firebase_init.js"></script>
+  <script src="public_html/css/formBE/vendor/jquery/jquery.min.js"></script>
+  <script src="public_html/css/formBE/js/main.js"></script>
+
+  <!-- Page-specific scripts -->
 </head>
 <body>
     <!-- Navigation bar populated by index.js -->
@@ -22,8 +33,8 @@
     <!-- Banner -->
     <section id="banner">
         <div class="inner">
-            <h2 class="theHeader">Welcome to Scavenger Hunt</h2>
-            <p class="desc">Use a standardized game to test your robot's efficacy</p>
+            <h2 class="theHeader"><b>Welcome to Scavenger Hunt</b></h2>
+            <p class="desc">Test your robot's skills with a standardized game</p>
             <ul class="action">
                 <!-- Login and register buttons in banner center -->
                 <li><a href="public_html/register.html" class="button big scrolly" class = "click">Register</a></li>
@@ -33,51 +44,27 @@
     </section>
 
     <!-- Main text box -->
-    <section id="main">
-        <header class="major">
+    <div class="content">
+			<section id="main" class = "full">
+				<section id="content">
             <h2>In Pursuit of Human-Robot Coexistence</h2>
-        </header>
-        <section id="content">
             <p>
             In recent years, many different intelligent mobile robots have been
             developed in research and industrial labs. Though there are
             significant hardware and software differences between these robots,
-            many of them share common capabilities such as planning, reasoning,
+            many of them share common abilities such as planning, reasoning,
             learning, vision, and natural language processing.
             </p>
 
             <p>
             The main goal of Scavenger Hunt is to provide a standardized set
-            of tasks for evauating the capabilities of intelligent mobile robots
-            in coexistence with humans. In particular, the hunts focus on
-            building environments with lengthy periods of operation.
+            of tasks for evauating the capabilities of intelligent mobile robots. The
+            tasks focus on environments in which the robots coexist and interact
+            with humans, such as public buildings with lengthy periods of operation.
             </p>
         </section>
-    </section>
-
-    <!-- News box -->
-    <div class= "news">
-        <div class= "maj">
-            <h2 class = "title">News</h2>
-        </div>
-        <section id="content">
-            <p> xyz </p>
-            <p> xyz </p>
-            <p> xyz </p>
-            <p> xyz </p>
-            <p> xyz </p>
-            <p> xyz </p>
-            <p> xyz </p>
-            <p> xyz </p>
-            <p> xyz </p>
-            <p> xyz </p>
-            <p> xyz </p>
-            <p> xyz </p>
-        </section>
-    </div>
-
-    <!-- Calender -->
-    <iframe src="https://calendar.google.com/calendar/embed?showTitle=0&amp;showPrint=0&amp;showTabs=0&amp;showTz=0&amp;height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;src=rizvi.s.418%40isg.edu.sa&amp;color=%231B887A&amp;ctz=America%2FChicago" class = "cal" style="border-width:0" width="800" height="600" frameborder="0" scrolling="no" font-family = "Times"></iframe>
+      </section>
+  </div>
 
     <!-- Footer -->
     <footer id="footer">

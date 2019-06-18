@@ -18,6 +18,8 @@ function indexNav(page) {
     if (e) e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
     e = document.getElementById("navbar-login");
     if (e) e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
+    e = document.getElementById("navbar-verify");
+    if (e) e.setAttribute('href', 'public_html/' + e.getAttribute('href'));
   }
 }
 
