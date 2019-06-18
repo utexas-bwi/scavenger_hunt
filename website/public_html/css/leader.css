@@ -214,6 +214,7 @@
 .row-user{
   margin-left: 30px;
   width: 230px;
+  font-size: 15px;
 }
 
 .row-points {
@@ -223,12 +224,14 @@
 }
 
 .row-user--header{
-  width: 275px;
+  font-size: 17px;
+  font-weight: bold;
 }
 
 .row-position{
   width: 55px;
   text-align: center;
+  font-size: 15px;
 }
 
 .row-calls{
@@ -322,6 +325,7 @@
 .row-rank,
 .row-team{
   width: 16.67%;
+  font-size: 15px;
 }
 
 .row-team {
@@ -329,10 +333,12 @@
 }
 .row-rank {
     margin-right: 1%;
+    font-size: 15px;
 }
 .row-calls {
     margin-right: 4%;
     font-weight: bold;
+    font-size: 15px;
 }
 
 
