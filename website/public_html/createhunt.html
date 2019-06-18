@@ -33,6 +33,7 @@
     </head>
     <body>
         <div id="navbar"></div>
+        <div class="content">
         <section id="main" class = "full">
             <section id="content">
 
@@ -47,10 +48,10 @@
                 </h2>
                 <div>
                     <p>
-                      Below are the possible Tasks you can add to your Scavenger
-                      Hunt. Click a Task to add it, and fill in the parameters
-                      accordingly. The possible parameters for a particular Task
-                      are shown in brackets. If a Task has no parameters, leave
+                      Below are the possible tasks you can add to your scavenger
+                      hunt. Click a task to add it, and fill in the parameters
+                      accordingly. The possible parameters for a particular task
+                      are shown in brackets. If a task has no parameters, leave
                       that field blank.
                     </p>
                     <div id="task-list">
@@ -73,19 +74,49 @@
 			</table>
                     </div>
                     <div id="construct-hunt-table" class="use-glyphicon">
-                        <h2 id="hunt-name"><?php
+
+                        <!--<h2 id="hunt-name"><?php
 			        require_once '../script/hunt_table.php';
                                 if (isset($_GET['id'])) {
                                     getHuntName($_GET['id']);
 			    	} else {
                                     echo "New Hunt";
                                 }
-                            ?><span class="clickable use-glyphicon glyphicon glyphicon-pencil" onclick="editable(this, 1)"/></h2>
+                            ?><span class="clickable use-glyphicon glyphicon glyphicon-pencil" onclick="editable(this, 1)"/></h2>-->
                         <table class="table" id="hunt-table">
-			    <tr>
-				<td>Task Name</td>
-				<td>Parameters</td>
-			    </tr>
+                          <tr>
+                            <td id="hunt-name" contenteditable="false">
+                              <?php
+      			                    require_once '../script/hunt_table.php';
+                                if (isset($_GET['id'])) {
+                                  getHuntName($_GET['id']);
+      			    	              } else {
+                                  echo "New Hunt";
+                                }
+                              ?>
+                            </td>
+                            <th>
+                                <span class="clickable glyphicon glyphicon-pencil" onclick="editable(this, 1)"</span>
+                            </th>
+
+				                    <!--<th id="hunt-name">
+                              <?php
+      			                    require_once '../script/hunt_table.php';
+                                if (isset($_GET['id'])) {
+                                  getHuntName($_GET['id']);
+      			    	              } else {
+                                  echo "New Hunt";
+                                }
+                              ?>
+                            </th>
+				                    <th>
+                              <span class="clickable use-glyphicon glyphicon glyphicon-pencil" onclick="editable('hunt-name', 1)"/>
+                            </th>-->
+			                    </tr>
+			                    <tr>
+				                    <th>Task Name</th>
+				                    <th>Parameters</th>
+			                    </tr>
 			    <!-- clonable table line -->
                             <tr class="hide" id="tr-hide">
 			        <td contenteditable="false"></td>
@@ -104,6 +135,7 @@
                 </div>
             </section>
         </section>
+      </div>
 
         <!-- Populate nav bar -->
         <script>

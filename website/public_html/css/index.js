@@ -30,7 +30,8 @@ firebase.auth().onAuthStateChanged(function(user) {
   var verified = user && user.emailVerified;
   var verifyRestrictedPages = [
     "userhunts.html",
-    "task.html"
+    "task.html",
+    "verify.html"
   ];
   var logoutRestrictedPages = [
     "login.html"
