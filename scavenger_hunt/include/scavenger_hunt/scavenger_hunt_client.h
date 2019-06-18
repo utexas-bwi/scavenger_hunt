@@ -4,6 +4,7 @@
 #include <curl/curl.h>
 #include <scavenger_hunt/rapidxml.hpp>
 #include <scavenger_hunt/scavenger_hunt_structure.h>
+#include <vector>
 
 /**
   Your robot's connection to Scavenger Hunt.
@@ -28,16 +29,16 @@ public:
     Downloads a hunt from Scavenger Hunt.
 
     @param hunt_name name of hunt you wish to participate in
-    @return pointer to ScavengerHunt object containing hunt data, or nullptr
-            if something went wrong
+    @param tasks list to populate with tasks
   */
-  ScavengerHunt* get_hunt(std::string hunt_name);
+  void get_hunt(std::string hunt_name, std::vector<Task> &tasks);
 
   /**
     Uploads an image proof to Scavenger Hunt.
 
     @param image_path path of proof
     @param task task you are proving completion of
+    @param time time taken to complete task
     @return if a response was received from the server; not necessarily a
             successful upload
   */

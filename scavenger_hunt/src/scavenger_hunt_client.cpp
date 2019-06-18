@@ -55,7 +55,7 @@ bool file_exists(std::string fname) {
 /**
   @brief parses a ScavengerHunt object from XML text
 */
-ScavengerHunt* parse_hunt_xml(std::string *xml) {
+void parse_hunt_xml(std::string *xml, std::vector<Task> &tasks) {
   xml_document<> doc;
   xml_node<> *root_node;
 
@@ -66,11 +66,7 @@ ScavengerHunt* parse_hunt_xml(std::string *xml) {
   root_node = doc.first_node("hunt");
 
   if (root_node == nullptr)
-    return nullptr;
-
-  std::string hunt_name = root_node->first_attribute("name")->value();
-
-  ScavengerHunt *hunt = new ScavengerHunt(hunt_name);
+    return;
 
   for (xml_node<> *task_node = root_node->first_node("task");
        task_node;
@@ -94,11 +90,10 @@ ScavengerHunt* parse_hunt_xml(std::string *xml) {
       task.add_parameter(param_name, param_value);
     }
 
-    hunt->add_task(task);
+    tasks.push_back(task);
   }
 
   delete buffer;
-  return hunt;
 }
 
 ScavengerHuntClient::ScavengerHuntClient(std::string email,
@@ -112,7 +107,8 @@ std::string get_telemetry_tag(std::string user_email,
   return "[" + user_email + "//" + method_name + "] ";
 }
 
-ScavengerHunt* ScavengerHuntClient::get_hunt(std::string hunt_name) {
+void ScavengerHuntClient::get_hunt(std::string hunt_name,
+    std::vector<Task> &tasks) {
   // Configure cURL request
   CURL *curl = curl_easy_init();
   std::string http_received_data;
@@ -140,18 +136,16 @@ ScavengerHunt* ScavengerHuntClient::get_hunt(std::string hunt_name) {
 
   curl_easy_perform(curl);
 
-  ScavengerHunt *hunt = nullptr;
-
   if (http_received_data.length() > 0) {
     // Response good
     std::cout << get_telemetry_tag(user_email, "get_hunt") <<
         "Got response from Scavenger Hunt server. Parsing..." << std::endl;
 
-    hunt = parse_hunt_xml(&http_received_data);
+    parse_hunt_xml(&http_received_data, tasks);
 
-    if (hunt != nullptr)
+    if (tasks.size() > 0)
       std::cout << get_telemetry_tag(user_email, "get_hunt") <<
-          "Successfully parsed " << hunt->size() << " task(s)." << std::endl;
+          "Successfully parsed " << tasks.size() << " task(s)." << std::endl;
     else
       std::cout << get_telemetry_tag(user_email, "get_hunt") <<
           "Could not find hunt with name \"" << hunt_name << "\"." << std::endl;
@@ -163,8 +157,6 @@ ScavengerHunt* ScavengerHuntClient::get_hunt(std::string hunt_name) {
 
   // Cleanup
   curl_easy_cleanup(curl);
-
-  return hunt;
 }
 
 bool ScavengerHuntClient::send_proof(std::string image_path, Task &task, double time) {
@@ -211,11 +203,11 @@ bool ScavengerHuntClient::send_proof(std::string image_path, Task &task, double 
 						   CURLFORM_COPYCONTENTS, instruction_id_str.c_str(),
 						   CURLFORM_END);
   curl_formadd(&post_begin,
-						   &post_end,
-						   CURLFORM_COPYNAME, "time",
-						   CURLFORM_COPYCONTENTS, time_str.c_str(),
-						   CURLFORM_END);
-               
+              &post_end,
+              CURLFORM_COPYNAME, "time",
+              CURLFORM_COPYCONTENTS, time_str.c_str(),
+              CURLFORM_END);
+
   // Perform cURL
   curl_easy_setopt(curl, CURLOPT_POST, true);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, post_begin);

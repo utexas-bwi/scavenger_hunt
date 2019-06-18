@@ -21,7 +21,7 @@ private:
 
 public:
   /**
-  @brief creates a new task; the client should never have to call this!
+    @brief creates a new task; the client should never have to call this!
   */
   Task(std::string name,
        std::string task_description,
@@ -53,13 +53,18 @@ public:
   /**
     @brief gets a written description of the task
   */
-  std::string get_task_description() const;
+  std::string get_description() const;
 
   /**
     @brief gets the task's parameters; a mapping of parameter names to parameter
            values, e.g. "target object" => "soda can"
   */
   std::map<std::string, std::string> get_parameters() const;
+
+  /**
+    @brief gets the value of a parameter whose name is known beforehand
+  */
+  std::string get_parameter_value(std::string param);
 
   /**
     @brief adds a task parameter; the client should never have to call this!
@@ -77,48 +82,6 @@ public:
            stream, e.g. std::cout << task;
   */
   friend std::ostream& operator<<(std::ostream &stream, const Task &task);
-};
-
-/**
-  A collection of tasks for your robot to complete.
-*/
-class ScavengerHunt {
-private:
-  const std::string NAME;
-
-  std::vector<Task> tasks;
-
-public:
-  /**
-    @brief creates a new hunt; the client should never have to call this!
-  */
-  ScavengerHunt(std::string name);
-
-  /**
-    @brief gets the name of the hunt
-  */
-  std::string get_name();
-
-  /**
-    @brief adds a task to the hunt; the client should never have to call this!
-  */
-  void add_task(Task t);
-
-  /**
-    @brief gets the hunt task by index on [0, this->size())
-  */
-  Task* get_task(unsigned int index);
-
-  /**
-    @brief gets the number of tasks in the hunt
-  */
-  unsigned int size();
-
-  /**
-    @brief lets you index tasks in the hunt via bracket operator, e.g.
-           Task first_task = current_hunt[0];
-  */
-  Task* operator[](unsigned int i);
 };
 
 #endif
