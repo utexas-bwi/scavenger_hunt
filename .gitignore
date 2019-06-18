@@ -5,3 +5,9 @@ rapidxml-1.13/
 
 # IDE bloat
 .vscode
+
+# Catkin
+build/
+.catkin_tools/
+devel/
+logs/
