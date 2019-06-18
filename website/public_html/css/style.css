@@ -1,3 +1,30 @@
+/* Branding overrides */
+.form-submit {
+  background-color: #ea433b;
+}
+
+.form-submit:hover {
+  background-color: #ce3b35;
+}
+
+.btn-primary {
+  background-color: #ea433b;
+  border-color: #ea433b;
+}
+
+.btn-primary:hover {
+  background-color: #ce3b35;
+  border-color: #ce3b35;
+}
+
+a {
+  color: #ea433b;
+}
+
+a:hover {
+  color: #ce3b35;
+}
+
 nav .navbar-brand
 {
     /* size for brand */

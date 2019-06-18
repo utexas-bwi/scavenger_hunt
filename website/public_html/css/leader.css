@@ -243,11 +243,8 @@
 }
 
 .leaderboard-header > .leaderboard-row{
-  background-color: #4285F4;
+  background-color: #ea433b;
   color: #FFFFFF;
-  border-left: 1px solid #0196c1;
-  border-bottom: 1px solid #0196c1;
-  border-right: 1px solid #0196c1;
 }
 
 .leaderboard-row:last-of-type {
