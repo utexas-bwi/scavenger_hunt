@@ -79,7 +79,16 @@
     $university = $stmt -> fetch();
 
     echo '<div class="row-caller flex">';
-    // echo '<img class="avatar" src="../../public_html/images/ut-logo.png" />';
+    $uni = $university['university'];
+    if($uni == "University of Texas at Austin")
+      echo '<img class="avatar" src="../../public_html/images/ut-logo.png" />';
+    else if($uni == "University of Pennsylvania")
+      echo '<img class="avatar" src="../../public_html/images/upenn-logo.png" />';
+    else if($uni == "University of Michigan")
+      echo '<img class="avatar" src="../../public_html/images/mich-logo.png" />';
+    else if($uni == "University of Southern California")
+      echo '<img class="avatar" src="../../public_html/images/usc-logo.png" />';
+      // TODO no free image for brown university logo
     echo '<div class="row-user">';
     echo $university['university'];
     echo '</div> </div>';
