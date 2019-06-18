@@ -88,7 +88,8 @@
       echo '<img class="avatar" src="../../public_html/images/mich-logo.png" />';
     else if($uni == "University of Southern California")
       echo '<img class="avatar" src="../../public_html/images/usc-logo.png" />';
-      // TODO no free image for brown university logo
+    else if($uni == "Brown University")
+      echo '<img class="avatar" src="../../public_html/images/brown-logo.png" />'; 
     echo '<div class="row-user">';
     echo $university['university'];
     echo '</div> </div>';
