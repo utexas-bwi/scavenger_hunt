@@ -41,7 +41,7 @@ public:
     @return if a response was received from the server; not necessarily a
             successful upload
   */
-  bool send_proof(std::string image_path, Task &task);
+  bool send_proof(std::string image_path, Task &task, double time);
 };
 
 #endif

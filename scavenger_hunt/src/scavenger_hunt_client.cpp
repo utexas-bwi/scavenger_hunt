@@ -167,7 +167,7 @@ ScavengerHunt* ScavengerHuntClient::get_hunt(std::string hunt_name) {
   return hunt;
 }
 
-bool ScavengerHuntClient::send_proof(std::string image_path, Task &task) {
+bool ScavengerHuntClient::send_proof(std::string image_path, Task &task, double time) {
   std::cout << get_telemetry_tag(user_email, "send_proof") <<
       "Preparing to send proof..." << std::endl;
 
@@ -187,6 +187,7 @@ bool ScavengerHuntClient::send_proof(std::string image_path, Task &task) {
 
   std::string password_hash_str = std::to_string(user_password_hash);
   std::string instruction_id_str = std::to_string(task.get_hunt_task_id());
+  std::string time_str = std::to_string(time);
 
   // Create upload form
   curl_formadd(&post_begin,
@@ -209,7 +210,12 @@ bool ScavengerHuntClient::send_proof(std::string image_path, Task &task) {
 						   CURLFORM_COPYNAME, "instr_id",
 						   CURLFORM_COPYCONTENTS, instruction_id_str.c_str(),
 						   CURLFORM_END);
-
+  curl_formadd(&post_begin,
+						   &post_end,
+						   CURLFORM_COPYNAME, "time",
+						   CURLFORM_COPYCONTENTS, time_str.c_str(),
+						   CURLFORM_END);
+               
   // Perform cURL
   curl_easy_setopt(curl, CURLOPT_POST, true);
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, post_begin);

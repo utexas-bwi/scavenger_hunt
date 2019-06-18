@@ -33,7 +33,8 @@ try {
     move_uploaded_file($_FILES["image"]["tmp_name"], $target_path);
 
     // Log new proof in database
-    $query = "insert into proof_table values (0, '" . $user['user_id'] . "', '" . $hash . "', " . $_POST["instr_id"] . ", 0, 0)";
+    echo $_POST["time"];
+    $query = "insert into proof_table values (0, '" . $user['user_id'] . "', '" . $hash . "', " . $_POST["instr_id"] . ", " . $_POST["time"] . ", 0, 0)";
     $stmt = $dbh->query($query);
   } else
     echo "[send_proof] Specified user not found in database!";

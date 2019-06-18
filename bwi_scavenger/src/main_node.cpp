@@ -5,18 +5,22 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
 
-static ScavengerHuntClient client("robot@rock.com", "sick robots");
+static ScavengerHuntClient client("jsuriadinata@utexas.edu", "Tr3asure");
 static ScavengerHunt *current_hunt;
 static Task *current_task;
 static int task_index = 0;
 
 static ros::Publisher pub_task_start, pub_yolo_node_target;
+static double taskTime;
+static double startTime;
 
 static bool initial_task = true;
 
 void next_task(bool upload=false) {
   if (!initial_task && upload) {
-    client.send_proof("proof.jpg", *current_task);
+    taskTime = ros::Time::now().toSec() - startTime;
+    std::cout << "Time for task to complete: " << taskTime << std::endl;
+    client.send_proof("proof.jpg", *current_task, taskTime);
     task_index++;
   }
 
@@ -27,7 +31,7 @@ void next_task(bool upload=false) {
 
   initial_task = false;
   current_task = (*current_hunt)[task_index];
-
+  startTime = ros::Time::now().toSec();
   if (current_task->get_name() == "Find Object") {
     ROS_INFO("[main_node] Beginning Find Object protocol");
 
@@ -41,6 +45,10 @@ void next_task(bool upload=false) {
     std_msgs::String task;
     task.data = "Find Object";
     pub_task_start.publish(task);
+  } else {
+    ROS_INFO("[main_node] Do not have protocol for the task %s. Going on to next task.", current_task->get_name().c_str());
+    task_index++;
+    next_task();
   }
 }
 

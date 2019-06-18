@@ -165,6 +165,7 @@ CREATE TABLE `proof_table` (
   `uploader_id` int(11) NOT NULL,
   `filename` varchar(255) NOT NULL,
   `hunt_instr_id` int(11) NOT NULL,
+  `time_to_complete` int(11) NOT NULL,
   `verified` tinyint(1) NOT NULL DEFAULT 0,
   `correct` tinyint(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`proof_id`)
