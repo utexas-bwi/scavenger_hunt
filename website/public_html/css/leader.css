@@ -353,11 +353,6 @@
   cursor: pointer;
 }
 
-.content{
-  min-height: 100vh;
-}
-
-
 @media (max-width: 1050px) {
   .row-rank--header,
   .row-team--header{
