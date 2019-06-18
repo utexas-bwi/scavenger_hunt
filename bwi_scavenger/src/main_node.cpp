@@ -5,7 +5,7 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
 
-static ScavengerHuntClient client("jsuriadinata@utexas.edu", "Tr3asure");
+static ScavengerHuntClient client("robot@rock.com", "sick robots");
 static ScavengerHunt *current_hunt;
 static Task *current_task;
 static int task_index = 0;
