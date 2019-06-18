@@ -10,7 +10,7 @@ function submitHunt() {
     // extract data from table
     const table = document.getElementById("hunt-table");
     const data = [];
-    for (let rdx = 2; rdx < table.rows.length; ++rdx) {
+    for (let rdx = 3; rdx < table.rows.length; ++rdx) {
         const rowdata = [];
         const row = table.rows[rdx];
         // skip last two cells but iterate over rest bc last 2 are buttons
@@ -18,6 +18,7 @@ function submitHunt() {
             const cell = row.cells[cdx];
             rowdata.push(cell.textContent);
         }
+        console.log(rowdata);
         data.push(rowdata);
     }
     // get hunt ID of hunt
@@ -30,7 +31,7 @@ function submitHunt() {
         id = vars["id"];
     }
     // get name of hunt from URL or from page if new hunt
-    const new_name = document.getElementById("hunt-name").textContent;
+    const new_name = document.getElementById("hunt-name").textContent.trim();
     // send data to php function
     const url = 'http://localhost/script/save_hunt_table.php';
     var hash = firebase.auth().currentUser.uid.hashCode();
@@ -67,5 +68,5 @@ function submitHunt() {
                 }, 10000);
             }
         }
-    });    
+    });
 }
