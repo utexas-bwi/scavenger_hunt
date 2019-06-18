@@ -1,6 +1,6 @@
 <?php
 function typecheck($dbh, $task_type, $param_val) {
-    // grab parameter name given task type  
+    // grab parameter name given task type
     $query = "SELECT param_name from task_table where task_type='" . $task_type . "'";
     $stmt = $dbh->query($query);
     $stmt->setFetchMode(PDO::FETCH_ASSOC);
@@ -17,7 +17,7 @@ function typecheck($dbh, $task_type, $param_val) {
     for ($idx = 0; $idx < count($values); ++$idx) {
         if ($param_val == $values[$idx]) {
             return true;
-        }   
+        }
     }
     return false;
 }
@@ -30,28 +30,29 @@ if ($_POST['save_hunt']) {
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $results["error"] = false;
     try {
-        if ($_POST['hunt_id'] >= 0) {
-            // typecheck to ensure all parameters match task_type allowances
-            for ($ndx = 0; $ndx < count($newrows); ++$ndx) {
-                // figure out where the task type and parameters are in the array
-                $task = 1;
-                if (count($newrows[$ndx]) == 2) {
-                    $task = 0;
-                }   
-                if (!typecheck($dbh, $newrows[$ndx][$task], $newrows[$ndx][$task + 1])) {
-                    // do not save, return error message
-                    $results["error"] = true;
-                    $results["data"] = 'Failed to save hunt, parameter ' . $newrows[$ndx][1] . ' for task ' . $newrows[$ndx][0] . ' do not match allowed values.';
-                    header("Content-type: application/json");
-                    die(json_encode($results));
-                }
+        // typecheck to ensure all parameters match task_type allowances
+        for ($ndx = 0; $ndx < count($newrows); ++$ndx) {
+            // figure out where the task type and parameters are in the array
+            $task = 1;
+            if (count($newrows[$ndx]) == 2) {
+                $task = 0;
             }
+            if (!typecheck($dbh, $newrows[$ndx][$task], $newrows[$ndx][$task + 1])) {
+                // do not save, return error message
+                $results["error"] = true;
+                $results["data"] = 'Failed to save hunt. One or more parameters are invalid.';
+                header("Content-type: application/json");
+                die(json_encode($results));
+            }
+        }
+
+        if ($_POST['hunt_id'] >= 0) {
             // update name of hunt
             $sql = "UPDATE hunt_table SET hunt_name=? WHERE hunt_id=?";
             $name_array = [$_POST['hunt_name'], $_POST['hunt_id']];
             $dbh->prepare($sql)->execute($name_array);
             // get copy of old database
-            $query = "SELECT * FROM hunt_instructions_table where hunt_id=" . $_POST['hunt_id']; 
+            $query = "SELECT * FROM hunt_instructions_table where hunt_id=" . $_POST['hunt_id'];
             $stmt = $dbh->query($query);
             $stmt->setFetchMode(PDO::FETCH_ASSOC);
             $oldrows = [];
