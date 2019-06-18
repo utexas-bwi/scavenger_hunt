@@ -1,6 +1,0 @@
-devel_space: /home/bwilab/scavenger_hunt/src/scavenger_hunt/devel
-install: false
-install_space: /home/bwilab/scavenger_hunt/src/scavenger_hunt/install
-profile: default
-source_space: /home/bwilab/scavenger_hunt/src/scavenger_hunt/src
-workspace: /home/bwilab/scavenger_hunt/src/scavenger_hunt
