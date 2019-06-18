@@ -29,26 +29,28 @@
 </head>
 <body>
   <div id="navbar"></div>
+  <div class="content">
     <section id="main" class = "full">
-      <section id="content">
+      <div id="content">
       <h2>All-Time Leaderboard</h2>
-      <div class="leaderboard flex column wrap">
-        <div class="leaderboard-table flex column">
-          <div class="leaderboard-header flex column grow">
-            <div class="leaderboard-row flex align-center row--header" style="border-radius: 0 !important;">
-              <div class="row-user--header">Rank</div>
-              <div class="row-collapse flex align-center">
-              <div class="row-user--header" style = "padding-left: 2%">University</div>
-              <div class="row-user--header" style = "padding-left: 18%">Tasks Attempted</div>
-              <div class="row-user--header" style = "padding-left: 7%">Percent Success</div>
-              <div class="row-user--header">Points</div>
+        <div class="leaderboard flex column wrap">
+          <div class="leaderboard-table flex column">
+            <div class="leaderboard-header flex column grow">
+              <div class="leaderboard-row flex align-center row--header" style="border-radius: 0 !important;">
+                <div class="row-user--header">Rank</div>
+                <div class="row-collapse flex align-center">
+                <div class="row-user--header" style = "padding-left: 2%">University</div>
+                <div class="row-user--header" style = "padding-left: 18%">Tasks Attempted</div>
+                <div class="row-user--header" style = "padding-left: 7%">Percent Success</div>
+                <div class="row-user--header">Points</div>
+              </div>
             </div>
           </div>
         </div>
-        <?php include '../script/leaderboard.php';?>
+          <?php include '../script/leaderboard.php';?>
       </div>
     </section>
-  </section>
+  </div>
 
   <!-- Populate nav bar -->
   <script>
