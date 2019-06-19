@@ -43,7 +43,6 @@
     } else {
       //insert new university
       $scoreTable = $dbh->prepare($insert);
-      //TODO calculate percentage
       $scoreTable->execute([$university, $userScore, $numVerified, $numCorrect]);
     }
   }
@@ -53,7 +52,7 @@
   //creates the table to be displayed on the page
 
   // counts the number of universities that have partaken in a hunt
-  $sort = "SELECT count(*) FROM score_table ORDER BY score DESC";
+  $sort = "SELECT count(*) FROM score_table";
   $numRows = $dbh->query($sort)->fetchColumn();
 
   $sort = "SELECT * FROM score_table ORDER BY score DESC";

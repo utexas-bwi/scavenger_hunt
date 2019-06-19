@@ -189,6 +189,21 @@ CREATE TABLE `score_table` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `score_table`
+--
+
+DROP TABLE IF EXISTS `hunt_completed_table`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hunt_completed_table` (
+  `university` varchar(255) NOT NULL,
+  `hunt` varchar(255) NOT NULL,
+  `time` int(11) NOT NULL,
+  `score` int(11) NOT NULL
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `user_table`
 --
 
