@@ -31,7 +31,8 @@ firebase.auth().onAuthStateChanged(function(user) {
   var verifyRestrictedPages = [
     "userhunts.html",
     "task.html",
-    "verify.html"
+    "verify.html",
+    "createhunt.html"
   ];
   var logoutRestrictedPages = [
     "login.html"
@@ -44,6 +45,32 @@ firebase.auth().onAuthStateChanged(function(user) {
   // Force redirect if user is logged in and on a restricted page
   if (user && logoutRestrictedPages.includes(page))
     window.location = "../index.html";
+
+  // If the user is editing a hunt, ensure they have permission
+  if (page == "createhunt.html" && window.location.href.indexOf("id") > -1) {
+    const vars = {};
+    const parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+        vars[key] = value;
+    });
+    var hunt_id = vars["id"];
+    var user_id = user.uid.hashCode();
+
+    $.ajax({
+        type: "POST",
+        url: "../../script/check_hunt_permission.php",
+        data: {
+            hunt_id: hunt_id,
+            user_id: user_id
+        },
+        success: function(data) {
+          if (data.error || data.no_perm)
+            window.location = "../index.html";
+        },
+        failure: function() {
+          window.location = "../index.html";
+        }
+    });
+  }
 
   // Nav bar changes based on user verification
   if (!user)
