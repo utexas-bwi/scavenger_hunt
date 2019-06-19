@@ -3,10 +3,12 @@ include 'connect.php';
 
 $dbh = connect();
 
+date_default_timezone_set("America/Chicago");
+
 $proof_dir = "../proof";
 $hash = hash("sha256", $_FILES["image"]["tmp_name"] . $_FILES["image"]["name"] . $_FILES["image"]["size"]);
-$target_path = $proof_dir . "/" . $hash;
 $filetype = strtolower(pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION));
+$target_path = $proof_dir . "/" . date("H:i:s") . "-" . $hash . "." . $filetype;
 
 // Check file size
 if ($_FILES["image"]["size"] > 500000) {
@@ -14,8 +16,9 @@ if ($_FILES["image"]["size"] > 500000) {
   die();
 }
 
+$allowedFiletypes = array("png", "jpg", "jpeg", "mp4");
 // Allow only certain image formats
-if ($filetype != "png" && $filetype != "jpg" && $filetype != "jpeg") {
+if (!in_array($filetype, $allowedFiletypes)) {
   echo "[send_proof] Upload failed: file extension not supported.\n";
   die();
 }
