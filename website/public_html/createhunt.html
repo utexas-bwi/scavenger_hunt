@@ -130,7 +130,13 @@
                             </tr>
 			    <?php require_once '../script/hunt_table.php'; makeHuntTable(); ?>
                         </table>
-                        <button id="export-btn" class="btn btn-primary" onclick="submitHunt()">Submit Hunt</button>
+                        <button id="export-btn" class="btn btn-primary" onclick="submitHunt()">Save Hunt</button>
+                        <button style="display: none;" id="delete-btn" class="btn btn-primary" onclick="deleteHunt()">Delete Hunt</button>
+
+                        <script>
+                          if (window.location.href.indexOf("id") > -1)
+                            document.getElementById("delete-btn").style.display = "inline";
+                        </script>
                     </div>
                 </div>
             </section>

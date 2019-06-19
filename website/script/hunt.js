@@ -6,6 +6,52 @@ function newHunt() {
     window.location.href = "createhunt.html?type=create_hunt";
 }
 
+function deleteHunt() {
+  if (confirm("Are you sure you want to delete this hunt?")) {
+    if (window.location.href.indexOf("id") > -1) {
+        const vars = {};
+        const parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+            vars[key] = value;
+        });
+        var hunt_id = vars["id"];
+
+        $.ajax({
+            type: "POST",
+            url: "../script/delete_hunt.php",
+            data: {
+                hunt_id: hunt_id,
+            },
+            success: function(data) {
+              if (!data.error) {
+                window.location = "userhunts.html";
+              } else {
+                const message = document.getElementById("save-msg");
+                message.classList.remove("hidden-msg");
+                message.classList.remove("alert-success");
+                message.classList.add("alert-danger");
+                message.textContent = "Failed to delete hunt. Something broke!";
+                setTimeout(function() {
+                    message.classList.add("hidden-msg");
+                    message.classList.remove("alert-danger");
+                }, 10000);
+              }
+            },
+            failure: function() {
+              const message = document.getElementById("save-msg");
+              message.classList.remove("hidden-msg");
+              message.classList.remove("alert-success");
+              message.classList.add("alert-danger");
+              message.textContent = "Failed to delete hunt. Something really, really broke!";
+              setTimeout(function() {
+                  message.classList.add("hidden-msg");
+                  message.classList.remove("alert-danger");
+              }, 10000);
+            }
+        });
+    }
+  }
+}
+
 function submitHunt() {
     // extract data from table
     const table = document.getElementById("hunt-table");
