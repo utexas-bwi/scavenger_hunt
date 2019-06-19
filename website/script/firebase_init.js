@@ -8,5 +8,4 @@ var config = {
 };
 
 firebase.initializeApp(config);
-firebase.database().enableLogging(true);
 console.log("FIREBASE WAS INTIALIZED");

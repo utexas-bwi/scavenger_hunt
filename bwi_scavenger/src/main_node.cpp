@@ -4,39 +4,40 @@
 #include <scavenger_hunt/scavenger_hunt.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
+#include <vector>
+
+#define CURRENT_TASK tasks[task_index]
 
 static ScavengerHuntClient client("robot@rock.com", "sick robots");
-static ScavengerHunt *current_hunt;
-static Task *current_task;
+static std::vector<Task> tasks;
 static int task_index = 0;
+static double t_task_start, t_task_end;
 
 static ros::Publisher pub_task_start, pub_yolo_node_target;
-static double taskTime;
-static double startTime;
 
 static bool initial_task = true;
 
 void next_task(bool upload=false) {
   if (!initial_task && upload) {
-    taskTime = ros::Time::now().toSec() - startTime;
-    std::cout << "Time for task to complete: " << taskTime << std::endl;
-    client.send_proof("proof.jpg", *current_task, taskTime);
+    t_task_end = ros::Time::now().toSec();
+    client.send_proof("proof.jpg", CURRENT_TASK, t_task_start - t_task_end);
     task_index++;
   }
 
-  if (task_index == current_hunt->size()) {
+  if (task_index == tasks.size()) {
     ROS_INFO("[main node] Hunt complete. Shutting down...");
     exit(0);
   }
 
   initial_task = false;
-  current_task = (*current_hunt)[task_index];
-  startTime = ros::Time::now().toSec();
-  if (current_task->get_name() == "Find Object") {
+
+  if (CURRENT_TASK.get_name() == "Find Object") {
     ROS_INFO("[main_node] Beginning Find Object protocol");
 
+    t_task_start = ros::Time::now().toSec();
+
     // Set Find Object target
-    std::map<std::string, std::string> parameters = current_task->get_parameters();
+    std::map<std::string, std::string> parameters = CURRENT_TASK.get_parameters();
     std_msgs::String target_object;
     target_object.data = parameters["object"];
     pub_yolo_node_target.publish(target_object);
@@ -45,10 +46,6 @@ void next_task(bool upload=false) {
     std_msgs::String task;
     task.data = "Find Object";
     pub_task_start.publish(task);
-  } else {
-    ROS_INFO("[main_node] Do not have protocol for the task %s. Going on to next task.", current_task->get_name().c_str());
-    task_index++;
-    next_task();
   }
 }
 
@@ -64,7 +61,7 @@ int main(int argc, char **argv) {
   pub_yolo_node_target = nh.advertise<std_msgs::String>(TPC_YOLO_NODE_TARGET, 1);
   ros::Subscriber sub_task_complete = nh.subscribe(TPC_TASK_COMPLETE, 1, next_task_cb);
 
-  current_hunt = client.get_hunt("Longhorn Hunt");
+  client.get_hunt("Longhorn Hunt", tasks);
 
   ros::Duration(1.0).sleep();
 

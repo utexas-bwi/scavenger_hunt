@@ -29,12 +29,16 @@ std::string Task::get_proof_format_description() const {
   return PROOF_FORMAT_DESCRIPTION;
 }
 
-std::string Task::get_task_description() const {
+std::string Task::get_description() const {
   return TASK_DESCRIPTION;
 }
 
 std::map<std::string, std::string> Task::get_parameters() const {
   return parameters;
+}
+
+std::string Task::get_parameter_value(std::string param) {
+  return parameters[param];
 }
 
 void Task::add_parameter(std::string param_name, std::string param_value) {
@@ -54,31 +58,8 @@ std::ostream& operator<<(std::ostream &stream, const Task &task) {
          << "\t" << "Parameters: {\n";
 
   // Format task parameters
-  for (const auto &pair : task.parameters) {
+  for (const auto &pair : task.parameters)
     stream << "\t\t" << pair.first << ": " << pair.second << "\n";
-  }
 
   stream << "\t}\n}\n";
-}
-
-ScavengerHunt::ScavengerHunt(std::string name) : NAME(name) {}
-
-std::string ScavengerHunt::get_name() {
-  return NAME;
-}
-
-void ScavengerHunt::add_task(Task t) {
-  tasks.push_back(t);
-}
-
-Task* ScavengerHunt::get_task(unsigned int index) {
-  return &tasks[index];
-}
-
-unsigned int ScavengerHunt::size() {
-  return tasks.size();
-}
-
-Task* ScavengerHunt::operator[](unsigned int i) {
-  return &tasks[i];
 }
