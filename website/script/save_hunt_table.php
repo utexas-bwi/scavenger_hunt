@@ -47,6 +47,19 @@ if ($_POST['save_hunt']) {
         }
 
         if ($_POST['hunt_id'] >= 0) {
+            // Enforce unique names
+            $query = "select * from hunt_table where (hunt_name='" . $_POST["hunt_name"] . "' and hunt_id != " . $_POST["hunt_id"] . ")";
+            $stmt = $dbh->query($query);
+            $stmt->setFetchMode(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch();
+
+            if ($result) {
+              $results["error"] = true;
+              $results["data"] = 'A hunt with that name already exists.';
+              header("Content-type: application/json");
+              die(json_encode($results));
+            }
+
             // update name of hunt
             $sql = "UPDATE hunt_table SET hunt_name=? WHERE hunt_id=?";
             $name_array = [$_POST['hunt_name'], $_POST['hunt_id']];
@@ -99,6 +112,19 @@ if ($_POST['save_hunt']) {
                 }
             }
         } else {
+            // Enforce unique names
+            $query = "select * from hunt_table where hunt_name='" . $_POST["hunt_name"] . "'";
+            $stmt = $dbh->query($query);
+            $stmt->setFetchMode(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch();
+
+            if ($result) {
+              $results["error"] = true;
+              $results["data"] = 'A hunt with that name already exists.';
+              header("Content-type: application/json");
+              die(json_encode($results));
+            }
+
             // create new hunt
             $sql = "INSERT into hunt_table VALUES (?, ?, ?, ?)";
             $new_hunt = array(0, $_POST['hunt_name'], date('y-m-d'), (int)$_POST['user_id']);
