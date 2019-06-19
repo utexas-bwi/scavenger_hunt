@@ -75,7 +75,7 @@
   }
 
   // display leaderboard for each hunt
-  $huntStmt = $dbh -> query ("SELECT * FROM hunt_table ORDER BY hunt_id DESC");
+  $huntStmt = $dbh -> query ("SELECT * FROM hunt_completed_table WHERE time != 0");
   $huntStmt -> setFetchMode(PDO::FETCH_ASSOC);
 
   while($huntList = $huntStmt -> fetch()){
@@ -83,7 +83,7 @@
           <section id="main" class = "full">
           <div id="content">';
     // print out hunt name
-    $hunt = $huntList['hunt_name'];
+    $hunt = $huntList['hunt'];
     echo '<h2>' .$hunt. '</h2>';
     // top of table
     echo '<div class="leaderboard flex column wrap leaderboard-header column grow leaderboard-table">
@@ -98,8 +98,8 @@
             </div>';
     
     //print out the results for each university, ranked by highest score
-    $numUni = $dbh -> query("SELECT COUNT(DISTINCT university) FROM hunt_completed_table") ->fetchColumn();
-    $stmt = $dbh -> query("SELECT * FROM hunt_completed_table ORDER BY score DESC");
+    $numUni = $dbh -> query("SELECT COUNT(DISTINCT university) FROM hunt_completed_table WHERE time != 0") ->fetchColumn();
+    $stmt = $dbh -> query("SELECT * FROM hunt_completed_table WHERE time != 0 ORDER BY score DESC");
     $stmt->setFetchMode(PDO::FETCH_ASSOC);
 
     echo '<div class="leaderboard-body flex column grow">';   
@@ -153,16 +153,13 @@
       echo '</div>';
 
       // fastest time
-      $getTime = $dbh -> query("SELECT * FROM hunt_completed_table WHERE university = '$uni' ORDER BY time ASC");
+      $getTime = $dbh -> query("SELECT * FROM hunt_completed_table WHERE university = '$uni' AND time != 0 ORDER BY time ASC");
       $getTime -> setFetchMode(PDO::FETCH_ASSOC);
       $time = ($getTime -> fetch())['time'];
-      // 0 signifies uncompleted, thus needs to get a time gretaer than 0
-      while($time == 0)
-        $time = ($getTime -> fetch())['time'];
       echo '<div class="row-rank">'.$time.'</div>';
 
       // high score
-      $getScore = $dbh -> query("SELECT * FROM hunt_completed_table WHERE university = '$uni' ORDER BY score DESC ");
+      $getScore = $dbh -> query("SELECT * FROM hunt_completed_table WHERE university = '$uni' AND time != 0 ORDER BY score DESC ");
       $getScore -> setFetchMode(PDO::FETCH_ASSOC);
       $score = ($getScore -> fetch())['score'];
       echo '<div class="row-calls">'.$score.'</div>';
