@@ -2,6 +2,9 @@
   include 'connect.php';
   $dbh = connect();
 
+  $image_extensions = array("png", "jpg", "jpeg");
+  $video_extensions = array("mp4");
+
   $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
   // obtains the files that have not yet been verified by a user
@@ -17,7 +20,11 @@
     $proofId = $item['proof_id'];
     $huntInstrId = $item['hunt_instr_id'];
     $uploaderId = $item['uploader_id'];
-    include 'components/image-verify.html';
+    $extension = strtolower(pathinfo($imageFilename, PATHINFO_EXTENSION));
+    if (in_array($extension, $image_extensions))
+      include 'components/image-verify.html';
+    else
+      include 'components/video-verify.html';
     $proofs += 1;
   }
 

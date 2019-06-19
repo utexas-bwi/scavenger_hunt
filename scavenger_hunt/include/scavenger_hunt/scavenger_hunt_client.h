@@ -36,13 +36,13 @@ public:
   /**
     Uploads an image proof to Scavenger Hunt.
 
-    @param image_path path of proof
+    @param file_path path to proof file (either an image or a video)
     @param task task you are proving completion of
     @param time time taken to complete task
     @return if a response was received from the server; not necessarily a
             successful upload
   */
-  bool send_proof(std::string image_path, Task &task, double time);
+  bool send_proof(std::string file_path, Task &task, double time);
 };
 
 #endif

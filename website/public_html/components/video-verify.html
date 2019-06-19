@@ -1,0 +1,32 @@
+<video width="640" height="480" controls style="margin-left: auto; margin-right: auto; display: block;">
+  <source src="../proof/<?php echo $imageFilename; ?>" type="video/mp4">
+Your browser does not support the video tag.
+</video>
+
+<script src="../../script/verify.js"></script>
+
+
+<!-- Question associated with the Task-id -->
+<!-- TODO vary question based on the task -->
+<p class = "ques">
+    <?php
+    // print task description
+    $getTask = $dbh -> query("SELECT * FROM hunt_instructions_table WHERE hunt_instr_id = $huntInstrId");
+    $getTask -> setFetchMode(PDO::FETCH_ASSOC);
+    $task = $getTask -> fetch();
+    $taskName = $task['task_type'];
+    echo "Task Name: " . $taskName;
+    $getDescrip = $dbh -> query("SELECT * FROM task_table WHERE task_type = '$taskName'");
+    $getDescrip -> setFetchMode(PDO::FETCH_ASSOC);
+    $list = $getDescrip -> fetch();
+    $description = $list['description'];
+    echo "<br>Description: " . $description;
+    echo "<br>Parameters: " . $task['param_value'];
+  ?>
+
+  <br>Is this a valid proof for the task?
+  <br><input type="radio" name='<?php echo $imageFilename; ?>' id='<?php echo $imageFilename; ?>' value="yes"> Yes
+  <br><input type="radio" name='<?php echo $imageFilename; ?>' value="no"> No
+  <br><input type="submit" name='<?php echo $imageFilename; ?>' class="button scrolly" value="submit"
+      onclick="updateTable('<?php echo $imageFilename; ?>', '<?php echo $proofId; ?>', '<?php echo $huntInstrId; ?>', '<?php echo $uploaderId; ?>')">
+</p>
