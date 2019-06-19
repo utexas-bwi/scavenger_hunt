@@ -22,6 +22,7 @@ static const state_id_t STATE_INSPECTING = 2;
 static const state_id_t STATE_END = 4;
 
 static const double T_TIMEOUT = 10 * 60;
+static const double MIN_INSPECT_PROBABILITY = 0;
 static const char TELEM_TAG[] = "[find_object_node]";
 
 static ros::Publisher pub_move;
@@ -298,7 +299,7 @@ SYSTEM STATE VECTOR UPDATE CALLBACKS
 
 // Called when target is seen - prompts stop
 void target_seen_cb(const darknet_ros_msgs::BoundingBox::ConstPtr &msg) {
-  if(msg->probability > 0.5){
+  if(msg->probability > MIN_INSPECT_PROBABILITY){
     state_id_t state = sm.get_current_state()->get_id();
     if (state == STATE_SCANNING || state == STATE_TRAVELING)
       ssv.target_seen = true;
