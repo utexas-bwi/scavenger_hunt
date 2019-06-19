@@ -5,10 +5,10 @@ $dbh = connect();
 
 date_default_timezone_set("America/Chicago");
 
-$proof_dir = "../proof";
+$proof_dir = "../proof/";
 $hash = hash("sha256", $_FILES["image"]["tmp_name"] . $_FILES["image"]["name"] . $_FILES["image"]["size"]);
 $filetype = strtolower(pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION));
-$target_path = $proof_dir . "/" . date("H:i:s") . "-" . $hash . "." . $filetype;
+$target_filename = date("H:i:s") . "-" . $hash . "." . $filetype;
 
 // Check file size
 if ($_FILES["image"]["size"] > 500000) {
@@ -33,11 +33,11 @@ try {
 
   if ($user_exists) {
     // Move tmp to the proof directory
-    move_uploaded_file($_FILES["image"]["tmp_name"], $target_path);
+    move_uploaded_file($_FILES["image"]["tmp_name"], $proof_dir . $target_filename);
 
     // Log new proof in database
     echo $_POST["time"];
-    $query = "insert into proof_table values (0, '" . $user['user_id'] . "', '" . $hash . "', " . $_POST["instr_id"] . ", " . $_POST["time"] . ", 0, 0)";
+    $query = "insert into proof_table values (0, '" . $user['user_id'] . "', '" . $target_filename . "', " . $_POST["instr_id"] . ", " . $_POST["time"] . ", 0, 0)";
     $stmt = $dbh->query($query);
   } else
     echo "[send_proof] Specified user not found in database!";
