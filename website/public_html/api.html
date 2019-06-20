@@ -26,6 +26,7 @@
       <script src="css/formBE/js/main.js"></script>
 
       <!-- Page-specific scripts -->
+      <link href="css/prism.css" rel="stylesheet"/>
     </head>
     <body>
         <div id="navbar"></div>
@@ -44,10 +45,115 @@
 
                 <p> Task results: <br /> ⟨ <br /> task name 1, certificate 1, time stamp 1, path to certificate 1, <br /> task name 2, certificate 2, time stamp 2, path to certificate 2, <br /> ...<br /> ⟩ </p>-->
 
-<h2>How to Play</h2>
+<h2>Scavenger Hunt API</h2>
 
 <p>
-If you haven't already, head over to the <a href="api.html">API</a> page to learn how to connect your robot with Scavenger Hunt.
+Participating in Scavenger Hunt requires the API, which takes the form of
+a ROS package and allows the robot to interface with the website. At the moment,
+there is no alternate API for non-ROS robots.
+</p>
+
+<p>
+The API requires <a href="https://curl.haxx.se/libcurl/">libcurl</a>. Make sure
+this is installed where your Catkin workspace can find it. The CMake list should
+handle linking for you, though it's possible you will need to tweak it.
+</p>
+
+<p>
+Click the button below to download the Scavenger Hunt API.
+</p>
+
+<form method="get" action="file.doc">
+  <div style="text-align: center;">
+    <button id="export-btn" class="btn btn-primary" type="submit" style="width: 33%;">Get Scavenger Hunt API</button>
+  </div>
+</form>
+
+<hr>
+<h2>Connecting the Robot</h2>
+
+<p>
+This section will walk you through connecting your robot with Scavenger Hunt.
+The complete example can be found in <code>client_example.cpp</code>,
+included in the API. You can build and test this node with <code>catkin build scavenger_hunt</code>
+and <code>rosrun scavenger_hunt client_example</code>.
+</p>
+
+<p>
+First, include the main Scavenger Hunt header.
+</p>
+
+<pre>
+  <code class="language-cpp">
+    #include &lt;scavenger_hunt/scavenger_hunt.h&gt;
+  </code>
+</pre>
+
+<p>
+Then, create a new client object and sign in with your website credentials.
+Don't worry—we're very careful with the password.
+</p>
+
+<pre>
+  <code class="language-cpp">
+    ScavengerHuntClient client("your@email.com", "password");
+  </code>
+</pre>
+
+<p>
+Scavenger hunts are downloaded by name. We've created a never-expiring hunt
+called Bottle Hunt to test with. It contains a single task to find a bottle and
+take a picture of it.
+</p>
+
+<pre>
+  <code class="language-cpp">
+    std::vector<Task> tasks;
+    client.get_hunt("Bottle Hunt", tasks);
+  </code>
+</pre>
+
+<p>
+The provided vector will be populated with all tasks in the requested hunt.
+</p>
+
+<p>
+Each <code>Task</code> object describes a single task within the hunt. They
+contain lots of useful information, including the task name, description, and
+any parameters required to complete it.
+</p>
+
+<pre>
+  <code class="language-cpp">
+    for (int i = 0; i < tasks.size(); i++) {
+      Task &task = tasks[i];
+
+      // Insert a task into a stream to get a pretty-printed summary.
+      std::cout << task << std::endl;
+
+      // Access to task details. See
+      // include/scavenger_hunt/scavenger_hunt_structure.h for the full docs.
+      std::string task_name = task.get_name();
+      std::string task_description = task.get_description();
+      std::string target_object = task.get_parameter_value("object"); // Specific to the "Find Object" task
+    }
+  </code>
+</pre>
+
+<p>
+Proof of task completion is uploaded to the website via <code>ScavengerHuntClient::send_proof</code>.
+This method takes a path to a proof file (either an image or a video), the task
+in question, and the time taken to complete the task in seconds.
+</p>
+
+<pre>
+  <code class="language-cpp">
+    client.send_proof("bottle.png", tasks[0], 60.0);
+  </code>
+</pre>
+
+<p>
+You're ready to roll.
 </p>
 
             </section>
@@ -62,6 +168,8 @@ If you haven't already, head over to the <a href="api.html">API</a> page to lear
             var htmlComponentsPath = 'components/';
         </script>
         <script src="css/index.js"></script>
+
+        <script src="../script/prism.js"></script>
     </body>
 
     <html>
