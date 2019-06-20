@@ -28,7 +28,7 @@ function updateTable(imageFilename, proofId, huntInstrId, uploaderId){
       }
     });
   }
-  
+
   // the proof has been verified by the user, sets verified to be true in table
   $.ajax({
     type: "POST",
@@ -46,9 +46,9 @@ function updateTable(imageFilename, proofId, huntInstrId, uploaderId){
 
   // disables the radio inputs (yes and no)
   var x = document.getElementsByName(imageFilename);
-  for (var i = 0; i < x.length - 1; i++) 
+  for (var i = 0; i < x.length - 1; i++)
     x[i].disabled = true;
-  
+
   // sets last input (submit button) to be hidden
   x[x.length -1].style.visibility = "hidden";
 }

@@ -1,5 +1,5 @@
 <?php
-  include 'connect.php';
+  include_once 'connect.php';
   $dbh = connect();
 
   $image_extensions = array("png", "jpg", "jpeg");
@@ -7,8 +7,13 @@
 
   $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+
   // obtains the files that have not yet been verified by a user
-  $query = "SELECT * FROM proof_table WHERE verified = 0";
+  if ($_POST["user_specific"])
+    $query = "SELECT * FROM proof_table WHERE (verified=0 and uploader_id = " . $_POST["user_id"] . ")";
+  else
+    $query = "SELECT * FROM proof_table WHERE (verified=0 and uploader_id != " . $_POST["user_id"] . ")";
+
   $stmt = $dbh->query($query);
   $stmt->setFetchMode(PDO::FETCH_ASSOC);
 
@@ -22,12 +27,12 @@
     $uploaderId = $item['uploader_id'];
     $extension = strtolower(pathinfo($imageFilename, PATHINFO_EXTENSION));
     if (in_array($extension, $image_extensions))
-      include 'components/image-verify.html';
+      include '../public_html/components/image-verify.html';
     else
-      include 'components/video-verify.html';
+      include '../public_html/components/video-verify.html';
     $proofs += 1;
   }
 
   if ($proofs == 0)
-    include 'components/no-proofs.html';
+    include '../public_html/components/no-proofs.html';
 ?>

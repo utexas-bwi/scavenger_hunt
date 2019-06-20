@@ -1,7 +1,5 @@
+<hr>
 <img src = "../proof/<?php echo $imageFilename; ?>" class="vImage">
-
-<script src="../../script/verify.js"></script>
-
 
 <!-- Question associated with the Task-id -->
 <!-- TODO vary question based on the task -->
@@ -24,6 +22,6 @@
   <br>Is this a valid proof for the task?
   <br><input type="radio" name='<?php echo $imageFilename; ?>' id='<?php echo $imageFilename; ?>' value="yes"> Yes
   <br><input type="radio" name='<?php echo $imageFilename; ?>' value="no"> No
-  <br><input type="submit" name='<?php echo $imageFilename; ?>' class="button scrolly" value="submit" 
-      onclick="updateTable('<?php echo $imageFilename; ?>', '<?php echo $proofId; ?>', '<?php echo $huntInstrId; ?>', '<?php echo $uploaderId; ?>')">  
+  <br><input type="submit" name='<?php echo $imageFilename; ?>' class="button scrolly" value="submit"
+      onclick="updateTable('<?php echo $imageFilename; ?>', '<?php echo $proofId; ?>', '<?php echo $huntInstrId; ?>', '<?php echo $uploaderId; ?>')">
 </p>

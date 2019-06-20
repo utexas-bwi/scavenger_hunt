@@ -132,6 +132,32 @@ firebase.auth().onAuthStateChanged(function(user) {
     });
   }
 
+  if (user && page == "verify.html") {
+    $.ajax({
+        type: "POST",
+        url: "../../script/verify.php",
+        data: {
+            user_id: user.uid.hashCode(),
+            user_specific: 1
+        }
+    }).done(function (html){
+      $("#my-proofs").append(html);
+
+      $.ajax({
+          type: "POST",
+          url: "../../script/verify.php",
+          data: {
+              user_id: user.uid.hashCode(),
+              user_specific: 0
+          }
+      }).done(function (html){
+        $("#other-proofs").append(html);
+      });
+    });
+
+
+  }
+
   // if (page == "myProofs.html"){
   //   var user_id = user.uid.hashCode();
   //   $.ajax({
