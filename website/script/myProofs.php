@@ -13,8 +13,17 @@
 
   $huntStmt = $dbh -> query ("SELECT DISTINCT hunt FROM hunt_completed_table WHERE user_id = $userId ORDER BY hunt DESC");
   $huntStmt -> setFetchMode(PDO::FETCH_ASSOC);
+  $huntList = $huntStmt -> fetch();
 
-  while($huntList = $huntStmt -> fetch()){
+  if(!$huntList){
+    echo '<div class="content">
+    <section id="main" class = "full">
+    <div id="content">';
+    echo "<p> You have not sent in any proofs. </p>";
+
+    echo '</div></section></div>';  
+  }
+  while($huntList){
     echo '<div class="content">
     <section id="main" class = "full">
     <div id="content">';
@@ -81,7 +90,8 @@
 
       echo "</p>";
     }
-    echo '</div></section></div>';
+    echo '</div></section></div>';  
+    $huntList = $huntStmt -> fetch();
   }
 
 ?>
