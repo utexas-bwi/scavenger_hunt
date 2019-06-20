@@ -1,22 +1,30 @@
 <hr>
-<img src = "../proof/<?php echo $imageFilename; ?>" class="vImage">
+
+<table>
+  <tr>
+    <td>
+      <div>
+      <img src = "../proof/<?php echo $imageFilename; ?>" class="vImage">
+      </div>
+    </td>
+    <td>
 
 <!-- Question associated with the Task-id -->
 <!-- TODO vary question based on the task -->
-<p class = "ques">
+<p>
     <?php
     // print task description
     $getTask = $dbh -> query("SELECT * FROM hunt_instructions_table WHERE hunt_instr_id = $huntInstrId");
     $getTask -> setFetchMode(PDO::FETCH_ASSOC);
     $task = $getTask -> fetch();
     $taskName = $task['task_type'];
-    echo "Task Name: " . $taskName;
+    echo "<b>Task Name:</b> " . $taskName;
     $getDescrip = $dbh -> query("SELECT * FROM task_table WHERE task_type = '$taskName'");
     $getDescrip -> setFetchMode(PDO::FETCH_ASSOC);
     $list = $getDescrip -> fetch();
     $description = $list['description'];
-    echo "<br>Description: " . $description;
-    echo "<br>Parameters: " . $task['param_value'];
+    echo "<br><b>Description:</b> " . $description;
+    echo "<br><b>Parameters:</b> " . $task['param_value'];
   ?>
 
   <br>Is this a valid proof for the task?
@@ -25,3 +33,7 @@
   <br><input type="submit" name='<?php echo $imageFilename; ?>' class="button scrolly" value="submit"
       onclick="updateTable('<?php echo $imageFilename; ?>', '<?php echo $proofId; ?>', '<?php echo $huntInstrId; ?>', '<?php echo $uploaderId; ?>')">
 </p>
+
+</td>
+</tr>
+</table>
