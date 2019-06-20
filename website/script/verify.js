@@ -52,3 +52,8 @@ function updateTable(imageFilename, proofId, huntInstrId, uploaderId){
   // sets last input (submit button) to be hidden
   x[x.length -1].style.visibility = "hidden";
 }
+
+function enableSubmit(proofId){
+  document.getElementById(proofId).disabled = false;
+  document.getElementById(proofId).style.backgroundColor = "transparent";
+}
