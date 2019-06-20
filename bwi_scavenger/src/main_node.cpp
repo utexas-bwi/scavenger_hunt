@@ -20,7 +20,7 @@ static bool initial_task = true;
 void next_task(bool upload=false) {
   if (!initial_task && upload) {
     t_task_end = ros::Time::now().toSec();
-    client.send_proof("proof.jpg", CURRENT_TASK, t_task_start - t_task_end);
+    client.send_proof("proof.jpg", CURRENT_TASK, t_task_end - t_task_start);
     task_index++;
   }
 
