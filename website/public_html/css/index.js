@@ -77,8 +77,10 @@ firebase.auth().onAuthStateChanged(function(user) {
   }
 
   // Nav bar changes based on user verification
-  if (!user)
+  if (!user){
     $("#navbar").load(htmlComponentsPath + "navBarNoAuth.html", indexNav);
+    $("#indexButtons").load(htmlComponentsPath + "indexButtons.html");
+  }
   else if(!verified)
     $("#navbar").load(htmlComponentsPath + "navBarUnverified.html", indexNav);
   else
@@ -157,8 +159,6 @@ firebase.auth().onAuthStateChanged(function(user) {
         $("#other-proofs").append(html);
       });
     });
-
-
   }
 
   // if (page == "myProofs.html"){
