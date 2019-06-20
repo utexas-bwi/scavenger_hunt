@@ -112,6 +112,45 @@ firebase.auth().onAuthStateChanged(function(user) {
 
   if (verified && page == "login.html")
     window.location = "userhunts.html";
+
+
+  if (user && page == "myProofs.html") {
+    $.ajax({
+        type: "POST",
+        url: "../../script/myProofs.php",
+        data: {
+            user_email: user.email
+        },
+        success: function(output) {
+          console.log("Accessed user's hunts");
+        },
+        failure: function() {
+          console.log("Could not access user's hunts");
+        }
+    }).done(function (html){
+      $("#myProofs").append(html);
+    });
+  }
+
+  // if (page == "myProofs.html"){
+  //   var user_id = user.uid.hashCode();
+  //   $.ajax({
+  //     type: "POST",
+  //     url: '../../script/myProofs.php',
+  //     data: {
+  //       user_id: user_id
+  //     },
+  //     success: function(output) {
+  //       console.log("Accessed user's hunts");
+  //     },
+  //     error: function(request, status, error){
+  //       console.log("Could not access user's hunts :(");
+  //     }
+  //   }).done(function (html){
+  //     $("#myProofs").append(html);
+  //   })
+  // }
+
 });
 
 // Called when clicking login on login page

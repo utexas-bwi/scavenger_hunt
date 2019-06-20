@@ -199,7 +199,8 @@ CREATE TABLE `hunt_completed_table` (
   `university` varchar(255) NOT NULL,
   `hunt` varchar(255) NOT NULL,
   `time` int(11) NOT NULL,
-  `score` int(11) NOT NULL
+  `score` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
