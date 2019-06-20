@@ -41,8 +41,24 @@
     $proofStmt -> setFetchMode(PDO::FETCH_ASSOC);
     while($proof = $proofStmt -> fetch()){
       $filename = $proof['filename'];
+      $correct = $proof['correct'];
+      $verified = $proof['verified'];
+      echo "<br>";
       echo '<a href="../proof/'.$filename.'">';
-      echo "<br>".$filename;
+      echo $filename."</a>";
+      echo " Verified: ";
+      if ($verified)
+        echo "Yes";
+      else 
+        echo "No";
+      echo " Correct: ";
+      if($verified){
+        if($correct)
+          echo "Yes";
+        else 
+          echo "No";
+      } else 
+        echo "Not Verified";
     }
 
     echo '</div></section></div>';
