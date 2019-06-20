@@ -45,40 +45,53 @@
     }
     $huntInstrList = join("','", $huntInstrArray);
 
+    echo '<table style="width:100%" class="table">';
+    echo '<tr>';
+    echo '<th>Time Submitted</th>';
+    echo '<th>Task</th>';
+    echo '<th>Parameters</th>';
+    echo '<th>Verified</th>';
+    echo '<th>Correct</th>';
+    echo '<th>File</th>';
+    echo '</tr>';
+
+
     //print out proof files and whether or not they have been verified
     $proofStmt = $dbh -> query ("SELECT * FROM proof_table WHERE uploader_id = $userId AND hunt_instr_id IN ('$huntInstrList')");
     $proofStmt -> setFetchMode(PDO::FETCH_ASSOC);
     while($proof = $proofStmt -> fetch()){
+      echo '<tr>';
       $filename = $proof['filename'];
       $correct = $proof['correct'];
       $verified = $proof['verified'];
-      echo "<p>";
-      echo '<a href="../proof/'.$filename.'">';
-      echo $filename."</a>";
 
+      echo '<td>';
+      echo substr($filename, 0, 10) . " " . substr($filename, 10, 8);
+      echo '</td>';
 
       // display task and parameters
-      echo '<span style="font-weight:bold"> Task: </span>';
       $huntInstr =  $proof['hunt_instr_id'];
       $taskStmt = $dbh -> query("SELECT * FROM hunt_instructions_table WHERE hunt_instr_id = $huntInstr");
       $taskStmt -> setFetchMode(PDO::FETCH_ASSOC);
       $task = $taskStmt -> fetch();
       $taskName = $task['task_type'];
+      echo '<td>';
       echo $taskName;
+      echo '</td>';
 
+      echo '<td>';
       $taskParam = $task['param_value'];
-      if($taskParam != ""){
-        echo '<span style="font-weight:bold"> Parameters: </span>';
-        echo $taskParam;
-      }
-
+      echo $taskParam;
+      echo '</td>';
       // display verification state
-      echo '<span style="font-weight:bold"> Verified: </span>';
+      echo '<td>';
       if ($verified)
         echo "Yes";
       else 
         echo "No";
-      echo '<span style="font-weight:bold"> Correct: </span>';
+      echo '</td>';
+
+      echo '<td>';
       if($verified){
         if($correct)
           echo "Yes";
@@ -86,10 +99,17 @@
           echo "No";
       } else 
         echo "Not Verified";
+      echo '</td>';
+            
+      echo '<td>';
+      echo '<a href="../proof/'.$filename.'">';
+      echo "[proof]</a>";
+      echo '</td>';
 
-
-      echo "</p>";
+      echo '</tr>';
     }
+
+    echo '</table>';
     echo '</div></section></div>';  
     $huntList = $huntStmt -> fetch();
   }

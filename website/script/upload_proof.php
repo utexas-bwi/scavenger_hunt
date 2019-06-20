@@ -8,7 +8,7 @@ date_default_timezone_set("America/Chicago");
 $proof_dir = "../proof/";
 $hash = hash("sha256", $_FILES["image"]["tmp_name"] . $_FILES["image"]["name"] . $_FILES["image"]["size"]);
 $filetype = strtolower(pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION));
-$target_filename = date("H:i:s") . "-" . $hash . "." . $filetype;
+$target_filename = date('y-m-d') . date("H:i:s") . "-" . $hash . "." . $filetype;
 
 // Check file size
 if ($_FILES["image"]["size"] > 500000) {
