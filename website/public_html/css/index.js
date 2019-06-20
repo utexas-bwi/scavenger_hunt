@@ -27,7 +27,8 @@ function indexNav(page) {
 firebase.auth().onAuthStateChanged(function(user) {
   var path = window.location.pathname;
   var page = path.split("/").pop();
-  var verified = user && user.emailVerified;
+  var sudo = user && user.email == "bwi@utexas.edu";
+  var verified = user && (user.emailVerified || sudo);
   var verifyRestrictedPages = [
     "userhunts.html",
     "task.html",
@@ -80,7 +81,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   else
     $("#navbar").load(htmlComponentsPath + "navBarAuth.html", indexNav);
 
-  if (user && !verified && page == "register.html") {
+  if (user && (!verified || sudo) && page == "register.html") {
     // Send verification email if necessary
     user.sendEmailVerification().then(function() {
       const message = document.getElementById("alert-msg");
@@ -112,7 +113,6 @@ firebase.auth().onAuthStateChanged(function(user) {
 
   if (verified && page == "login.html")
     window.location = "userhunts.html";
-
 
   if (user && page == "myProofs.html") {
     $.ajax({
