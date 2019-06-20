@@ -43,15 +43,33 @@
       $filename = $proof['filename'];
       $correct = $proof['correct'];
       $verified = $proof['verified'];
-      echo "<br>";
+      echo "<p>";
       echo '<a href="../proof/'.$filename.'">';
       echo $filename."</a>";
-      echo " Verified: ";
+
+
+      // display task and parameters
+      echo '<span style="font-weight:bold"> Task: </span>';
+      $huntInstr =  $proof['hunt_instr_id'];
+      $taskStmt = $dbh -> query("SELECT * FROM hunt_instructions_table WHERE hunt_instr_id = $huntInstr");
+      $taskStmt -> setFetchMode(PDO::FETCH_ASSOC);
+      $task = $taskStmt -> fetch();
+      $taskName = $task['task_type'];
+      echo $taskName;
+
+      $taskParam = $task['param_value'];
+      if($taskParam != ""){
+        echo '<span style="font-weight:bold"> Parameters: </span>';
+        echo $taskParam;
+      }
+
+      // display verification state
+      echo '<span style="font-weight:bold"> Verified: </span>';
       if ($verified)
         echo "Yes";
       else 
         echo "No";
-      echo " Correct: ";
+      echo '<span style="font-weight:bold"> Correct: </span>';
       if($verified){
         if($correct)
           echo "Yes";
@@ -59,8 +77,10 @@
           echo "No";
       } else 
         echo "Not Verified";
-    }
 
+
+      echo "</p>";
+    }
     echo '</div></section></div>';
   }
 
