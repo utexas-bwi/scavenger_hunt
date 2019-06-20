@@ -227,7 +227,7 @@ input[type="submit"]:hover,
 input[type="reset"]:hover,
 input[type="button"]:hover,
 .button:hover {
-    background-color: rgba(144, 144, 250, 0.075);
+    background-color: rgba(144, 144, 250, 0.075) !important;
     color: #545454;
     text-decoration: none;
 }
