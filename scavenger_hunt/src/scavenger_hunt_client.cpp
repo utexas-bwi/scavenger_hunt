@@ -220,8 +220,12 @@ bool ScavengerHuntClient::send_proof(std::string image_path, Task &task, double 
   // Cleanup
   curl_easy_cleanup(curl);
 
-  std::cout << get_telemetry_tag(user_email, "send_proof") <<
-      "Proof uploaded!" << std::endl;
+  if (success)
+    std::cout << get_telemetry_tag(user_email, "send_proof") <<
+        "Response OK!" << std::endl;
+  else
+    std::cout << get_telemetry_tag(user_email, "send_proof") <<
+        "Failed to contact Scavenger Hunt." << std::endl;
 
   return success;
 }
