@@ -79,7 +79,7 @@ function submitHunt() {
     // get name of hunt from URL or from page if new hunt
     const new_name = document.getElementById("hunt-name").textContent.trim();
     // send data to php function
-    const url = 'http://localhost/script/save_hunt_table.php';
+    const url = '../script/save_hunt_table.php';
     var hash = firebase.auth().currentUser.uid.hashCode();
     $.ajax({
         type: "POST",

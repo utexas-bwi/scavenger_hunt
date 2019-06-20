@@ -1,4 +1,4 @@
-/* 
+/*
  * toggle editabiity of cell: makes editable if not editable and vice versa
  *
  * parameters:
@@ -70,7 +70,7 @@ function addRow(cell) {
         }
         nextId = parseInt(check.childNodes[1].textContent) + 1;
     }
-    row.childNodes[1].textContent = nextId; 
+    row.childNodes[1].textContent = nextId;
     editable(row.childNodes[13].childNodes[1], 1);
     table.appendChild(row);
 }
@@ -103,7 +103,7 @@ function saveChanges() {
         data.push(rowdata);
     }
     // send data to php function
-    const url = 'http://localhost/script/save_task_table.php';
+    const url = '../script/save_task_table.php';
     $.ajax({
         type: "POST",
         url,
@@ -130,7 +130,7 @@ function saveChanges() {
 		message.classList.remove("alert-danger");
 	    }, 5000);
 	}
-    });    
+    });
 }
 
 /*
