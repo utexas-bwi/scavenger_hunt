@@ -33,7 +33,8 @@ firebase.auth().onAuthStateChanged(function(user) {
     "userhunts.html",
     "task.html",
     "verify.html",
-    "createhunt.html"
+    "createhunt.html",
+    "myProofs.html"
   ];
   var logoutRestrictedPages = [
     "login.html"
