@@ -85,4 +85,34 @@ function getHuntName($id) {
 	}
 }
 
+function getReleaseDate($id) {
+    $dbh = connect(); 
+    try {
+      // get all task names and parameters	
+      $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $query = "SELECT * FROM hunt_table WHERE hunt_id = " . $id;
+    $stmt = $dbh->query($query);
+    $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    $date = ($stmt->fetch())['release_date'];
+    echo "<input type='date' value='".$date."'>";
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
+function getEndDate($id) {
+    $dbh = connect(); 
+    try {
+      // get all task names and parameters	
+      $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+      $query = "SELECT * FROM hunt_table WHERE hunt_id = " . $id;
+    $stmt = $dbh->query($query);
+    $stmt->setFetchMode(PDO::FETCH_ASSOC);
+    $date = ($stmt->fetch())['end_date'];
+    echo "<input type='date' value='".$date."'>";
+  } catch (PDOException $e) {
+    die($e->getMessage());
+  }
+}
+
 ?>

@@ -78,6 +78,15 @@ function submitHunt() {
     }
     // get name of hunt from URL or from page if new hunt
     const new_name = document.getElementById("hunt-name").textContent.trim();
+
+    // get start and end date
+    // if no expiration, send ""
+    var release = new Date(document.getElementById("release_date").value);
+    var end = new Date(document.getElementById("end_date").value);
+
+    if(document.getElementById("no_expiration").checked)
+      end = "";
+
     // send data to php function
     const url = '../script/save_hunt_table.php';
     var hash = firebase.auth().currentUser.uid.hashCode();
@@ -89,7 +98,9 @@ function submitHunt() {
             hunt_table: data,
             hunt_id:id,
             hunt_name: new_name,
-            user_id: hash
+            user_id: hash,
+            release_date: release,
+            end_date: end
         },
         success: function(data) {
             if (!data.error) {
