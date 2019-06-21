@@ -56,7 +56,7 @@ function submitHunt() {
     // extract data from table
     const table = document.getElementById("hunt-table");
     const data = [];
-    for (let rdx = 5; rdx < table.rows.length; ++rdx) {
+    for (let rdx = 2; rdx < table.rows.length; ++rdx) {
         const rowdata = [];
         const row = table.rows[rdx];
         // skip last two cells but iterate over rest bc last 2 are buttons
