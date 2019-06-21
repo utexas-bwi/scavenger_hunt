@@ -7,7 +7,7 @@ function huntTableRow($data) {
     $id = $data['hunt_instr_id'];
     $task = $data['task_type'];
     $param = $data['param_value'];
-    include '../public_html/components/hunt-table-row.html'; 
+    include '../public_html/components/hunt-table-row.html';
 }
 
 function makeHuntTable() {
@@ -23,7 +23,7 @@ function makeHuntTable() {
 		while ($data = $stmt->fetch()):
 		    huntTableRow($data);
 	endwhile;
-	$stmt = null; 
+	$stmt = null;
 	    } catch (PDOException $e) {
 		die($e->getMessage());
 	    }
@@ -38,14 +38,14 @@ function makeHuntTable() {
 function huntTaskTableRow($data) {
     $name = $data['name'];
     $params = $data['params'];
-    include '../public_html/components/hunt-task-table-row.html'; 
+    include '../public_html/components/hunt-task-table-row.html';
 }
 
 function makeHuntTaskTable() {
 	// Create connection
 	$dbh = connect();
 	try {
-	    // get all task names and parameters	
+	    // get all task names and parameters
 	    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	    $query = "SELECT task_type, param_name FROM task_table";
 	    $stmt = $dbh->query($query);
@@ -61,7 +61,7 @@ function makeHuntTaskTable() {
 		$array['params'] = ($stmt2->fetch())['possible_values'];
 		huntTaskTableRow($array);
 	    endwhile;
-	     $stmt = null; 
+	     $stmt = null;
 	} catch (PDOException $e) {
 		die($e->getMessage());
 	}
@@ -71,9 +71,9 @@ function makeHuntTaskTable() {
 }
 
 function getHuntName($id) {
-    $dbh = connect(); 
+    $dbh = connect();
     try {
-	    // get all task names and parameters	
+	    // get all task names and parameters
 	    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 	    $query = "SELECT hunt_name FROM hunt_table WHERE hunt_id = " . $id;
 		$stmt = $dbh->query($query);
@@ -86,33 +86,45 @@ function getHuntName($id) {
 }
 
 function getReleaseDate($id) {
-    $dbh = connect(); 
+    $dbh = connect();
     try {
-      // get all task names and parameters	
+      // get all task names and parameters
       $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $query = "SELECT * FROM hunt_table WHERE hunt_id = " . $id;
     $stmt = $dbh->query($query);
     $stmt->setFetchMode(PDO::FETCH_ASSOC);
     $date = ($stmt->fetch())['release_date'];
-    echo "<input type='date' value='".$date."'>";
+    echo "<input id='release_date' type='date' value='".$date."'>";
   } catch (PDOException $e) {
     die($e->getMessage());
   }
 }
 
-function getEndDate($id) {
-    $dbh = connect(); 
+function getEndDate() {
+  if (isset($_GET['id'])) {
+    $id = $_GET['id'];
+    $dbh = connect();
     try {
-      // get all task names and parameters	
+      // get all task names and parameters
       $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
       $query = "SELECT * FROM hunt_table WHERE hunt_id = " . $id;
-    $stmt = $dbh->query($query);
-    $stmt->setFetchMode(PDO::FETCH_ASSOC);
-    $date = ($stmt->fetch())['end_date'];
-    echo "<input type='date' value='".$date."'>";
-  } catch (PDOException $e) {
-    die($e->getMessage());
-  }
+      $stmt = $dbh->query($query);
+      $stmt->setFetchMode(PDO::FETCH_ASSOC);
+      $hunt = $stmt->fetch();
+      $date = $hunt['end_date'];
+      $GLOBALS["hunt_expires"] = $date == "";
+      echo "<input id='end_date' type='date' value='".$date."'";
+
+      if ($GLOBALS["hunt_expires"])
+        echo " disabled='true'";
+
+      echo ">";
+
+    } catch (PDOException $e) {
+      die($e->getMessage());
+    }
+  } else
+    echo "<input id='end_date' type='date' value='".date('Y-m-d', strtotime('+1 day'))."'>";
 }
 
 ?>

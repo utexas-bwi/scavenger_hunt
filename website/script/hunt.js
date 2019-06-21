@@ -56,7 +56,7 @@ function submitHunt() {
     // extract data from table
     const table = document.getElementById("hunt-table");
     const data = [];
-    for (let rdx = 3; rdx < table.rows.length; ++rdx) {
+    for (let rdx = 5; rdx < table.rows.length; ++rdx) {
         const rowdata = [];
         const row = table.rows[rdx];
         // skip last two cells but iterate over rest bc last 2 are buttons
@@ -81,8 +81,10 @@ function submitHunt() {
 
     // get start and end date
     // if no expiration, send ""
-    var release = new Date(document.getElementById("release_date").value);
-    var end = new Date(document.getElementById("end_date").value);
+    var release = document.getElementById("release_date").value;
+    var end = document.getElementById("end_date").value;
+
+    console.log(release + " " + end);
 
     if(document.getElementById("no_expiration").checked)
       end = "";

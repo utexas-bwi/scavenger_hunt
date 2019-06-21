@@ -24,8 +24,8 @@ function typecheck($dbh, $task_type, $param_val) {
 
 if ($_POST['save_hunt']) {
     $newrows = $_POST['hunt_table'];
-    $end_date = $_POST["end_date"] == "" ? "NULL" : date('Y-m-d', strtotime($_POST["end_date"]));
-    $release_date = date('Y-m-d', strtotime($_POST["release_date"]))
+    $end_date = $_POST["end_date"] == "" ? "NULL" : "'" . date('Y-m-d', strtotime($_POST["end_date"])) . "'";
+    $release_date = "'" . date('Y-m-d', strtotime($_POST["release_date"])) . "'";
     // Create connection
     include_once 'connect.php';
     $dbh = connect();
@@ -63,9 +63,11 @@ if ($_POST['save_hunt']) {
             }
 
             // update name of hunt
-            $sql = "UPDATE hunt_table SET hunt_name=?, release_date=?, end_date=? WHERE hunt_id=?";
-            $name_array = [$_POST['hunt_name'], $release_date, $end_date, $_POST['hunt_id']];
-            $dbh->prepare($sql)->execute($name_array);
+            $sql = "UPDATE hunt_table SET hunt_name='" . $_POST["hunt_name"] . "', release_date=" . $release_date . ", end_date=" . $end_date . " WHERE hunt_id=" . $_POST["hunt_id"];
+            error_log($sql);
+            // $name_array = [$_POST['hunt_name'], $release_date, $end_date, $_POST['hunt_id']];
+            // $dbh->prepare($sql)->execute($name_array);
+            $dbh->query($sql);
             // get copy of old database
             $query = "SELECT * FROM hunt_instructions_table where hunt_id=" . $_POST['hunt_id'];
             $stmt = $dbh->query($query);

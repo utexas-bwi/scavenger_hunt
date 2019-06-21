@@ -222,7 +222,7 @@ bool ScavengerHuntClient::send_proof(std::string image_path, Task &task, double 
 
   if (success)
     std::cout << get_telemetry_tag(user_email, "send_proof") <<
-        "Response OK!" << std::endl;
+        "Response OK. If there were no errors, your proof is on the way!" << std::endl;
   else
     std::cout << get_telemetry_tag(user_email, "send_proof") <<
         "Failed to contact Scavenger Hunt." << std::endl;

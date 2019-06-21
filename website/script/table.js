@@ -20,6 +20,26 @@
  *          (in our case, the pencil and x icons)
  * */
 
+function toggleEndDateField() {
+  var field = document.getElementById("end_date");
+  field.disabled = !field.disabled;
+}
+
+ function editableHuntName(span, start) {
+   var field = document.getElementById("hunt-name");
+   if (field.getAttribute("contenteditable") == "false") {
+     field.setAttribute("contenteditable","true");
+     field.classList.add("editable");
+     span.classList.remove("glyphicon-pencil");
+     span.classList.add("glyphicon-ok");
+   } else {
+     field.setAttribute("contenteditable","false");
+     field.classList.remove("editable");
+     span.classList.add("glyphicon-pencil");
+     span.classList.remove("glyphicon-ok");
+   }
+ }
+
 function editable(span, start) {
     const tr = span.parentNode.parentNode;
     if (span.classList.contains("glyphicon-pencil")) {
