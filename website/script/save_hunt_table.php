@@ -24,7 +24,7 @@ function typecheck($dbh, $task_type, $param_val) {
 
 if ($_POST['save_hunt']) {
     $newrows = $_POST['hunt_table'];
-    $end_date = date('Y-m-d', strtotime($_POST["end_date"]));
+    $end_date = $_POST["end_date"] == "" ? "NULL" : date('Y-m-d', strtotime($_POST["end_date"]));
     $release_date = date('Y-m-d', strtotime($_POST["release_date"]))
     // Create connection
     include_once 'connect.php';
@@ -128,7 +128,7 @@ if ($_POST['save_hunt']) {
             }
 
             // create new hunt
-            $sql = "INSERT into hunt_table VALUES (?, ?, ?, ?)";
+            $sql = "INSERT into hunt_table VALUES (?, ?, ?, ?, ?)";
             $new_hunt = array(0, $_POST['hunt_name'], $release_date, (int)$_POST['user_id'], $end_date);
             $dbh->prepare($sql)->execute($new_hunt);
             $query = "SELECT hunt_id FROM hunt_table where hunt_name='" . $_POST['hunt_name'] ."'";

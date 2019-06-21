@@ -24,10 +24,17 @@ try {
     $reference_hunt = $stmt->fetch();
 
     if ($reference_hunt) {
-      $release_date = date('Y-m-d', strtotime($reference_hunt["release_date"]));
-      $end_date = date('Y-m-d', strtotime($reference_hunt["end_date"]));
       $current_date = date('Y-m-d');
-      if ($current_date >= $release_date && $current_date <= $end_date)
+      $release_date = date('Y-m-d', strtotime($reference_hunt["release_date"]));
+
+      error_log($reference_hunt["end_date"]);
+
+      if ($reference_hunt["end_date"] == "")
+        $end_date = NULL;
+      else
+        $end_date = date('Y-m-d', strtotime($reference_hunt["end_date"]));
+
+      if (is_null($end_date) || $current_date >= $release_date && $current_date <= $end_date)
         $ongoing = true;
     }
   }
