@@ -267,7 +267,7 @@ input[type="button"].big,
 }
 
 #footer .copyright {
-    font-size: 0.8em;
+    font-size: 1.0em;
     font-family: Ubuntu;
 }
 /* New */
@@ -666,7 +666,8 @@ header.major {
     float: left;
     margin-left: 5%;
     margin-right: 5%;
-    margin-top: 4%;
+    margin-top: 0.75%;
+    margin-bottom: 0.75%;
     width: 70%;
     border-radius: 20px;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
@@ -730,7 +731,6 @@ h2.title {
 .full {
     width: 90% !important;
     float: center !important;
-    margin-top: 100px;
     margin-bottom: 2.5%;
 }
 

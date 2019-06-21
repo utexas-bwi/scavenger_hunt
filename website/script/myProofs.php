@@ -2,7 +2,7 @@
   include_once 'connect.php';
   $dbh = connect();
 
-  $dbh -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
+  $dbh -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
   include '../script/completed_hunts.php';
   $email = $_POST["user_email"];
@@ -21,7 +21,7 @@
     <div id="content">';
     echo "<p> You have not sent in any proofs. </p>";
 
-    echo '</div></section></div>';  
+    echo '</div></section></div>';
   }
   while($huntList){
     echo '<div class="content">
@@ -87,7 +87,7 @@
       echo '<td>';
       if ($verified)
         echo "Yes";
-      else 
+      else
         echo "No";
       echo '</td>';
 
@@ -95,12 +95,12 @@
       if($verified){
         if($correct)
           echo "Yes";
-        else 
+        else
           echo "No";
-      } else 
+      } else
         echo "Not Verified";
       echo '</td>';
-            
+
       echo '<td>';
       echo '<a href="../proof/'.$filename.'">';
       echo "[proof]</a>";
@@ -110,7 +110,7 @@
     }
 
     echo '</table>';
-    echo '</div></section></div>';  
+    echo '</div></section></div>';
     $huntList = $huntStmt -> fetch();
   }
 
