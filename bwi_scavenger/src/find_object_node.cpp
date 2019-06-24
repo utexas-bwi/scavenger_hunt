@@ -323,7 +323,8 @@ void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
 
 // Called when image of object is recieved
 void image_cb(const sensor_msgs::Image::ConstPtr &img) {
-  last_darknet_img = img;
+  if (!ssv.target_confirmed)
+    last_darknet_img = img;
 }
 
 // Called when the main node is starting a task

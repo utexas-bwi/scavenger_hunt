@@ -14,9 +14,7 @@ std::string gridFrameId;
 ros::Publisher pub_robot_pose;
 
 void stop(const bwi_scavenger::RobotStop::ConstPtr &data){
-    ROS_INFO("[move_node] Cancel goal");
-    rm -> end_movement();
-    // movePub.publish(result);
+    rm->end_movement();
 }
 
 void move(const bwi_scavenger::RobotMove::ConstPtr &data){
