@@ -5,7 +5,7 @@
 #include <limits.h>
 #include <std_msgs/String.h>
 
-int closest = -1;
+int closest = 0;
 tf::TransformListener *listener;
 std::string gridFrameId;
 
@@ -16,16 +16,14 @@ void stop(const bwi_scavenger::RobotStop::ConstPtr &data){
 }
 
 void move(const bwi_scavenger::RobotMove::ConstPtr &data){
-  if(closest != -1){
-    if(data -> type == MOVE){
-      environment_location goal = static_cast<environment_location>((data -> location + closest) % NUM_ENVIRONMENT_LOCATIONS);
-      ROS_INFO("[move_node] Moving to location %d.", (int)goal);
-      rm -> move_to_location(goal);
-      movePub.publish(result);
-    } else if (data -> type == SPIN){
-      rm -> turn (data->degrees);
-      movePub.publish(result);
-    }
+  if(data -> type == MOVE){
+    environment_location goal = static_cast<environment_location>((data -> location + closest) % NUM_ENVIRONMENT_LOCATIONS);
+    ROS_INFO("[move_node] Moving to location %d.", (int)goal);
+    rm -> move_to_location(goal);
+    movePub.publish(result);
+  } else if (data -> type == SPIN){
+    rm -> turn (data->degrees);
+    movePub.publish(result);
   }
 }
 
