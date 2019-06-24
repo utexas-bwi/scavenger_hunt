@@ -4,15 +4,15 @@
     $dbh = connect();
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $stmt = $dbh -> query("SELECT * FROM hunt_table WHERE hunt_name LIKE '%Dijkstra%' ORDER BY release_date DESC");
+    $stmt = $dbh -> query("SELECT * FROM hunt_table WHERE hunt_name LIKE '%Turing%' ORDER BY release_date DESC");
     $stmt -> setFetchMode(PDO::FETCH_ASSOC);
     $prevHunt = $stmt -> fetch();
-    $num = substr($prevHunt['hunt_name'], 14);
+    $num = substr($prevHunt['hunt_name'], 12);
     $newNum = $num + 1;
 
-    $newHuntName = "Dijkstra Hunt " . $newNum;
+    $newHuntName = "Turing Hunt " . $newNum;
     $newStartDate = $prevHunt['end_date'];
-    $newEndDate = date('Y-m-d', strtotime($newStartDate . '+1 day'));
+    $newEndDate = date('Y-m-d', strtotime($newStartDate . '+7 day'));
 
     $update = $dbh -> query("INSERT INTO hunt_table VALUES(0, '$newHuntName', '$newStartDate', 1595603883, '$newEndDate')");
     $getHuntId = $dbh -> query("SELECT * FROM hunt_table where hunt_name = '$newHuntName'");
