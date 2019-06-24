@@ -16,7 +16,7 @@
 
     
 
-    $update = $dbh -> query("INSERT INTO hunt_table VALUES($newNum, '$newHuntName', '$newStartDate', -1589239765, '$newEndDate')");
+    $update = $dbh -> query("INSERT INTO hunt_table VALUES(0, '$newHuntName', '$newStartDate', 1595603883, '$newEndDate')");
     
 
 ?>
