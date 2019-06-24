@@ -35,7 +35,7 @@ static int location_id = 0;
 static const float INSPECT_DURATION = 8.0;
 static const float INSPECT_GOOD_CONFIRMATIONS = 3;
 
-static const double T_TURN_SLEEP = 4.0;
+static const double T_TURN_SLEEP = 6.0;
 
 static StateMachine sm;
 
