@@ -1,10 +1,12 @@
 #include <bwi_scavenger/global_topics.h>
 #include <bwi_scavenger/RobotMove.h>
 #include <bwi_scavenger/RobotStop.h>
+#include <bwi_scavenger/mapping.h>
 #include <bwi_scavenger/robot_motion.h>
 #include <bwi_scavenger/state_machine.h>
 
 #include <cv_bridge/cv_bridge.h>
+#include <geometry_msgs/Pose.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 #include <ros/ros.h>
@@ -29,8 +31,9 @@ static const char TELEM_TAG[] = "[find_object_node]";
 static ros::Publisher pub_move;
 static ros::Publisher pub_stop;
 static ros::Publisher pub_task_complete;
+static ros::Publisher pub_pose_request;
 
-static int location_id = 0;
+static environment_location current_location;
 
 static const float INSPECT_DURATION = 8.0;
 static const float INSPECT_GOOD_CONFIRMATIONS = 3;
@@ -40,9 +43,11 @@ static const double T_TURN_SLEEP = 6.0;
 static StateMachine sm;
 
 static bool node_active = false;
-static bool received_closest_waypoint = false;
+static bool pose_request_sent = false;
 
 static sensor_msgs::Image::ConstPtr last_darknet_img;
+
+static OrderedLocationSet map;
 
 /*------------------------------------------------------------------------------
 STATE MACHINE DEFINITION
@@ -68,7 +73,7 @@ struct FindObjectSystemStateVector : SystemStateVector {
   bool turn_sleeping = false;
   double t_turn_sleep_begin = 0;
 
-  int destination = location_id;
+  environment_location destination = BWI_LAB_LEFT;
 } ssv;
 
 class FindObjectEndState : public State {
@@ -134,7 +139,7 @@ public:
       svec->travel_in_progress = true;
       bwi_scavenger::RobotMove msg;
       msg.type = 0;
-      msg.location = location_id % NUM_ENVIRONMENT_LOCATIONS;
+      msg.location = svec->destination;
       pub_move.publish(msg);
     }
   }
@@ -145,11 +150,8 @@ public:
       ROS_INFO("%s Leaving TRAVELING. Suspected early stop.", TELEM_TAG);
       bwi_scavenger::RobotStop stop;
       pub_stop.publish(stop);
-    } else {
-      location_id++;
-      if (location_id == NUM_ENVIRONMENT_LOCATIONS - 1)
-        location_id++;
-    }
+    } else
+      svec->destination = map.get_next_location();
   }
 
   void on_transition_to(SystemStateVector *vec) {
@@ -265,8 +267,6 @@ static State *s_inspecting = new FindObjectInspectingState(STATE_INSPECTING);
 static State *s_end = new FindObjectEndState(STATE_END);
 
 void wipe_ssv() {
-  location_id = 0;
-
   ssv.t = 0;
   ssv.t_system_epoch = ros::Time::now().toSec();
 
@@ -286,7 +286,7 @@ void wipe_ssv() {
   ssv.turn_sleeping = false;
   ssv.t_turn_sleep_begin = 0;
 
-  ssv.destination = 0;
+  ssv.destination = BWI_LAB_LEFT;
 
   sm.init(s_traveling);
 }
@@ -329,18 +329,26 @@ void image_cb(const sensor_msgs::Image::ConstPtr &img) {
 // Called when the main node is starting a task
 void task_start_cb(const std_msgs::String::ConstPtr &msg) {
   if (msg->data == "Find Object") {
-    node_active = true;
     wipe_ssv();
     ros::Duration(5.0).sleep();
+
+    // Request current robot pose from move_node to inform mapping
+    std_msgs::Bool msg;
+    pub_pose_request.publish(msg);
+    pose_request_sent = true;
   }
 }
 
 // Called when the move node computes the closest waypoint
-void closest_waypoint_cb(const std_msgs::Int32::ConstPtr &msg) {
-  location_id = msg->data;
-  received_closest_waypoint = true;
-  ROS_INFO("%s Received waypoint update. Search will begin at location %d.",
-      TELEM_TAG, location_id);
+void pose_request_cb(const geometry_msgs::Pose::ConstPtr &msg) {
+  map.start(msg->position.x, msg->position.y);
+  ssv.destination = map.get_next_location();
+  ROS_INFO("%s Pose request fulfilled. Circuit will begin at location %d.",
+      TELEM_TAG, (int)(ssv.destination));
+  if (pose_request_sent) {
+    pose_request_sent = false;
+    node_active = true;
+  }
 }
 
 /*------------------------------------------------------------------------------
@@ -351,16 +359,27 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "find_object_node");
   ros::NodeHandle nh;
 
+  // Build search circuit
+  map.add_location(BWI_LAB_RIGHT);
+  map.add_location(CLEARING_RIGHT);
+  map.add_location(CLEARING_LEFT);
+  map.add_location(ALCOVE);
+  map.add_location(KITCHEN);
+  map.add_location(BWI_LAB_LEFT);
+  map.add_location(LARG_RIGHT);
+  map.add_location(LARG_LEFT);
+
   // Setup SSV update callbacks
   pub_move = nh.advertise<bwi_scavenger::RobotMove>(TPC_MOVE_NODE_GO, 1);
   pub_stop = nh.advertise<bwi_scavenger::RobotStop>(TPC_MOVE_NODE_STOP, 1);
   pub_task_complete = nh.advertise<std_msgs::Bool>(TPC_TASK_COMPLETE, 1);
+  pub_pose_request = nh.advertise<std_msgs::Bool>(TPC_MOVE_NODE_REQUEST_POSE, 1);
 
   ros::Subscriber sub0 = nh.subscribe(TPC_YOLO_NODE_TARGET_SEEN, 1, target_seen_cb);
   ros::Subscriber sub1 = nh.subscribe(TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
   ros::Subscriber sub2 = nh.subscribe("/darknet_ros/detection_image", 1, image_cb);
   ros::Subscriber sub3 = nh.subscribe(TPC_MAIN_NODE_TASK_START, 1, task_start_cb);
-  ros::Subscriber sub4 = nh.subscribe(TPC_MOVE_NODE_CLOSEST_WAYPOINT, 1, closest_waypoint_cb);
+  ros::Subscriber sub4 = nh.subscribe(TPC_MOVE_NODE_ROBOT_POSE, 1, pose_request_cb);
 
   // Build state machine
   s_traveling->add_output(s_end);
@@ -387,7 +406,7 @@ int main(int argc, char **argv) {
   while (ros::ok()) {
     ros::spinOnce();
 
-    if (!node_active || !received_closest_waypoint)
+    if (!node_active)
       continue;
 
     sm.run(&ssv);

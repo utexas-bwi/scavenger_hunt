@@ -153,6 +153,7 @@ target_link_libraries(state_machine_test
     ${catkin_LIBRARIES})
 
 add_executable(find_object_node
+  src/mapping.cpp
   src/find_object_node.cpp
   src/state_machine.cpp)
 

@@ -1,16 +1,17 @@
 #include <bwi_scavenger/global_topics.h>
 #include <bwi_scavenger/move_node.h>
 
+#include <geometry_msgs/Pose.h>
 #include <math.h>
 #include <limits.h>
+#include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
 #include <std_msgs/Int32.h>
 
-int closest = 0;
 tf::TransformListener *listener;
 std::string gridFrameId;
 
-ros::Publisher pub_closest_waypoint;
+ros::Publisher pub_robot_pose;
 
 void stop(const bwi_scavenger::RobotStop::ConstPtr &data){
     ROS_INFO("[move_node] Cancel goal");
@@ -30,38 +31,34 @@ void move(const bwi_scavenger::RobotMove::ConstPtr &data){
   }
 }
 
-void start(const std_msgs::String::ConstPtr &msg){
-  if (msg -> data == "Find Object") {
-    ROS_INFO("[move_node] Finding closest waypoint...");
-    tf::StampedTransform robotTransform;
-    listener->waitForTransform(gridFrameId, "base_link", ros::Time::now(), ros::Duration(4));
-    listener->lookupTransform(gridFrameId, "base_link", ros::Time(0), robotTransform);
-    float x = robotTransform.getOrigin().x();
-    float y = robotTransform.getOrigin().y();
-
-    float minDistance = std::numeric_limits<float>::max();
-    for(int i = 0; i < NUM_ENVIRONMENT_LOCATIONS; i++){
-      std::pair<float, float> coordinates = environment_location_coordinates[static_cast<environment_location>(i)];
-      float distance = sqrt(pow(coordinates.first - x, 2) + pow(coordinates.second - y, 2));
-      if (distance < minDistance){
-        minDistance = distance;
-        closest = i;
-      }
-    }
-
-    ROS_INFO("[move_node] Setting destination to %d.", closest);
-
-    std_msgs::Int32 msg;
-    msg.data = closest;
-    pub_closest_waypoint.publish(msg);
-  }
-}
-
 void getMapId(const nav_msgs::OccupancyGrid::ConstPtr &grid){
   ROS_INFO("Creating RobotMotion");
   listener = new tf::TransformListener();
   gridFrameId = grid->header.frame_id;
   rm = new RobotMotion(gridFrameId, *listener);
+}
+
+void broadcastRobotPose(const std_msgs::Bool::ConstPtr &msg) {
+  tf::StampedTransform robotTransform;
+  listener->waitForTransform(gridFrameId, "base_link", ros::Time::now(), ros::Duration(4));
+  listener->lookupTransform(gridFrameId, "base_link", ros::Time(0), robotTransform);
+
+  geometry_msgs::Point pose_position;
+  pose_position.x = robotTransform.getOrigin().x();
+  pose_position.y = robotTransform.getOrigin().y();
+  pose_position.z = 0;
+
+  geometry_msgs::Quaternion pose_orientation;
+  pose_orientation.w = robotTransform.getRotation().w();
+  pose_orientation.x = robotTransform.getRotation().x();
+  pose_orientation.y = robotTransform.getRotation().y();
+  pose_orientation.z = robotTransform.getRotation().z();
+
+  geometry_msgs::Pose pose;
+  pose.position = pose_position;
+  pose.orientation = pose_orientation;
+
+  pub_robot_pose.publish(pose);
 }
 
 int main(int argc, char **argv){
@@ -72,10 +69,10 @@ int main(int argc, char **argv){
 
   ros::Subscriber findObjectSub = moveNode.subscribe(TPC_MOVE_NODE_GO, 1, move);
   ros::Subscriber stopMoveSub = moveNode.subscribe(TPC_MOVE_NODE_STOP, 1, stop);
-  ros::Subscriber startFindObject = moveNode.subscribe(TPC_MAIN_NODE_TASK_START, 1, start);
+  ros::Subscriber requestPoseSub = moveNode.subscribe(TPC_MOVE_NODE_REQUEST_POSE, 1, broadcastRobotPose);
 
   movePub = moveNode.advertise<std_msgs::Bool>(TPC_MOVE_NODE_FINISHED, 1);
-  pub_closest_waypoint = moveNode.advertise<std_msgs::Int32>(TPC_MOVE_NODE_CLOSEST_WAYPOINT, 1);
+  pub_robot_pose = moveNode.advertise<geometry_msgs::Pose>(TPC_MOVE_NODE_ROBOT_POSE, 1);
 
   ROS_INFO("[move_node] Standing by.");
 
