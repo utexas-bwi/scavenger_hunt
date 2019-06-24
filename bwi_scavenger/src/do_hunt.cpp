@@ -82,14 +82,19 @@ void next_task_cb(const std_msgs::Bool::ConstPtr &msg) {
 }
 
 int main(int argc, char **argv) {
-  ros::init(argc, argv, "main_node");
+  ros::init(argc, argv, "hunt_node");
   ros::NodeHandle nh;
 
   pub_task_start = nh.advertise<std_msgs::String>(TPC_MAIN_NODE_TASK_START, 1);
   pub_yolo_node_target = nh.advertise<std_msgs::String>(TPC_YOLO_NODE_TARGET, 1);
   ros::Subscriber sub_task_complete = nh.subscribe(TPC_TASK_COMPLETE, 1, next_task_cb);
 
-  client.get_hunt("BWI Lab Hunt", tasks);
+  if (argc < 2) {
+    ROS_ERROR("Usage: do_hunt <hunt name>");
+    exit(0);
+  }
+
+  client.get_hunt(argv[1], tasks);
 
   ros::Duration(1.0).sleep();
 

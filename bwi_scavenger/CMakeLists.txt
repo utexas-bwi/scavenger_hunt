@@ -192,15 +192,21 @@ target_link_libraries(yolo_node
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
-add_executable(main_node
-  src/main_node.cpp)
+add_executable(do_hunt
+  src/do_hunt.cpp)
 
-target_link_libraries(main_node
+target_link_libraries(do_hunt
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES}
   curl)
 
+add_executable(go
+  src/go.cpp)
 
+target_link_libraries(go
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES}
+  curl)
 
 # add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
 
