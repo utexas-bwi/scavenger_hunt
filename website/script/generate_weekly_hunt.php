@@ -20,7 +20,7 @@
     $huntId = ($getHuntId -> fetch())['hunt_id'];
 
     // update tasks for the hunt
-    $rand = "SELECT * FROM task_table ORDER BY rand()";
+    $rand = "SELECT * FROM task_table WHERE score > 300 ORDER BY rand()";
     
     // values of hunt_instructions_table = hunt_id, hunt_instr_id, task_type, parma_val
     $insert = "INSERT INTO hunt_instructions_table VALUES (?, 0, ?, ?)";

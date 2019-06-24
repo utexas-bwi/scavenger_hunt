@@ -3,13 +3,13 @@
   $dbh = connect();
   
   $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
+  
   $dbh -> prepare ("DELETE FROM hunt_completed_table") -> execute();
 
   // create a "hunt completed" table that talllies up the time and score for each hunt that 
   // a university has completed
   // a university may have completed a hunt more than one time
-  $insert = "INSERT INTO hunt_completed_table VALUES (?, ?, ?, ?, ?)";
+  $insert = "INSERT INTO hunt_completed_table VALUES (?, ?, ?, ?, ?, ?, ?)";
 
   $userTable = $dbh -> query("SELECT * FROM user_table");
   $userTable -> setFetchMode(PDO::FETCH_ASSOC);
@@ -51,16 +51,15 @@
         array_push($arrayProofId, $proofId);
         $proof = $proofTable -> fetch();
       }
-      $time = 0;
-      $score = 0;
+      $numVerified = $numCorrect = $time = $score = 0;
       for($x = 0; $x < count($arrayProofId); $x++){
-        $getProof =  $dbh -> query("SELECT * FROM proof_table WHERE proof_id = " .$arrayProofId[$x]);
+        $getProof =  $dbh -> query("SELECT * FROM proof_table WHERE proof_id = " . $arrayProofId[$x]);
         $getProof -> setFetchMode(PDO::FETCH_ASSOC);
         $taskProof = $getProof -> fetch();
         if($taskNum == $numTasks){
           $time += $taskProof['time_to_complete'];
         }
-        if($proof['correct']){
+        if($taskProof['correct']){
           $getTask = $dbh -> query("SELECT * FROM hunt_instructions_table WHERE hunt_instr_id = " .$arrayHuntInstr[$x]);
           $getTask -> setFetchMode(PDO::FETCH_ASSOC);
           $task = ($getTask -> fetch())['task_type'];
@@ -68,9 +67,12 @@
           $getScore -> setFetchMode(PDO::FETCH_ASSOC);
           $score += ($getScore -> fetch())['score'];
         }
+        $numVerified += $taskProof['verified'];
+        $numCorrect += $taskProof['correct'];
       }
+      
       $huntCompTable = $dbh-> prepare($insert);
-      $huntCompTable->execute([$university, $hunt, $time, $score, $userId]);
+      $huntCompTable->execute([$university, $hunt, $time, $score, $userId, $numVerified, $numCorrect]);
     }
   }
 ?>
