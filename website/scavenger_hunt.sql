@@ -55,6 +55,7 @@ CREATE TABLE `hunt_table` (
   `hunt_name` varchar(255) DEFAULT NULL,
   `release_date` date DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
+  `end_date` date DEFAULT NULL,
   PRIMARY KEY (`hunt_id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `hunt_table_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user_table` (`user_id`)

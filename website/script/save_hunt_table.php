@@ -24,13 +24,21 @@ function typecheck($dbh, $task_type, $param_val) {
 
 if ($_POST['save_hunt']) {
     $newrows = $_POST['hunt_table'];
-    $end_date = $_POST["end_date"] == "" ? "NULL" : "'" . date('Y-m-d', strtotime($_POST["end_date"])) . "'";
-    $release_date = "'" . date('Y-m-d', strtotime($_POST["release_date"])) . "'";
+    $end_date = $_POST["end_date"] == "" ? "NULL" : date('Y-m-d', strtotime($_POST["end_date"]));
+    $release_date = date('Y-m-d', strtotime($_POST["release_date"]));
     // Create connection
     include_once 'connect.php';
     $dbh = connect();
     $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $results["error"] = false;
+
+    if ($end_date <= $release_date){
+        $results["error"] = true;
+        $results["data"] = 'End date is before start date. Try again';
+        header("Content-type: application/json");
+        die (json_encode($results));
+    }
+
     try {
         // typecheck to ensure all parameters match task_type allowances
         for ($ndx = 0; $ndx < count($newrows); ++$ndx) {
@@ -63,7 +71,7 @@ if ($_POST['save_hunt']) {
             }
 
             // update name of hunt
-            $sql = "UPDATE hunt_table SET hunt_name='" . $_POST["hunt_name"] . "', release_date=" . $release_date . ", end_date=" . $end_date . " WHERE hunt_id=" . $_POST["hunt_id"];
+            $sql = "UPDATE hunt_table SET hunt_name='" . $_POST["hunt_name"] . "', release_date='" . $release_date . "', end_date='" . $end_date . "' WHERE hunt_id=" . $_POST["hunt_id"];
             error_log($sql);
             // $name_array = [$_POST['hunt_name'], $release_date, $end_date, $_POST['hunt_id']];
             // $dbh->prepare($sql)->execute($name_array);
