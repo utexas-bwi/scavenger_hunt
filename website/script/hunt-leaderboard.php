@@ -8,8 +8,12 @@
   include 'completed_hunts.php';
 
   // display leaderboard for each hunt
-  $huntStmt = $dbh -> query ("SELECT DISTINCT hunt FROM hunt_completed_table");
+
+  $huntStmt = $dbh -> query ("SELECT * FROM hunt_completed_table WHERE (hunt like '%Dijkstra%' or hunt like '%Turing%')");
   $huntStmt -> setFetchMode(PDO::FETCH_ASSOC);
+
+  // mysql> select * from hunt_table where (hunt_name like "%Dijkstra%" or hunt_name like "%Turing%");
+
 
   while($huntList = $huntStmt -> fetch()){
     echo '<div class="content">
