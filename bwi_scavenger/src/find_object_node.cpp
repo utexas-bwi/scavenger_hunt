@@ -91,7 +91,6 @@ public:
   void update(SystemStateVector *vec) {}
 
   void on_transition_to(SystemStateVector *vec) {
-    ROS_INFO("%s Entering state END", TELEM_TAG);
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
 
     if(svec->target_confirmed) {
@@ -149,8 +148,6 @@ public:
   }
 
   void on_transition_to(SystemStateVector *vec) {
-    ROS_INFO("%s Entering state TRAVELING", TELEM_TAG);
-
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     svec->travel_in_progress = false;
     svec->travel_finished = false;
@@ -168,7 +165,6 @@ public:
     if (from->get_id() == STATE_TRAVELING &&
         svec->travel_finished &&
         svec->t < T_TIMEOUT) {
-      ROS_INFO("%s Reached destination. Transitioning to SCANNING.", TELEM_TAG);
       return true;
     // Enter SCANNING because INSPECTING failed
     } else if (from->get_id() == STATE_INSPECTING &&
@@ -196,7 +192,6 @@ public:
 
     // Exiting sleep
     if (svec->turn_sleeping && svec->t - svec->t_turn_sleep_begin >= T_TURN_SLEEP) {
-      ROS_INFO("%s SCANNING is exiting sleep.", TELEM_TAG);
       svec->turn_sleeping = false;
     }
   }
@@ -211,8 +206,6 @@ public:
   }
 
   void on_transition_to(SystemStateVector *vec) {
-    ROS_INFO("%s Entering state SCANNING", TELEM_TAG);
-
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     svec->turn_finished = false;
     svec->turn_in_progress = false;
@@ -317,7 +310,6 @@ void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
       ssv.turn_finished = true;
     else {
       ssv.turn_in_progress = false;
-      ROS_INFO("%s SCANNING has entered sleep.", TELEM_TAG);
       ssv.turn_sleeping = true;
       ssv.t_turn_sleep_begin = ssv.t;
     }
@@ -331,7 +323,7 @@ void image_cb(const sensor_msgs::Image::ConstPtr &img) {
 
 // Called when the main node is starting a task
 void task_start_cb(const std_msgs::String::ConstPtr &msg) {
-  if (msg -> data == "Find Object") {
+  if (msg->data == "Find Object") {
     node_active = true;
     wipe_ssv();
     ros::Duration(5.0).sleep();
@@ -375,7 +367,7 @@ int main(int argc, char **argv) {
   // Wait for ROS services to spin up
   ros::Duration(5.0).sleep();
 
-  ROS_INFO("%s Entering Find Object state machine...", TELEM_TAG);
+  ROS_INFO("%s Node standing by.", TELEM_TAG);
 
   // Run until state machine exit
   while (ros::ok()) {

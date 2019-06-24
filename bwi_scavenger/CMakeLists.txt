@@ -163,6 +163,16 @@ target_link_libraries(find_object_node
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
+add_executable(conclude_node
+  src/conclude_node.cpp)
+
+add_dependencies(conclude_node
+  bwi_scavenger_generate_messages_cpp)
+
+target_link_libraries(conclude_node
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
+
 add_executable(move_node
   src/move_node.cpp
   src/robot_motion.cpp)

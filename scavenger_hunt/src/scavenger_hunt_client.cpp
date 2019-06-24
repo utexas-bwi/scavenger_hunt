@@ -9,8 +9,8 @@
 
 using namespace rapidxml;
 
-static const char DOWNLOAD_URL[] = "localhost/script/get_tasks.php";
-static const char UPLOAD_URL[] = "localhost/script/upload_proof.php";
+static const char DOWNLOAD_URL[] = "localhost:8080/script/get_tasks.php";
+static const char UPLOAD_URL[] = "localhost:8080/script/upload_proof.php";
 
 static std::string user_email;
 static int user_password_hash;
