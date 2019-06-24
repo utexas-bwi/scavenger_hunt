@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
   // Wait for ROS services to spin up
   ros::Duration(5.0).sleep();
 
-  ROS_INFO("%s Node standing by.", TELEM_TAG);
+  ROS_INFO("%s Standing by.", TELEM_TAG);
 
   while (ros::ok()) {
     ros::spinOnce();

@@ -18,12 +18,10 @@ void stop(const bwi_scavenger::RobotStop::ConstPtr &data){
 void move(const bwi_scavenger::RobotMove::ConstPtr &data){
   if(closest != -1){
     if(data -> type == MOVE){
-      ROS_INFO("[move_node] Sending goal to move");
       environment_location goal = static_cast<environment_location>((data -> location + closest) % NUM_ENVIRONMENT_LOCATIONS);
       rm -> move_to_location(goal);
       movePub.publish(result);
     } else if (data -> type == SPIN){
-      ROS_INFO("[move_node] Sending goal to spin");
       rm -> turn (data->degrees);
       movePub.publish(result);
     }
@@ -32,24 +30,24 @@ void move(const bwi_scavenger::RobotMove::ConstPtr &data){
 
 void start(const std_msgs::String::ConstPtr &msg){
   if (msg -> data == "Find Object") {
-    ROS_INFO("Setting closest location");
+    ROS_INFO("[move_node] Finding closest waypoint...");
     tf::StampedTransform robotTransform;
     listener->waitForTransform(gridFrameId, "base_link", ros::Time::now(), ros::Duration(4));
     listener->lookupTransform(gridFrameId, "base_link", ros::Time(0), robotTransform);
     float x = robotTransform.getOrigin().x();
     float y = robotTransform.getOrigin().y();
-    ROS_INFO("[move_node] position of robot: (%f, %f)", x, y);
 
     float minDistance = std::numeric_limits<float>::max();
     for(int i = 0; i < NUM_ENVIRONMENT_LOCATIONS; i++){
       std::pair<float, float> coordinates = environment_location_coordinates[static_cast<environment_location>(i)];
       float distance = sqrt(pow(coordinates.first - x, 2) + pow(coordinates.second - y, 2));
-      ROS_INFO("[move_node] distance to location %d: %f", i, distance);
       if (distance < minDistance){
         minDistance = distance;
         closest = i;
       }
     }
+
+    ROS_INFO("[move_node] Setting destination to %d.", closest);
   }
 }
 
@@ -71,6 +69,8 @@ int main(int argc, char **argv){
   ros::Subscriber startFindObject = moveNode.subscribe(TPC_MAIN_NODE_TASK_START, 1, start);
 
   movePub = moveNode.advertise<std_msgs::Bool>(TPC_MOVE_NODE_FINISHED, 1);
+
+  ROS_INFO("[move_node] Standing by.");
 
   ros::MultiThreadedSpinner spinner(2);
   spinner.spin();
