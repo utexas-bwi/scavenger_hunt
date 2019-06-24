@@ -145,8 +145,11 @@ public:
       ROS_INFO("%s Leaving TRAVELING. Suspected early stop.", TELEM_TAG);
       bwi_scavenger::RobotStop stop;
       pub_stop.publish(stop);
-    } else
+    } else {
       location_id++;
+      if (location_id == NUM_ENVIRONMENT_LOCATIONS - 1)
+        location_id++;
+    }
   }
 
   void on_transition_to(SystemStateVector *vec) {

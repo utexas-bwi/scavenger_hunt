@@ -25,7 +25,7 @@ enum environment_location {
   FELLOW_COMPUTERS
 };
 
-const int NUM_ENVIRONMENT_LOCATIONS = 8;
+const int NUM_ENVIRONMENT_LOCATIONS = 9;
 
 static std::map<environment_location, std::pair<float, float>>
     environment_location_coordinates {
