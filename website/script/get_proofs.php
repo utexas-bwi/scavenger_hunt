@@ -1,14 +1,14 @@
 <?php
 // connect to SQL database
 include_once 'connect.php';
+include_once 'auth.php';
 $dbh = connect();
 $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 try {
 	global $dom, $node, $parnode;
   // get the current hunt tasks from the database
-  // $name = $_POST['hunt_name'];
-    $hunt_instr_id = 32;
-    $user_id = -1589239765;
+    $hunt_instr_id = $_POST['hunt_instr_id'];
+    $user_id = $_POST['user_id'];
 	$query = "SELECT * FROM proof_table WHERE hunt_instr_id = $hunt_instr_id AND uploader_id = -1589239765";
 	$stmt = $dbh->query($query);
 	$stmt->setFetchMode(PDO::FETCH_ASSOC);
