@@ -23,9 +23,6 @@ void RobotMotion::move_to_location(environment_location location) {
       environment_location_coordinates[location];
   double start = ros::Time::now().toSec();
 
-  ROS_INFO("[RobotMotion] Moving to location %d, coordinates (%f, %f)",
-      (int)location, coordinates.first, coordinates.second);
-
   move_base_msgs::MoveBaseGoal goal;
   geometry_msgs::PoseStamped goal_pose;
 
@@ -51,14 +48,11 @@ void RobotMotion::move_to_location(environment_location location) {
         ac->getState() != actionlib::SimpleClientGoalState::PREEMPTED);
 
   double end = ros::Time::now().toSec();
-  ROS_INFO("[RobotMotion] Arrived at location after %f seconds", end - start);
 }
 
 void RobotMotion::turn(float degrees) {
   double start = ros::Time::now().toSec();
   float radians = degrees * (PI / 180);
-
-  ROS_INFO("[RobotMotion] Executing relative turn of %f degrees (%f radians)", degrees, radians);
 
   tf::Quaternion quat;
   quat.setRPY(0, 0, radians);
@@ -83,5 +77,4 @@ void RobotMotion::turn(float degrees) {
         ac->getState() != actionlib::SimpleClientGoalState::PREEMPTED);
 
   double end = ros::Time::now().toSec();
-  ROS_INFO("[RobotMotion] Finished turn after %f seconds", end - start);
 }

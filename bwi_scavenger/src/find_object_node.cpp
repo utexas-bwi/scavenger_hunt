@@ -11,6 +11,7 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Int32.h>
 #include <std_msgs/String.h>
 #include <darknet_ros_msgs/BoundingBox.h>
 
@@ -34,11 +35,12 @@ static int location_id = 0;
 static const float INSPECT_DURATION = 8.0;
 static const float INSPECT_GOOD_CONFIRMATIONS = 3;
 
-static const double T_TURN_SLEEP = 4.0;
+static const double T_TURN_SLEEP = 6.0;
 
 static StateMachine sm;
 
 static bool node_active = false;
+static bool received_closest_waypoint = false;
 
 static sensor_msgs::Image::ConstPtr last_darknet_img;
 
@@ -91,7 +93,6 @@ public:
   void update(SystemStateVector *vec) {}
 
   void on_transition_to(SystemStateVector *vec) {
-    ROS_INFO("%s Entering state END", TELEM_TAG);
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
 
     if(svec->target_confirmed) {
@@ -144,13 +145,14 @@ public:
       ROS_INFO("%s Leaving TRAVELING. Suspected early stop.", TELEM_TAG);
       bwi_scavenger::RobotStop stop;
       pub_stop.publish(stop);
-    } else
+    } else {
       location_id++;
+      if (location_id == NUM_ENVIRONMENT_LOCATIONS - 1)
+        location_id++;
+    }
   }
 
   void on_transition_to(SystemStateVector *vec) {
-    ROS_INFO("%s Entering state TRAVELING", TELEM_TAG);
-
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     svec->travel_in_progress = false;
     svec->travel_finished = false;
@@ -168,7 +170,6 @@ public:
     if (from->get_id() == STATE_TRAVELING &&
         svec->travel_finished &&
         svec->t < T_TIMEOUT) {
-      ROS_INFO("%s Reached destination. Transitioning to SCANNING.", TELEM_TAG);
       return true;
     // Enter SCANNING because INSPECTING failed
     } else if (from->get_id() == STATE_INSPECTING &&
@@ -196,7 +197,6 @@ public:
 
     // Exiting sleep
     if (svec->turn_sleeping && svec->t - svec->t_turn_sleep_begin >= T_TURN_SLEEP) {
-      ROS_INFO("%s SCANNING is exiting sleep.", TELEM_TAG);
       svec->turn_sleeping = false;
     }
   }
@@ -211,8 +211,6 @@ public:
   }
 
   void on_transition_to(SystemStateVector *vec) {
-    ROS_INFO("%s Entering state SCANNING", TELEM_TAG);
-
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     svec->turn_finished = false;
     svec->turn_in_progress = false;
@@ -317,7 +315,6 @@ void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
       ssv.turn_finished = true;
     else {
       ssv.turn_in_progress = false;
-      ROS_INFO("%s SCANNING has entered sleep.", TELEM_TAG);
       ssv.turn_sleeping = true;
       ssv.t_turn_sleep_begin = ssv.t;
     }
@@ -331,11 +328,19 @@ void image_cb(const sensor_msgs::Image::ConstPtr &img) {
 
 // Called when the main node is starting a task
 void task_start_cb(const std_msgs::String::ConstPtr &msg) {
-  if (msg -> data == "Find Object") {
+  if (msg->data == "Find Object") {
     node_active = true;
     wipe_ssv();
     ros::Duration(5.0).sleep();
   }
+}
+
+// Called when the move node computes the closest waypoint
+void closest_waypoint_cb(const std_msgs::Int32::ConstPtr &msg) {
+  location_id = msg->data;
+  received_closest_waypoint = true;
+  ROS_INFO("%s Received waypoint update. Search will begin at location %d.",
+      TELEM_TAG, location_id);
 }
 
 /*------------------------------------------------------------------------------
@@ -355,6 +360,7 @@ int main(int argc, char **argv) {
   ros::Subscriber sub1 = nh.subscribe(TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
   ros::Subscriber sub2 = nh.subscribe("/darknet_ros/detection_image", 1, image_cb);
   ros::Subscriber sub3 = nh.subscribe(TPC_MAIN_NODE_TASK_START, 1, task_start_cb);
+  ros::Subscriber sub4 = nh.subscribe(TPC_MOVE_NODE_CLOSEST_WAYPOINT, 1, closest_waypoint_cb);
 
   // Build state machine
   s_traveling->add_output(s_end);
@@ -375,13 +381,13 @@ int main(int argc, char **argv) {
   // Wait for ROS services to spin up
   ros::Duration(5.0).sleep();
 
-  ROS_INFO("%s Entering Find Object state machine...", TELEM_TAG);
+  ROS_INFO("%s Standing by.", TELEM_TAG);
 
   // Run until state machine exit
   while (ros::ok()) {
     ros::spinOnce();
 
-    if (!node_active)
+    if (!node_active || !received_closest_waypoint)
       continue;
 
     sm.run(&ssv);

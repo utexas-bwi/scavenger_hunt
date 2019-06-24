@@ -2,5 +2,6 @@
   <node name = "yolo_node" pkg= "bwi_scavenger" type = "yolo_node" output = "screen"/>
   <node name = "move_node" pkg= "bwi_scavenger" type = "move_node" output = "screen"/>
   <node name = "find_object_node" pkg= "bwi_scavenger" type = "find_object_node" output = "screen"/>
+  <node name = "conclude_node" pkg= "bwi_scavenger" type = "conclude_node" output = "screen"/>
   <node name = "main_node" pkg= "bwi_scavenger" type = "main_node" output = "screen"/>
 </launch>

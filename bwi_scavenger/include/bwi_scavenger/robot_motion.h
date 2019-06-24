@@ -21,10 +21,11 @@ enum environment_location {
   KITCHEN,
   BWI_LAB_LEFT,
   LARG_RIGHT,
-  LARG_LEFT
+  LARG_LEFT,
+  FELLOW_COMPUTERS
 };
 
-const int NUM_ENVIRONMENT_LOCATIONS = 8;
+const int NUM_ENVIRONMENT_LOCATIONS = 9;
 
 static std::map<environment_location, std::pair<float, float>>
     environment_location_coordinates {
@@ -37,7 +38,8 @@ static std::map<environment_location, std::pair<float, float>>
   {ALCOVE, std::pair<float, float>(-18.2928, -4.93057)},
   {KITCHEN, std::pair<float, float>(-30.1798, -4.59807)},
   {LARG_RIGHT, std::pair<float, float>(-47.581, -4.14724)},
-  {LARG_LEFT, std::pair<float, float>(-47.7036, -11.216)}
+  {LARG_LEFT, std::pair<float, float>(-47.7036, -11.216)},
+  {FELLOW_COMPUTERS, std::pair<float, float>(-35.0182, -11.4877)}
 };
 
 static std::string grid_frame_id;

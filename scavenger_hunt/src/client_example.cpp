@@ -2,8 +2,7 @@
 #include <scavenger_hunt/scavenger_hunt.h>
 
 int main(int argc, char** argv) {
-  // Create a new client object and sign in with your website credentials. Don't
-  // worry--we're very careful with the password.
+  // Create a new client object and sign in with your website credentials.
   ScavengerHuntClient client("your@email.com", "password");
 
   // Create an empty vector of tasks for the client to populate with hunt data.

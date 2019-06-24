@@ -38,5 +38,7 @@ int main(int argc, char **argv){
 
   findPub = yoloNode.advertise<darknet_ros_msgs::BoundingBox>(TPC_YOLO_NODE_TARGET_SEEN, 1);
 
+  ROS_INFO("[yolo_node] Standing by.");
+
   ros::spin();
 }

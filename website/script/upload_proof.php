@@ -5,11 +5,11 @@ $dbh = connect();
 
 date_default_timezone_set("America/Chicago");
 
-$my_name = "[ScavengerHuntUploadService]";
 $proof_dir = "../proof/";
 $hash = hash("sha256", $_FILES["image"]["tmp_name"] . $_FILES["image"]["name"] . $_FILES["image"]["size"]);
 $filetype = strtolower(pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION));
 $target_filename = date('Y-m-d') . date("H:i:s") . "-" . $hash . "." . $filetype;
+$telem_tag = "[" . $_POST["email"] . "//send_proof" . "]";
 
 // Check if the hunt in question is ongoing
 $ongoing = false;
@@ -40,25 +40,25 @@ try {
   }
 
 } catch (PDOException $e) {
-  echo $my_name . " Error: " . $e->getMessage() . "\n";
+  echo $telem_tag . " Upload failed: " . $e->getMessage() . "\n";
   die();
 }
 
 if (!$ongoing) {
-  echo($my_name . " Error: the specified hunt has expired!\n");
+  echo $telem_tag . " Upload failed: the specified hunt is not currently active!\n";
   die();
 }
 
 // Check file size
 if ($_FILES["image"]["size"] > 500000) {
-  echo $my_name . " Error: file exceeds size limit.\n";
+  echo $telem_tag . " Upload failed: file exceeds size limit.\n";
   die();
 }
 
 $allowedFiletypes = array("png", "jpg", "jpeg", "mp4");
 // Allow only certain image formats
 if (!in_array($filetype, $allowedFiletypes)) {
-  echo $my_name . " Error: file extension not supported.\n";
+  echo $telem_tag . " Upload failed: file extension not supported.\n";
   die();
 }
 
@@ -77,10 +77,11 @@ try {
     // Log new proof in database
     $query = "insert into proof_table values (0, '" . $user['user_id'] . "', '" . $target_filename . "', " . $_POST["instr_id"] . ", " . $_POST["time"] . ", 0, 0)";
     $stmt = $dbh->query($query);
+    echo $telem_tag . " Upload successful. Your proof is on its way!\n";
   } else
-    echo $my_name . " Error: specified user not found in database!\n";
+    echo $telem_tag . " Upload failed: specified user not found in database. Are your credentials correct?\n";
 } catch (PDOException $e) {
-  echo $my_name . " An error occurred: " . $e->getMessage() . "\n";
+  echo $telem_tag . " Upload failed: " . $e->getMessage() . "\n";
   die();
 }
 ?>
