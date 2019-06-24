@@ -5,32 +5,23 @@
   $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
   // restart leaderboard
-  $delete = "DELETE FROM score_table";
-  $stmt = $dbh -> prepare($delete);
-  $stmt -> execute();
-
-  //update the score_table
-  $query = "SELECT * FROM user_table";
-  $stmt = $dbh->query($query);
-  $stmt->setFetchMode(PDO::FETCH_ASSOC);
+  $stmt = $dbh -> prepare("DELETE FROM score_table") -> execute();
 
   // score_table: university, score, num_verified, num_correct
   $insert = "INSERT INTO score_table VALUES (?, ?, ?, ?)";
   $modify = "UPDATE score_table SET score = ?, num_verified = ?, num_correct=? WHERE university = ?";
 
-  while($user = $stmt -> fetch()){
-    $userId = $user['user_id'];
-    $numVerified = 0;
-    $numCorrect = 0;
-    $query2 = "SELECT * FROM proof_table WHERE uploader_id = $userId";
-    $getPercent = $dbh -> query($query2);
-    $getPercent -> setFetchMode(PDO::FETCH_ASSOC);
-    while($proof = $getPercent -> fetch()){
-      $numVerified = $dbh -> query("SELECT count(*) FROM proof_table WHERE verified = 1") -> fetchColumn();
-      $numCorrect = $dbh -> query("SELECT count(*) FROM proof_table WHERE correct = 1") -> fetchColumn();
-    }
-    $university = $user['university'];
-    $userScore = $user['score'];
+  //update the score_table
+  $query = "SELECT * FROM hunt_completed_table WHERE (hunt like '%Dijkstra%' or hunt like '%Turing%')";
+  $stmt = $dbh->query($query);
+  $stmt->setFetchMode(PDO::FETCH_ASSOC);
+
+  while($hunt = $stmt -> fetch()){
+    $numVerified = $hunt['num_verified'];
+    $numCorrect = $hunt['num_correct'];
+    $university = $hunt['university'];
+    $userScore = $hunt['score'];
+
     $sql = "SELECT * FROM score_table WHERE university = '$university'";
     $scoreTable = $dbh->query($sql);
     $scoreTable->setFetchMode(PDO::FETCH_ASSOC);
