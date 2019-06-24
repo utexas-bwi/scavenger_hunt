@@ -42,7 +42,7 @@ void next_task(bool upload=false) {
   }
 
   // End of hunt
-  if (task_index == tasks.size()) {
+  if (true || task_index == tasks.size()) {
     ROS_INFO("[main_node] Hunt complete.");
 
     // Begin Conclude
