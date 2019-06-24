@@ -1,4 +1,5 @@
 <launch>
+	<include file = "$(find bwi_launch)/launch/segbot_v2.launch"/>
 	<include file = "$(find darknet_ros)/launch/darknet_ros.launch"/>
 	<include file = "$(find freenect_launch)/launch/freenect.launch"/>
 
