@@ -9,8 +9,8 @@
 
 using namespace rapidxml;
 
-static const char DOWNLOAD_URL[] = "localhost:8080/script/get_tasks.php";
-static const char UPLOAD_URL[] = "localhost:8080/script/upload_proof.php";
+static const char DOWNLOAD_URL[] = "localhost/script/get_tasks.php";
+static const char UPLOAD_URL[] = "localhost/script/upload_proof.php";
 
 static std::string user_email;
 static int user_password_hash;
@@ -220,10 +220,7 @@ bool ScavengerHuntClient::send_proof(std::string image_path, Task &task, double 
   // Cleanup
   curl_easy_cleanup(curl);
 
-  if (success)
-    std::cout << get_telemetry_tag(user_email, "send_proof") <<
-        "Response OK. If there were no errors, your proof is on the way!" << std::endl;
-  else
+  if (!success)
     std::cout << get_telemetry_tag(user_email, "send_proof") <<
         "Failed to contact Scavenger Hunt." << std::endl;
 

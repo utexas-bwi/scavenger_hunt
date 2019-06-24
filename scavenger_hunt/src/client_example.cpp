@@ -2,9 +2,8 @@
 #include <scavenger_hunt/scavenger_hunt.h>
 
 int main(int argc, char** argv) {
-  // Create a new client object and sign in with your website credentials. Don't
-  // worry--we're very careful with the password.
-  ScavengerHuntClient client("stefandebruyn@utexas.edu", "sick robots");
+  // Create a new client object and sign in with your website credentials.
+  ScavengerHuntClient client("your@email.com", "password");
 
   // Create an empty vector of tasks for the client to populate with hunt data.
   std::vector<Task> tasks;
@@ -31,5 +30,5 @@ int main(int argc, char** argv) {
   // Upload proof of each completed task with send_proof. This method takes a
   // path to a proof file (either an image or a video), the task in question,
   // and the time taken to complete the task in seconds.
-  client.send_proof("/home/bwilab/scavenger_hunt/src/scavenger_hunt/bottle.jpeg", tasks[0], 60.0);
+  client.send_proof("bottle.png", tasks[0], 60.0);
 }
