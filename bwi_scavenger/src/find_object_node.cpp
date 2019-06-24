@@ -11,6 +11,7 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Int32.h>
 #include <std_msgs/String.h>
 #include <darknet_ros_msgs/BoundingBox.h>
 
@@ -39,6 +40,7 @@ static const double T_TURN_SLEEP = 4.0;
 static StateMachine sm;
 
 static bool node_active = false;
+static bool received_closest_waypoint = false;
 
 static sensor_msgs::Image::ConstPtr last_darknet_img;
 
@@ -330,6 +332,14 @@ void task_start_cb(const std_msgs::String::ConstPtr &msg) {
   }
 }
 
+// Called when the move node computes the closest waypoint
+void closest_waypoint_cb(const std_msgs::Int32::ConstPtr &msg) {
+  location_id = msg->data;
+  received_closest_waypoint = true;
+  ROS_INFO("%s Received waypoint update. Search will begin at location %d.",
+      TELEM_TAG, location_id);
+}
+
 /*------------------------------------------------------------------------------
 NODE ENTRYPOINT
 ------------------------------------------------------------------------------*/
@@ -347,6 +357,7 @@ int main(int argc, char **argv) {
   ros::Subscriber sub1 = nh.subscribe(TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
   ros::Subscriber sub2 = nh.subscribe("/darknet_ros/detection_image", 1, image_cb);
   ros::Subscriber sub3 = nh.subscribe(TPC_MAIN_NODE_TASK_START, 1, task_start_cb);
+  ros::Subscriber sub4 = nh.subscribe(TPC_MOVE_NODE_CLOSEST_WAYPOINT, 1, closest_waypoint_cb);
 
   // Build state machine
   s_traveling->add_output(s_end);
@@ -373,7 +384,7 @@ int main(int argc, char **argv) {
   while (ros::ok()) {
     ros::spinOnce();
 
-    if (!node_active)
+    if (!node_active || !received_closest_waypoint)
       continue;
 
     sm.run(&ssv);
