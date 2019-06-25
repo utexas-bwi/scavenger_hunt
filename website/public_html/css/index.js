@@ -196,6 +196,18 @@ function login(){
   });
 }
 
+function checkSubmit(e) {
+  if(e && e.keyCode == 13) {
+    login();
+  }
+}
+
+function registerSubmit(e) {
+  if(e && e.keyCode == 13) {
+    register();
+  }
+}
+
 // Called when clicking logout in nav bar
 function logout(){
   firebase.auth().signOut();
