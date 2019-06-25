@@ -11,7 +11,7 @@
   $userStmt -> setFetchMode(PDO::FETCH_ASSOC);
   $userId = ($userStmt -> fetch())['user_id'];
 
-  $huntStmt = $dbh -> query ("SELECT DISTINCT hunt FROM hunt_completed_table WHERE user_id = $userId ORDER BY hunt DESC");
+  $huntStmt = $dbh -> query ("SELECT DISTINCT hunt FROM hunt_completed_table WHERE user_id = $userId ORDER BY hunt ASC");
   $huntStmt -> setFetchMode(PDO::FETCH_ASSOC);
   $huntList = $huntStmt -> fetch();
 

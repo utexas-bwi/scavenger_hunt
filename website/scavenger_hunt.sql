@@ -84,7 +84,9 @@ CREATE TABLE `task_param_table` (
 
 LOCK TABLES `task_param_table` WRITE;
 /*!40000 ALTER TABLE `task_param_table` DISABLE KEYS */;
-INSERT INTO `task_param_table` VALUES (1,'object','soda can'),(2,'location','workshop'),(3,'','');
+INSERT INTO `task_param_table` VALUES (1,'location','workshop'),
+(2,'object','chair, refrigerator, microwave, bottle, keyboard'),
+(3,'','');
 /*!40000 ALTER TABLE `task_param_table` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -110,6 +112,21 @@ CREATE TABLE `task_table` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Dumping data for table `task_table`
+--
+
+LOCK TABLES `task_table` WRITE;
+/*!40000 ALTER TABLE `task_table` DISABLE KEYS */;
+INSERT INTO `task_table_backup` VALUES (1, "Find Object", "object", "Image", "150", "Locate an object"),
+(2, "Greet Person", "", "Image", "300", "Find and take an image of a person looking at the robot"),
+(3, "Visit Place", "location", "Image", "100", "Locate a place"),
+(4, "Count Humans", "", "Video", "600", "Give an accurate count of the number of people in a room. Cannot be zero"),
+(5, "Weather Report", "", "Image", "200", "Give an english description of what the weather seems to be"),
+(6, "Take Me Here", "", "Video", "800", "Drive with someone to take them to their desired place to go");
+/*!40000 ALTER TABLE `task_table` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `task_table_backup`
 --
 
@@ -133,7 +150,14 @@ CREATE TABLE `task_table_backup` (
 
 LOCK TABLES `task_table_backup` WRITE;
 /*!40000 ALTER TABLE `task_table_backup` DISABLE KEYS */;
-INSERT INTO `task_table_backup` VALUES (1,'Color Shirt','color','picture (jpg) of the person wearing the shirt',100,'Take a picture of a person who is wearing a specific color shirt.'),(2,'Target Search','object','picture (jpg) of the specified object',100,'Take a picture of the specified object.'),(3,'Human Following','','picture (jpg) of the human and picture (jpg) of the trajectories walked by the human and robot',100,'Follow a human for a certain distance.'),(4,'Object Delivery','','time-stamped description of object by person who gives the task and time-stamped description of object by person at ending location',150,'Find a person who is willing to specify an object to deliver from one location to another. Objects and locations can be selected through the robot UI in real time. Once the robot delivers the object, it should find a person at the ending location who can describe the object.');
+INSERT INTO `task_table_backup` VALUES (1,'Color Shirt','color','picture (jpg) of the person wearing the shirt',100,
+'Take a picture of a person who is wearing a specific color shirt.'),(2,'Target Search','object','picture (jpg) of the 
+specified object',100,'Take a picture of the specified object.'),(3,'Human Following','','picture (jpg) of the human 
+and picture (jpg) of the trajectories walked by the human and robot',100,'Follow a human for a certain distance.'),
+(4,'Object Delivery','','time-stamped description of object by person who gives the task and time-stamped description 
+of object by person at ending location',150,'Find a person who is willing to specify an object to deliver from one 
+location to another. Objects and locations can be selected through the robot UI in real time. Once the robot delivers 
+the object, it should find a person at the ending location who can describe the object.');
 /*!40000 ALTER TABLE `task_table_backup` ENABLE KEYS */;
 UNLOCK TABLES;
 
