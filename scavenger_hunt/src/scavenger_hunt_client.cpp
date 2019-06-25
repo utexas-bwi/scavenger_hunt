@@ -273,6 +273,13 @@ void ScavengerHuntClient::download_proof_material(Proof &proof,
   std::cout << get_telemetry_tag(user_email, "download_proof_material") <<
       "Preparing to download proof material..." << std::endl;
 
+  // Ensure path is valid
+  if (!file_exists(filepath)) {
+    std::cout << get_telemetry_tag(user_email, "download_proof_material") <<
+        "Specified path is invalid: " << filepath << std::endl;
+    return;
+  }
+
   CURL *curl = curl_easy_init();
   std::string http_received_data;
 
