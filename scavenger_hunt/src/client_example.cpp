@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <scavenger_hunt/scavenger_hunt.h>
 
 int main(int argc, char** argv) {
@@ -32,7 +33,7 @@ int main(int argc, char** argv) {
   // and the time taken to complete the task in seconds.
   client.send_proof("bottle.png", tasks[0], 60.0);
 
-  // Retrieving feedback for proofs is equally as trivial. If the vector is
+  // Getting feedback on your proofs is equally as trivial. If the vector is
   // empty after this step, no proofs for the specified task have been validatd.
   std::vector<Proof> proofs;
   client.get_proofs(tasks[0], proofs);
@@ -42,7 +43,7 @@ int main(int argc, char** argv) {
     bool is_correct = proof.get_correct(); // Was I right?
 
     // The original file uploaded as proof can be retrieved if necessary
-    client.download_proof_material(proof, "my_validated_proofs/");
+    client.download_proof_material(proof, "my_validated_proofs/"); // Folder to download into
     std::ofstream proof_file;
     proof_file.open("my_validated_proofs/" + proof.get_filename());
     proof_file.close();
