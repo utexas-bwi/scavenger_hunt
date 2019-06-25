@@ -67,7 +67,7 @@ try {
             $xml->startElement('proof');
             $xml->writeAttribute('correct', $correct);
             $xml->writeAttribute('time', $time);
-            $xml->writeAttribute('filename', "../proof/".$filename);
+            $xml->writeAttribute('filename', $filename);
             $xml->endElement();
         }
 
