@@ -33,7 +33,7 @@ int main(int argc, char** argv) {
   client.send_proof("bottle.png", tasks[0], 60.0);
 
   // Retrieving feedback for proofs is equally as trivial. If the vector is
-  // empty after this step, proofs for the task have not yet been validated.
+  // empty after this step, no proofs for the specified task have been validatd.
   std::vector<Proof> proofs;
   client.get_proofs(tasks[0], proofs);
 
