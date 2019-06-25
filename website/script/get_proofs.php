@@ -1,7 +1,7 @@
 <?php
 // connect to SQL database
 include_once 'connect.php';
-include_once 'auth.php';
+// include_once 'auth.php';
 $dbh = connect();
 $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 try {
@@ -9,7 +9,7 @@ try {
   // get the current hunt tasks from the database
     $hunt_instr_id = $_POST['hunt_instr_id'];
     $user_id = $_POST['user_id'];
-	$query = "SELECT * FROM proof_table WHERE hunt_instr_id = $hunt_instr_id AND uploader_id = -1589239765";
+	$query = "SELECT * FROM proof_table WHERE hunt_instr_id = $hunt_instr_id AND uploader_id = $user_id";
 	$stmt = $dbh->query($query);
 	$stmt->setFetchMode(PDO::FETCH_ASSOC);
 	// convert to XML
@@ -25,16 +25,16 @@ try {
     $taskType = $task['task_type'];
     $paramValue = $task['param_value'];
 
-    $xml->startElement('Task');
-    $xml->writeAttribute('Type', $taskType);
-    $xml->writeAttribute('Parameter', $paramValue);
+    $xml->startElement('task');
+    $xml->writeAttribute('type', $taskType);
+    $xml->writeAttribute('parameter', $paramValue);
 
 	while ($proofTable = $stmt->fetch()) {
         $correct = $proofTable['correct'];
         $filename = $proofTable['filename'];
-        $xml->startElement('Proof');
-        $xml->writeAttribute('Correct', $correct);
-        $xml->writeAttribute('Filename', "../proof/".$filename);
+        $xml->startElement('proof');
+        $xml->writeAttribute('correct', $correct);
+        $xml->writeAttribute('filename', "../proof/".$filename);
         $xml->endElement();
     }
 

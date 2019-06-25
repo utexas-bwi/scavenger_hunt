@@ -50,6 +50,7 @@
     echo '<th>Time Submitted</th>';
     echo '<th>Task</th>';
     echo '<th>Parameters</th>';
+    echo '<th>Time to Complete (sec)</th>';
     echo '<th>Verified</th>';
     echo '<th>Correct</th>';
     echo '<th>File</th>';
@@ -83,6 +84,12 @@
       $taskParam = $task['param_value'];
       echo $taskParam;
       echo '</td>';
+
+      echo '<td>';
+      $time = $proof['time_to_complete'];
+      echo $time;
+      echo '</td>';
+
       // display verification state
       echo '<td>';
       if ($verified)
