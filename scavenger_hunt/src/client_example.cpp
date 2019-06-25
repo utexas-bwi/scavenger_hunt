@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
   // Scavenger hunts are downloaded by name. We've created a never-expiring hunt
   // called Bottle Hunt to test with. It contains a single task to find a bottle
   // and take a picture of it.
-  client.get_hunt("Bottle Hunt", tasks);
+  client.get_hunt("BWI Lab Hunt", tasks);
 
   // Task objects contain all of the information necessary to complete them.
   for (int i = 0; i < tasks.size(); i++) {
@@ -26,6 +26,12 @@ int main(int argc, char** argv) {
     std::string task_description = task.get_description();
     std::string target_object = task.get_parameter_value("object"); // Specific to the "Find Object" task
   }
+
+  std::vector<Proof> proofs;
+  client.get_proofs(tasks[0], proofs);
+
+  for (int i = 0; i < proofs.size(); i++)
+    std::cout << proofs[i].get_url() << std::endl;
 
   // Upload proof of each completed task with send_proof. This method takes a
   // path to a proof file (either an image or a video), the task in question,

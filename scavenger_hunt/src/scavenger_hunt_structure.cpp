@@ -1,12 +1,32 @@
 #include <scavenger_hunt/scavenger_hunt_structure.h>
 
+Proof::Proof(bool correct, int time_to_complete, std::string url) {
+  this->correct = correct;
+  this->time_to_complete = time_to_complete;
+  this->url = url;
+}
+
+bool Proof::get_correct() const {
+  return correct;
+}
+
+int Proof::get_time_to_complete() const {
+  return time_to_complete;
+}
+
+std::string Proof::get_url() const {
+  return url;
+}
+
 Task::Task(std::string name,
+           std::string hunt_name,
            std::string task_description,
            std::string format,
            std::string proof_format_description,
            int point_value,
            int hunt_task_id) :
            NAME(name),
+           HUNT_NAME(hunt_name),
            TASK_DESCRIPTION(task_description),
            PROOF_FORMAT(format),
            PROOF_FORMAT_DESCRIPTION(proof_format_description),
@@ -15,6 +35,10 @@ Task::Task(std::string name,
 
 std::string Task::get_name() const {
   return NAME;
+}
+
+std::string Task::get_hunt_name() const {
+  return HUNT_NAME;
 }
 
 std::string Task::get_proof_format() const {

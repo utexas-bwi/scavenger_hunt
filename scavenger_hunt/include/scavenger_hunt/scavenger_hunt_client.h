@@ -33,6 +33,8 @@ public:
   */
   void get_hunt(std::string hunt_name, std::vector<Task> &tasks);
 
+  void get_proofs(Task &task, std::vector<Proof> &proofs);
+
   /**
     Uploads an image proof to Scavenger Hunt.
 

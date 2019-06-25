@@ -9,8 +9,9 @@
 
 using namespace rapidxml;
 
-static const char DOWNLOAD_URL[] = "localhost:8080/script/get_tasks.php";
-static const char UPLOAD_URL[] = "localhost:8080/script/upload_proof.php";
+static const char DOWNLOAD_URL[] = "localhost/script/get_tasks.php";
+static const char UPLOAD_URL[] = "localhost/script/upload_proof.php";
+static const char PROOFS_URL[] = "localhost/script/get_proofs.php";
 
 static std::string user_email;
 static int user_password_hash;
@@ -53,7 +54,7 @@ bool file_exists(std::string fname) {
 }
 
 /**
-  @brief parses a ScavengerHunt object from XML text
+  @brief parses task info from website XML
 */
 void parse_hunt_xml(std::string *xml, std::vector<Task> &tasks) {
   xml_document<> doc;
@@ -64,6 +65,7 @@ void parse_hunt_xml(std::string *xml, std::vector<Task> &tasks) {
 
   doc.parse<0>(buffer);
   root_node = doc.first_node("hunt");
+  std::string hunt_name = root_node->first_attribute("name")->value();
 
   if (root_node == nullptr)
     return;
@@ -79,7 +81,8 @@ void parse_hunt_xml(std::string *xml, std::vector<Task> &tasks) {
     int points = std::stoi(std::string(task_node->first_attribute("points")->value()));
     int id = std::stoi(std::string(task_node->first_attribute("id")->value()));
 
-    Task task(name, description, proof_format, proof_description, points, id);
+    Task task(name, hunt_name, description, proof_format, proof_description,
+        points, id);
 
     // Parse task parameters
     for (xml_node<> *param_node = task_node->first_node("parameter");
@@ -91,6 +94,36 @@ void parse_hunt_xml(std::string *xml, std::vector<Task> &tasks) {
     }
 
     tasks.push_back(task);
+  }
+
+  delete buffer;
+}
+
+/**
+  @brief parses proof info from website XML
+*/
+void parse_proof_xml(std::string *xml, std::vector<Proof> &proofs) {
+  xml_document<> doc;
+  xml_node<> *root_node;
+
+  char *buffer = new char[xml->size() + 1];
+  strcpy(buffer, xml->c_str());
+
+  doc.parse<0>(buffer);
+  root_node = doc.first_node("task");
+
+  if (root_node == nullptr)
+    return;
+
+  for (xml_node<> *task_node = root_node->first_node("proof");
+       task_node;
+       task_node = task_node->next_sibling()) {
+    bool correct = std::string(task_node->first_attribute("correct")->value()) == "0" ? false : true;
+    std::string url = std::string(task_node->first_attribute("filename")->value());
+    int time_to_complete = std::stoi(std::string(task_node->first_attribute("time")->value()));
+
+    Proof proof(correct, time_to_complete, url);
+    proofs.push_back(proof);
   }
 
   delete buffer;
@@ -152,6 +185,81 @@ void ScavengerHuntClient::get_hunt(std::string hunt_name,
   } else {
     // Couldn't contact website
     std::cout << get_telemetry_tag(user_email, "get_hunt") <<
+        "Failed to contact Scavenger Hunt." << std::endl;
+  }
+
+  // Cleanup
+  curl_easy_cleanup(curl);
+}
+
+void ScavengerHuntClient::get_proofs(Task &task, std::vector<Proof> &proofs) {
+  // Configure cURL request
+  CURL *curl = curl_easy_init();
+  std::string http_received_data;
+
+  curl_easy_setopt(curl, CURLOPT_URL, PROOFS_URL);
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10); // Time out after 10 seconds
+  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); // Allow 1 redirect
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,
+      curl_write_cb);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &http_received_data);
+
+  struct curl_httppost *post_begin = NULL;
+	struct curl_httppost *post_end = NULL;
+
+  // Get task fields
+  std::string parameter;
+
+  for (const auto &pair : task.get_parameters())
+    parameter = pair.second;
+
+  std::string hunt_name = task.get_hunt_name();
+  std::string task_name = task.get_name();
+
+  curl_formadd(&post_begin,
+               &post_end,
+             	 CURLFORM_COPYNAME, "hunt_name",
+             	 CURLFORM_COPYCONTENTS, hunt_name.c_str(),
+             	 CURLFORM_END);
+  curl_formadd(&post_begin,
+              &post_end,
+              CURLFORM_COPYNAME, "task_name",
+              CURLFORM_COPYCONTENTS, task_name.c_str(),
+              CURLFORM_END);
+  curl_formadd(&post_begin,
+               &post_end,
+               CURLFORM_COPYNAME, "param",
+               CURLFORM_COPYCONTENTS, parameter.c_str(),
+               CURLFORM_END);
+  curl_formadd(&post_begin,
+               &post_end,
+               CURLFORM_COPYNAME, "user_email",
+               CURLFORM_COPYCONTENTS, user_email.c_str(),
+               CURLFORM_END);
+  curl_easy_setopt(curl, CURLOPT_POST, true);
+  curl_easy_setopt(curl, CURLOPT_HTTPPOST, post_begin);
+
+  // Fetch website response
+  int http_response_code = 0;
+
+  curl_easy_perform(curl);
+
+  if (http_received_data.length() > 0) {
+    // Response good
+    std::cout << get_telemetry_tag(user_email, "get_proofs") <<
+        "Got response from Scavenger Hunt server. Parsing..." << std::endl;
+
+    parse_proof_xml(&http_received_data, proofs);
+
+    if (proofs.size() > 0)
+      std::cout << get_telemetry_tag(user_email, "get_proofs") <<
+          "Successfully parsed " << proofs.size() << " proofs(s)." << std::endl;
+    else
+      std::cout << get_telemetry_tag(user_email, "get_proofs") <<
+          "No proofs found." << std::endl;
+  } else {
+    // Couldn't contact website
+    std::cout << get_telemetry_tag(user_email, "get_proofs") <<
         "Failed to contact Scavenger Hunt." << std::endl;
   }
 

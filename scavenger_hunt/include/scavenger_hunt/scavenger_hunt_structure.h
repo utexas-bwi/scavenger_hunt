@@ -5,12 +5,29 @@
 #include <map>
 #include <vector>
 
+class Proof {
+protected:
+  bool correct;
+  int time_to_complete;
+  std::string url;
+
+public:
+  Proof(bool correct, int time_to_complete, std::string url);
+
+  bool get_correct() const;
+
+  int get_time_to_complete() const;
+
+  std::string get_url() const;
+};
+
 /**
   A singular task, belonging to some hunt.
 */
 class Task {
 private:
   const std::string NAME;
+  const std::string HUNT_NAME;
   const std::string TASK_DESCRIPTION;
   const std::string PROOF_FORMAT;
   const std::string PROOF_FORMAT_DESCRIPTION;
@@ -18,12 +35,14 @@ private:
   const int HUNT_TASK_ID;
 
   std::map<std::string, std::string> parameters;
+  std::vector<Proof> proofs;
 
 public:
   /**
     @brief creates a new task; the client should never have to call this!
   */
   Task(std::string name,
+       std::string hunt_name,
        std::string task_description,
        std::string format,
        std::string proof_format_description,
@@ -34,6 +53,11 @@ public:
     @brief gets the task's type
   */
   std::string get_name() const;
+
+  /**
+    @brief gets the name of the hunt this task belongs to
+  */
+  std::string get_hunt_name() const;
 
   /**
     @brief gets the task's preferred proof format
