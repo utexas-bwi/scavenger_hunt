@@ -11,7 +11,7 @@ int main(int argc, char** argv) {
   // Scavenger hunts are downloaded by name. We've created a never-expiring hunt
   // called Bottle Hunt to test with. It contains a single task to find a bottle
   // and take a picture of it.
-  client.get_hunt("BWI Lab Hunt", tasks);
+  client.get_hunt("Bottle Hunt", tasks);
 
   // Task objects contain all of the information necessary to complete them.
   for (int i = 0; i < tasks.size(); i++) {
@@ -27,14 +27,24 @@ int main(int argc, char** argv) {
     std::string target_object = task.get_parameter_value("object"); // Specific to the "Find Object" task
   }
 
-  std::vector<Proof> proofs;
-  client.get_proofs(tasks[0], proofs);
-
-  for (int i = 0; i < proofs.size(); i++)
-    std::cout << proofs[i].get_url() << std::endl;
-
   // Upload proof of each completed task with send_proof. This method takes a
   // path to a proof file (either an image or a video), the task in question,
   // and the time taken to complete the task in seconds.
   client.send_proof("bottle.png", tasks[0], 60.0);
+
+  // Retrieving feedback for proofs is equally as trivial. If the vector is
+  // empty after this step, proofs for the task have not yet been validated.
+  std::vector<Proof> proofs;
+  client.get_proofs(tasks[0], proofs);
+
+  for (int i = 0; i < proofs.size(); i++) {
+    Proof &proof = proofs[i];
+    bool is_correct = proof.get_correct(); // Was I right?
+
+    // The original file uploaded as proof can be retrieved if necessary
+    client.download_proof_material(proof, "my_validated_proofs/");
+    std::ofstream proof_file;
+    proof_file.open("my_validated_proofs/" + proof.get_filename());
+    proof_file.close();
+  }
 }

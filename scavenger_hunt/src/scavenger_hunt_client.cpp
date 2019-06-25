@@ -9,9 +9,10 @@
 
 using namespace rapidxml;
 
-static const char DOWNLOAD_URL[] = "localhost/script/get_tasks.php";
-static const char UPLOAD_URL[] = "localhost/script/upload_proof.php";
-static const char PROOFS_URL[] = "localhost/script/get_proofs.php";
+static const std::string DOWNLOAD_URL = "localhost/script/get_tasks.php";
+static const std::string UPLOAD_URL = "localhost/script/upload_proof.php";
+static const std::string PROOFS_URL = "localhost/script/get_proofs.php";
+static const std::string PROOF_MATERIALS_URL = "localhost/proof";
 
 static std::string user_email;
 static int user_password_hash;
@@ -146,7 +147,7 @@ void ScavengerHuntClient::get_hunt(std::string hunt_name,
   CURL *curl = curl_easy_init();
   std::string http_received_data;
 
-  curl_easy_setopt(curl, CURLOPT_URL, DOWNLOAD_URL);
+  curl_easy_setopt(curl, CURLOPT_URL, DOWNLOAD_URL.c_str());
   curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10); // Time out after 10 seconds
   curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); // Allow 1 redirect
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,
@@ -197,7 +198,7 @@ void ScavengerHuntClient::get_proofs(Task &task, std::vector<Proof> &proofs) {
   CURL *curl = curl_easy_init();
   std::string http_received_data;
 
-  curl_easy_setopt(curl, CURLOPT_URL, PROOFS_URL);
+  curl_easy_setopt(curl, CURLOPT_URL, PROOFS_URL.c_str());
   curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10); // Time out after 10 seconds
   curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); // Allow 1 redirect
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,
@@ -265,6 +266,43 @@ void ScavengerHuntClient::get_proofs(Task &task, std::vector<Proof> &proofs) {
 
   // Cleanup
   curl_easy_cleanup(curl);
+}
+
+void ScavengerHuntClient::download_proof_material(Proof &proof,
+    std::string filepath) {
+  std::cout << get_telemetry_tag(user_email, "download_proof_material") <<
+      "Preparing to download proof material..." << std::endl;
+
+  CURL *curl = curl_easy_init();
+  std::string http_received_data;
+
+  std::string url = PROOF_MATERIALS_URL + "/" + proof.get_filename();
+
+  // Do cURL request
+  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10); // Time out after 10 seconds
+  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); // Allow 1 redirect
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,
+      curl_write_cb);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &http_received_data);
+  curl_easy_perform(curl);
+  curl_easy_cleanup(curl);
+
+  int http_response_code;
+  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
+
+  // Dump retrieved data into file
+  std::ofstream out;
+  out.open(filepath + "/" + proof.get_filename());
+  out << http_received_data;
+  out.close();
+
+  if (http_response_code == 200)
+    std::cout << get_telemetry_tag(user_email, "download_proof_material") <<
+        "Download successful." << std::endl;
+  else
+    std::cout << get_telemetry_tag(user_email, "download_proof_material") <<
+        "Failed to contact Scavenger Hunt." << std::endl;
 }
 
 bool ScavengerHuntClient::send_proof(std::string image_path, Task &task, double time) {

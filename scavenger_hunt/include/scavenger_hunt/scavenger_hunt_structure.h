@@ -5,20 +5,41 @@
 #include <map>
 #include <vector>
 
+/**
+  Information about a validated proof.
+*/
 class Proof {
 protected:
   bool correct;
   int time_to_complete;
-  std::string url;
+  std::string filename;
 
 public:
-  Proof(bool correct, int time_to_complete, std::string url);
+  /**
+    @brief creates a new proof record; the client should never have to call this!
+  */
+  Proof(bool correct, int time_to_complete, std::string filename);
 
+  /**
+    Gets if the proof was validated as correct or not.
+
+    @return if correct
+  */
   bool get_correct() const;
 
+  /**
+    Gets the time taken to complete the task.
+
+    @return time
+  */
   int get_time_to_complete() const;
 
-  std::string get_url() const;
+  /**
+    Gets the filename of the proof file.
+
+    @return filename
+  */
+  std::string get_filename() const;
 };
 
 /**

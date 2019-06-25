@@ -33,7 +33,21 @@ public:
   */
   void get_hunt(std::string hunt_name, std::vector<Task> &tasks);
 
+  /**
+    Downloads validation feedback for a particular task.
+
+    @param task task to retrieve feedback on
+    @param proofs list to populate with feedback
+  */
   void get_proofs(Task &task, std::vector<Proof> &proofs);
+
+  /**
+    Downloads the file that was submitted for a particular proof.
+
+    @param proof proof to retrieve material for
+    @param filepath folder to save file in
+  */
+  void download_proof_material(Proof &proof, std::string filepath);
 
   /**
     Uploads an image proof to Scavenger Hunt.

@@ -1,9 +1,9 @@
 #include <scavenger_hunt/scavenger_hunt_structure.h>
 
-Proof::Proof(bool correct, int time_to_complete, std::string url) {
+Proof::Proof(bool correct, int time_to_complete, std::string filename) {
   this->correct = correct;
   this->time_to_complete = time_to_complete;
-  this->url = url;
+  this->filename = filename;
 }
 
 bool Proof::get_correct() const {
@@ -14,8 +14,8 @@ int Proof::get_time_to_complete() const {
   return time_to_complete;
 }
 
-std::string Proof::get_url() const {
-  return url;
+std::string Proof::get_filename() const {
+  return filename;
 }
 
 Task::Task(std::string name,
