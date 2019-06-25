@@ -15,9 +15,9 @@ int main(int argc, char **argv) {
 
   environment_location l;
 
-  if (strcmp(argv[1], "fellows"))
+  if (strcmp(argv[1], "fellows") == 0)
     l = FELLOW_COMPUTERS;
-  else if (strcmp(argv[1], "lab"))
+  else if (strcmp(argv[1], "lab") == 0)
     l = BWI_LAB_RIGHT;
 
   ros::init(argc, argv, "go");
