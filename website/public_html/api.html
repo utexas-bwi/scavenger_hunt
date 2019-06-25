@@ -175,10 +175,9 @@ been validated yet.
       bool is_correct = proof.get_correct(); // Was I right?
 
       // The original file uploaded as proof can be retrieved if necessary.
-      client.download_proof_material(proof, "my_validated_proofs/"); // Directory to download into
-      std::ofstream proof_file;
-      proof_file.open("my_validated_proofs/" + proof.get_filename());
-      proof_file.close();
+      std::string download_directory = "/home/my_downloaded_proofs";
+      client.download_proof_material(proof, download_directory);
+      std::string path_to_proof = download_directory + "/" + proof.get_filename();
     }
   </code>
 </pre>
