@@ -14,11 +14,14 @@ int main(int argc, char **argv) {
   }
 
   environment_location l;
+  std::string arg(argv[1]);
 
-  if (strcmp(argv[1], "fellows") == 0)
+  if (arg == "glass")
     l = FELLOW_COMPUTERS;
-  else if (strcmp(argv[1], "lab") == 0)
+  else if (arg == "bay0")
     l = BWI_LAB_RIGHT;
+  else if (arg == "bay1")
+    l = BWI_LAB_LEFT;
 
   ros::init(argc, argv, "go");
   ros::NodeHandle nh;
