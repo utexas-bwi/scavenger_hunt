@@ -1,8 +1,4 @@
 <launch>
-	<include file = "$(find bwi_launch)/launch/segbot_v2.launch"/>
-	<include file = "$(find darknet_ros)/launch/darknet_ros.launch"/>
-	<include file = "$(find freenect_launch)/launch/freenect.launch"/>
-
 	<node name = "yolo_node" pkg= "bwi_scavenger" type = "yolo_node" output = "screen"/>
   <node name = "move_node" pkg= "bwi_scavenger" type = "move_node" output = "screen"/>
   <node name = "find_object_node" pkg= "bwi_scavenger" type = "find_object_node" output = "screen"/>
