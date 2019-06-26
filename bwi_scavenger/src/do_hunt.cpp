@@ -28,6 +28,36 @@ static std::string task;
 static std::string param;
 static ros::Publisher pub_location;
 
+/**
+  Updates verificatoin of the proof (incorrect or correct)
+*/
+void parse_proofs(){
+  FileEditor *read = new FileEditor("proofs.txt", false);
+  FileEditor *write = new FileEditor("temp.txt", true);
+
+  std::string str;
+  while((*read).read_line()){
+    proof_id = (*read).get_proof_id();
+    if(proof_id){
+      int proof_status = client.get_proof_status(proof_id);
+      task = (*read).get_task_name();
+      param = (*read).get_parameter();
+      geometry_msgs::Pose robot_pose = (*read).get_robot_pose();
+
+      (*write).write_to_file(proof_id, proof_status, task, param, robot_pose, robot_pose);
+    }
+  }
+  (*read).close();
+  (*write).close();
+
+  (*read).delete_file();
+  // will delete invalid proofs (based on proof id)
+  (*write).rename_file("proofs.txt");
+}
+
+/**
+  Appends proof onto proofs file
+*/
 void write_file(const geometry_msgs::Pose::ConstPtr &pose){
   if(can_write){
     ROS_INFO("[main_node] Writing to file");
@@ -63,7 +93,7 @@ void next_task(bool upload=false) {
   } else {
     ROS_INFO("[main_node] Starting Hunt.");
     hunt_started = true;
-    // parse_proofs();
+    parse_proofs();
   }
 
   // Terminate

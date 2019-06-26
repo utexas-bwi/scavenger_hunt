@@ -19,8 +19,8 @@ FileEditor::FileEditor(std::string filename, bool output){
 /**
   Returns the proof_id of the proof just read
 */
-std::string FileEditor::get_proof_id(){
-  return proof_id;
+proof_id_t FileEditor::get_proof_id(){
+  return std::atoi(proof_id.c_str());
 }
 
 /**
@@ -68,7 +68,7 @@ std::string FileEditor::get_parameter(){
     get_secondary_pose() returns other pose data
     get_task() returns a Task object that contain the task name and parameter
 */
-void FileEditor::read_line(){
+bool FileEditor::read_line(){
   std::string str;
 
   if(std::getline(*iFile, str)){
@@ -121,10 +121,11 @@ void FileEditor::read_line(){
         parameter_name = word;
       }
     }
-
-  } else {
-    std::cout << "Cannot read the next line of the file, no more lines to read" << std::endl;
+    return true;
   }
+  
+  std::cout << "[FileEditor] Cannot read the next line of the file, no more lines to read" << std::endl;
+  return false;
 
 }
 

@@ -19,8 +19,8 @@ enum proof_item{
 };
 
 enum verification{
-  INCORRECT,
   CORRECT,
+  INCORRECT,
   UNVERIFIED
 };
 
@@ -42,7 +42,7 @@ public:
 
   ~FileEditor();
 
-  std::string get_proof_id();
+  proof_id_t get_proof_id();
 
   std::string get_verification();
 
@@ -54,7 +54,7 @@ public:
 
   std::string get_parameter();
   
-  void read_line();
+  bool read_line();
 
   void write_to_file(proof_id_t proof_id, int verification, std::string task_name, 
     std::string parameter_name, geometry_msgs::Pose robot_pose, geometry_msgs::Pose secondary_pose);
