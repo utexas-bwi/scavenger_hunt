@@ -193,7 +193,8 @@ target_link_libraries(yolo_node
   ${catkin_LIBRARIES})
 
 add_executable(do_hunt
-  src/do_hunt.cpp)
+  src/do_hunt.cpp
+  src/file_editor.cpp)
 
 target_link_libraries(do_hunt
   ${OpenCV_LIBS}

@@ -2,41 +2,39 @@
 #include <map>
 #include <ros/ros.h>
 #include <scavenger_hunt/scavenger_hunt.h>
-#include <std_msgs/Bool.h>
+#include <bwi_scavenger/file_editor.h>
 #include <std_msgs/String.h>
 #include <vector>
-#include <fstream>
-#include <iostream>
-#include <geometry_msgs/Pose.h>
+#include <std_msgs/Bool.h>
 
 #define CURRENT_TASK tasks[task_index]
 #define PATH_TO_FILE "/home/scavenger_hunt/proofs.txt"
+#define FILENAME "proofs.txt"
 
 static ScavengerHuntClient client("jsuriadinata@utexas.edu ", "Tr3asure");
 static std::vector<Task> tasks;
 static int task_index = 0;
 static double t_task_start, t_task_end;
 
-static ros::Publisher pub_task_start, pub_yolo_node_target, pub_location;
+static ros::Publisher pub_task_start, pub_yolo_node_target;
 
 static bool hunt_started = false;
 static bool conclude = false;
 
 static bool can_write = false;
-static std::string taskToWrite;
-static std::string paramToWrite;
+static geometry_msgs::Pose objPose;
+static proof_id_t proof_id;
+static std::string task;
+static std::string param;
+static ros::Publisher pub_location;
 
 void write_file(const geometry_msgs::Pose::ConstPtr &pose){
-  // writing to a proofs file to update learning model
   if(can_write){
     ROS_INFO("[main_node] Writing to file");
-    std::string location;
-    location = "(" + std::to_string(pose->position.x) + ", " + std::to_string(pose->position.y) + ")";
-    std::ofstream proofsFile;
-    proofsFile.open("proofs.txt", std::ios::app);
-    std::string proof = "0, " + location + ", " + taskToWrite + ", " + paramToWrite;
-    proofsFile << proof << "\n";
-    proofsFile.close();
+
+    FileEditor *fe = new FileEditor("proofs.txt", true);
+    fe->write_to_file(proof_id, UNVERIFIED, task, param, *pose, *pose);
+    fe->close();
     can_write = false;
   }
 }
@@ -51,31 +49,21 @@ void next_task(bool upload=false) {
     // Upload proof if requested by the last task node
     if (upload) {
       // saving task and parameter to write to file with location
-      taskToWrite = CURRENT_TASK.get_name();
-      paramToWrite = CURRENT_TASK.get_parameter_value("object");
+      task = CURRENT_TASK.get_name();
+      param = CURRENT_TASK.get_parameter_value("object");
       can_write = true;
       std_msgs::Bool msg;
       pub_location.publish(msg);
 
       t_task_end = ros::Time::now().toSec();
-      client.send_proof("proof.jpg", CURRENT_TASK, t_task_end - t_task_start);
+      proof_id = client.send_proof("proof.jpg", CURRENT_TASK, t_task_end - t_task_start);
     }
 
     task_index++;
   } else {
     ROS_INFO("[main_node] Starting Hunt.");
     hunt_started = true;
-    // reading proofs file and proof xml to add to decision tree
-    std::ifstream proofsFile("proofs.txt");
-    std::string str;
-    //thrown away first line
-    std::getline(proofsFile,str);
-    int count = 0;
-    while(std::getline(proofsFile, str)){
-      count++;
-    }
-    ROS_INFO("[main_node] Successful read through %x proofs", count);
-
+    // parse_proofs();
   }
 
   // Terminate
@@ -100,7 +88,7 @@ void next_task(bool upload=false) {
 /*******************************************************************************
   FIND OBJECT TASK
 *******************************************************************************/
-  if (CURRENT_TASK.get_name() == "Find Object") {
+  if (CURRENT_TASK.get_name() == "Find object") {
     ROS_INFO("[main_node] Beginning Find Object protocol");
 
     t_task_start = ros::Time::now().toSec();
