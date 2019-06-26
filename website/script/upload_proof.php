@@ -77,7 +77,14 @@ try {
     // Log new proof in database
     $query = "insert into proof_table values (0, '" . $user['user_id'] . "', '" . $target_filename . "', " . $_POST["instr_id"] . ", " . $_POST["time"] . ", 0, 0)";
     $stmt = $dbh->query($query);
-    echo $telem_tag . " Upload successful. Your proof is on its way!\n";
+
+    // Get the UID that was generated for that proof
+    $query = "select * from proof_table where filename='" . $target_filename . "'";
+    $stmt = $dbh->query($query);
+    $proof = $stmt->fetch();
+    $proof_id = $proof["proof_id"];
+
+    echo $telem_tag . " Upload successful. Proof ID: " . $proof_id . "\n";
   } else
     echo $telem_tag . " Upload failed: specified user not found in database. Are your credentials correct?\n";
 } catch (PDOException $e) {

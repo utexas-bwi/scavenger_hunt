@@ -13,6 +13,7 @@ static const std::string DOWNLOAD_URL = "localhost/script/get_tasks.php";
 static const std::string UPLOAD_URL = "localhost/script/upload_proof.php";
 static const std::string PROOFS_URL = "localhost/script/get_proofs.php";
 static const std::string PROOF_MATERIALS_URL = "localhost/proof";
+static const std::string PROOF_STATUS_URL = "localhost/script/get_proof_status.php";
 
 static std::string user_email;
 static int user_password_hash;
@@ -122,8 +123,9 @@ void parse_proof_xml(std::string *xml, std::vector<Proof> &proofs) {
     bool correct = std::string(task_node->first_attribute("correct")->value()) == "0" ? false : true;
     std::string url = std::string(task_node->first_attribute("filename")->value());
     int time_to_complete = std::stoi(std::string(task_node->first_attribute("time")->value()));
+    proof_id_t id = std::stoi(std::string(task_node->first_attribute("id")->value()));
 
-    Proof proof(correct, time_to_complete, url);
+    Proof proof(correct, time_to_complete, url, id);
     proofs.push_back(proof);
   }
 
@@ -289,11 +291,10 @@ void ScavengerHuntClient::download_proof_material(Proof &proof,
   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10); // Time out after 10 seconds
   curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); // Allow 1 redirect
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,
-      curl_write_cb);
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_cb);
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &http_received_data);
+
   curl_easy_perform(curl);
-  curl_easy_cleanup(curl);
 
   int http_response_code;
   curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
@@ -310,9 +311,71 @@ void ScavengerHuntClient::download_proof_material(Proof &proof,
   else
     std::cout << get_telemetry_tag(user_email, "download_proof_material") <<
         "Failed to contact Scavenger Hunt." << std::endl;
+
+  curl_easy_cleanup(curl);
 }
 
-bool ScavengerHuntClient::send_proof(std::string image_path, Task &task, double time) {
+proof_status_t ScavengerHuntClient::get_proof_status(proof_id_t id) {
+  std::cout << get_telemetry_tag(user_email, "get_proof_status") <<
+      "Querying server for status of proof " << id << "..." << std::endl;
+
+  CURL *curl = curl_easy_init();
+  std::string http_received_data;
+
+  // Do cURL request
+  curl_easy_setopt(curl, CURLOPT_URL, PROOF_STATUS_URL.c_str());
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10); // Time out after 10 seconds
+  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); // Allow 1 redirect
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_cb);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &http_received_data);
+
+  struct curl_httppost *post_begin = NULL;
+	struct curl_httppost *post_end = NULL;
+
+  std::string id_str = std::to_string(id);
+
+  curl_formadd(&post_begin,
+               &post_end,
+             	 CURLFORM_COPYNAME, "id",
+             	 CURLFORM_COPYCONTENTS, id_str.c_str(),
+             	 CURLFORM_END);
+ curl_easy_setopt(curl, CURLOPT_POST, true);
+ curl_easy_setopt(curl, CURLOPT_HTTPPOST, post_begin);
+
+  curl_easy_perform(curl);
+
+  int http_response_code;
+  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
+
+  proof_status_t status = PROOF_NOT_VALIDATED;
+
+  if (http_response_code == 200) {
+    std::cout << get_telemetry_tag(user_email, "get_proof_status") <<
+        "Query successful." << std::endl;
+
+    int status_code = std::stoi(http_received_data);
+
+    switch (status_code) {
+      case 0:
+        status = PROOF_INCORRECT;
+        break;
+
+      case 1:
+        status = PROOF_CORRECT;
+        break;
+    }
+
+  } else
+    std::cout << get_telemetry_tag(user_email, "get_proof_status") <<
+        "Failed to contact Scavenger Hunt." << std::endl;
+
+  curl_easy_cleanup(curl);
+
+  return status;
+}
+
+proof_id_t ScavengerHuntClient::send_proof(std::string image_path, Task &task,
+    double time) {
   std::cout << get_telemetry_tag(user_email, "send_proof") <<
       "Preparing to send proof..." << std::endl;
 
@@ -325,7 +388,7 @@ bool ScavengerHuntClient::send_proof(std::string image_path, Task &task, double 
 
   // Configure cURL request
   CURL *curl = curl_easy_init();
-  curl_easy_setopt(curl, CURLOPT_URL, UPLOAD_URL);
+  curl_easy_setopt(curl, CURLOPT_URL, UPLOAD_URL.c_str());
 
   struct curl_httppost *post_begin = NULL;
 	struct curl_httppost *post_end = NULL;
@@ -333,6 +396,11 @@ bool ScavengerHuntClient::send_proof(std::string image_path, Task &task, double 
   std::string password_hash_str = std::to_string(user_password_hash);
   std::string instruction_id_str = std::to_string(task.get_hunt_task_id());
   std::string time_str = std::to_string(time);
+  std::string http_received_data;
+
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,
+      curl_write_cb);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &http_received_data);
 
   // Create upload form
   curl_formadd(&post_begin,
@@ -373,9 +441,20 @@ bool ScavengerHuntClient::send_proof(std::string image_path, Task &task, double 
   // Cleanup
   curl_easy_cleanup(curl);
 
+  proof_id_t uid = UPLOAD_FAILED;
+
   if (!success)
     std::cout << get_telemetry_tag(user_email, "send_proof") <<
         "Failed to contact Scavenger Hunt." << std::endl;
+  else {
+    // Parse proof ID
+    std::string key = "Proof ID: ";
+    std::size_t pos = http_received_data.find(key);
+    std::size_t id_start = pos + key.length();
+    std::string sub = http_received_data.substr(id_start,
+        http_received_data.length() - id_start);
+    uid = std::stoi(sub);
+  }
 
-  return success;
+  return uid;
 }

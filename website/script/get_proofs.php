@@ -7,14 +7,14 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 try {
     global $dom, $node, $parnode;
     // get the current task from the database
-    // $hunt = $_POST['hunt_name'];
-    // $task = $_POST['task_name'];
-    // $param = $_POST['param'];
-    // $user_email = $_POST['user_email'];
-    $user_email = "stefandebruyn@utexas.edu";
-    $hunt = "BWI Lab Hunt";
-    $task = "Find Object";
-    $param = "chair";
+    $hunt = $_POST['hunt_name'];
+    $task = $_POST['task_name'];
+    $param = $_POST['param'];
+    $user_email = $_POST['user_email'];
+    // $user_email = "stefandebruyn@utexas.edu";
+    // $hunt = "BWI Lab Hunt";
+    // $task = "Find Object";
+    // $param = "chair";
 
     $stmt = $dbh -> query("SELECT * FROM user_table WHERE email = '$user_email'");
     $stmt -> setFetchMode(PDO::FETCH_ASSOC);
@@ -64,10 +64,12 @@ try {
             $correct = $proofTable['correct'];
             $filename = $proofTable['filename'];
             $time = $proofTable['time_to_complete'];
+            $id = $proofTable['proof_id'];
             $xml->startElement('proof');
             $xml->writeAttribute('correct', $correct);
             $xml->writeAttribute('time', $time);
             $xml->writeAttribute('filename', $filename);
+            $xml->writeAttribute('id', $id);
             $xml->endElement();
         }
 

@@ -42,6 +42,14 @@ public:
   void get_proofs(Task &task, std::vector<Proof> &proofs);
 
   /**
+    Gets the status of a single proof.
+
+    @param id proof ID
+    @return either PROOF_CORRECT, PROOF_INCORRECT, or PROOF_NOT_VALIDATED
+  */
+  proof_status_t get_proof_status(proof_id_t id);
+
+  /**
     Downloads the file that was submitted for a particular proof.
 
     @param proof proof to retrieve material for
@@ -55,10 +63,9 @@ public:
     @param file_path path to proof file (either an image or a video)
     @param task task you are proving completion of
     @param time time taken to complete task
-    @return if a response was received from the server; not necessarily a
-            successful upload
+    @return UID of submitted proof, or UPLOAD_FAILED if something went wrong
   */
-  bool send_proof(std::string file_path, Task &task, double time);
+  proof_id_t send_proof(std::string file_path, Task &task, double time);
 };
 
 #endif

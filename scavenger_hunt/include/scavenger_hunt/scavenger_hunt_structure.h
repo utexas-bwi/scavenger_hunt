@@ -6,6 +6,26 @@
 #include <vector>
 
 /**
+  A unique ID that robots can use to correlate local proof information with
+  server-side proofs.
+*/
+typedef unsigned int proof_id_t;
+
+/**
+  Indicates a failed proof upload.
+*/
+const proof_id_t UPLOAD_FAILED = -1;
+
+/**
+  The result of querying feedback on a single proof.
+*/
+enum proof_status_t {
+  PROOF_CORRECT,      // A human decided the proof was correct
+  PROOF_INCORRECT,    // A human decided the proof was incorrect
+  PROOF_NOT_VALIDATED // A human has yet to look at the proof
+};
+
+/**
   Information about a validated proof.
 */
 class Proof {
@@ -13,12 +33,14 @@ protected:
   bool correct;
   int time_to_complete;
   std::string filename;
+  proof_id_t id;
 
 public:
   /**
     @brief creates a new proof record; the client should never have to call this!
   */
-  Proof(bool correct, int time_to_complete, std::string filename);
+  Proof(bool correct, int time_to_complete, std::string filename,
+      proof_id_t id);
 
   /**
     Gets if the proof was validated as correct or not.
@@ -40,6 +62,11 @@ public:
     @return filename
   */
   std::string get_filename() const;
+
+  /**
+    @brief gets the proof's unique ID
+  */
+  proof_id_t get_id() const;
 };
 
 /**

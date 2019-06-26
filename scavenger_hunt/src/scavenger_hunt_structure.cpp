@@ -1,9 +1,11 @@
 #include <scavenger_hunt/scavenger_hunt_structure.h>
 
-Proof::Proof(bool correct, int time_to_complete, std::string filename) {
+Proof::Proof(bool correct, int time_to_complete, std::string filename,
+    proof_id_t id) {
   this->correct = correct;
   this->time_to_complete = time_to_complete;
   this->filename = filename;
+  this->id = id;
 }
 
 bool Proof::get_correct() const {
@@ -16,6 +18,10 @@ int Proof::get_time_to_complete() const {
 
 std::string Proof::get_filename() const {
   return filename;
+}
+
+proof_id_t Proof::get_id() const {
+  return id;
 }
 
 Task::Task(std::string name,
