@@ -11,7 +11,7 @@
 #define PATH_TO_FILE "/home/scavenger_hunt/proofs.txt"
 #define FILENAME "proofs.txt"
 
-static ScavengerHuntClient client("jsuriadinata@utexas.edu ", "Tr3asure");
+static ScavengerHuntClient client("stefandebruyn@utexas.edu", "sick robots");
 static std::vector<Task> tasks;
 static int task_index = 0;
 static double t_task_start, t_task_end;
