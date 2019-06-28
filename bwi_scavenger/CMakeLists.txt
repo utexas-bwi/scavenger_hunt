@@ -209,6 +209,15 @@ target_link_libraries(go
   ${catkin_LIBRARIES}
   curl)
 
+add_executable(kinect_test
+  src/kinect_test.cpp
+  src/kinect_fusion.cpp)
+
+target_link_libraries(kinect_test
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES}
+  curl)
+
 # add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
