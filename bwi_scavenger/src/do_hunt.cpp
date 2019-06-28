@@ -3,6 +3,7 @@
 #include <ros/ros.h>
 #include <scavenger_hunt/scavenger_hunt.h>
 #include <bwi_scavenger/file_editor.h>
+#include <bwi_scavenger/dbscan.h>
 #include <std_msgs/String.h>
 #include <vector>
 #include <std_msgs/Bool.h>
@@ -22,14 +23,11 @@ static bool hunt_started = false;
 static bool conclude = false;
 
 static bool can_write = false;
-static geometry_msgs::Pose objPose;
-static proof_id_t proof_id;
-static std::string task;
-static std::string param;
+static proof_item proof;
 static ros::Publisher pub_location;
 
 /**
-  Updates verificatoin of the proof (incorrect or correct)
+  Updates verification of the proof (incorrect or correct)
 */
 void parse_proofs(){
   FileEditor *read = new FileEditor("proofs.txt", false);
@@ -37,14 +35,14 @@ void parse_proofs(){
 
   std::string str;
   while((*read).read_line()){
-    proof_id = (*read).get_proof_id();
-    if(proof_id){
-      int proof_status = client.get_proof_status(proof_id);
-      task = (*read).get_task_name();
-      param = (*read).get_parameter();
-      geometry_msgs::Pose robot_pose = (*read).get_robot_pose();
-
-      (*write).write_to_file(proof_id, proof_status, task, param, robot_pose, robot_pose);
+    proof.proof_id = (*read).get_proof_id();
+    if(proof.proof_id){
+      proof.verification = client.get_proof_status(proof.proof_id);
+      proof.task_name = (*read).get_task_name();
+      proof.parameter_name = (*read).get_parameter();
+      proof.robot_pose = (*read).get_robot_pose();
+      proof.robot_pose = (*read).get_secondary_pose();
+      (*write).write_to_file(proof);
     }
   }
   (*read).close();
@@ -61,9 +59,12 @@ void parse_proofs(){
 void write_file(const geometry_msgs::Pose::ConstPtr &pose){
   if(can_write){
     ROS_INFO("[main_node] Writing to file");
-
     FileEditor *fe = new FileEditor("proofs.txt", true);
-    fe->write_to_file(proof_id, UNVERIFIED, task, param, *pose, *pose);
+    proof.verification = UNVERIFIED;
+    proof.robot_pose = *pose;
+    // TODO change for object pose
+    proof.secondary_pose = *pose;
+    fe->write_to_file(proof);
     fe->close();
     can_write = false;
   }
@@ -79,14 +80,14 @@ void next_task(bool upload=false) {
     // Upload proof if requested by the last task node
     if (upload) {
       // saving task and parameter to write to file with location
-      task = CURRENT_TASK.get_name();
-      param = CURRENT_TASK.get_parameter_value("object");
+      proof.task_name = CURRENT_TASK.get_name();
+      proof.parameter_name = CURRENT_TASK.get_parameter_value("object");
       can_write = true;
       std_msgs::Bool msg;
       pub_location.publish(msg);
 
       t_task_end = ros::Time::now().toSec();
-      proof_id = client.send_proof("proof.jpg", CURRENT_TASK, t_task_end - t_task_start);
+      proof.proof_id = client.send_proof("proof.jpg", CURRENT_TASK, t_task_end - t_task_start);
     }
 
     task_index++;

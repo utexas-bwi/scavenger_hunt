@@ -9,7 +9,16 @@
 
 const int NUM_ITEMS = 6;
 
-enum proof_item{
+typedef struct{
+  proof_id_t proof_id;
+  int verification;
+  geometry_msgs::Pose robot_pose;
+  geometry_msgs::Pose secondary_pose;
+  std::string task_name;
+  std::string parameter_name;
+} proof_item;
+
+enum proof_item_num{
   PROOF_ID,
   VERIFICATION,
   ROBOT_POSE,
@@ -29,12 +38,7 @@ protected:
   std::string filename;
   std::ofstream *oFile;
   std::ifstream *iFile;
-  std::string proof_id;
-  std::string verification;
-  geometry_msgs::Pose robot_pose;
-  geometry_msgs::Pose secondary_pose;
-  std::string task_name;
-  std::string parameter_name;
+  proof_item proof;
   bool output;
 
 public:
@@ -44,7 +48,7 @@ public:
 
   proof_id_t get_proof_id();
 
-  std::string get_verification();
+  int get_verification();
 
   geometry_msgs::Pose get_robot_pose();
 
@@ -56,8 +60,7 @@ public:
   
   bool read_line();
 
-  void write_to_file(proof_id_t proof_id, int verification, std::string task_name, 
-    std::string parameter_name, geometry_msgs::Pose robot_pose, geometry_msgs::Pose secondary_pose);
+  void write_to_file(proof_item proof);
 
   void delete_file();
 
