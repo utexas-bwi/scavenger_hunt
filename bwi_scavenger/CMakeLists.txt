@@ -194,12 +194,21 @@ target_link_libraries(yolo_node
 
 add_executable(do_hunt
   src/do_hunt.cpp
-  src/file_editor.cpp)
+  src/file_editor.cpp
+  src/dbscan.cpp)
 
 target_link_libraries(do_hunt
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES}
   curl)
+
+add_executable(clusterer_test
+  src/clusterer_test.cpp
+  src/dbscan.cpp)
+
+target_link_libraries(clusterer_test
+  ${OpenCV_LIBS}
+  ${catkin_LICRARIES})
 
 add_executable(go
   src/go.cpp)
