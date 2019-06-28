@@ -1,4 +1,6 @@
 #include <bwi_scavenger/dbscan.h>
+#include <iostream>
+#include <math.h>
 
 #define INCORRECT_THRESHOLD 50
 #define CORRECT_THRESHOLD 75
@@ -37,7 +39,7 @@ double calculate_distance(std::vector<double> p1, std::vector<double> p2){
   int total = 0;
   for(int i = 0; i < p1.size(); i++)
     total += pow((p1[i] - p2[i]), 2);
-  return sqrt(total);
+  return abs(pow(total, 1.0 / p1.size()));
 }
 
 /**
@@ -62,23 +64,23 @@ void expand_cluster(std::vector<point> db, cluster current_cluster, Neighbors n,
 
   for(int j = 0; j < n.size(); j++){
     point secondary_point = n[j];
-    
+
     // if already labelled "noise" it cannot be a main cluster point, thus is set to edge point
     if(secondary_point.label == NOISE){
       current_cluster.list.push_back(secondary_point);
       secondary_point.label = IN_CLUSTER;
     }
-    
+
     // continues if already in a cluster or was previously defined as noise and now is in this cluster (edge point)
     if(secondary_point.label != UNDEFINED)
       continue;
-    
+
     Neighbors n2 = get_neighbors(db, secondary_point.coordinate, eps);
     secondary_point.label = IN_CLUSTER;
     // main cluster gets points that are also with the min points required
     if(n2.size() < minPoints)
       continue;
-    
+
     // std::cout << "expanding cluster again" << std::endl;
     // // labels each neighbors as in a cluster and add to cluster's list
     // for(int k = 0; k < n2.size(); k++){
@@ -86,7 +88,7 @@ void expand_cluster(std::vector<point> db, cluster current_cluster, Neighbors n,
     //   current_cluster.list.push_back(n2[k]);
     //   //continue to expand the cluster with this point
     //   expand_cluster(db, current_cluster, get_neighbors(db, n2[k].coordinate, eps), eps, minPoints);
-    
+
     // }
   }
 }
@@ -102,7 +104,7 @@ int Clusterer::get_clusters(double eps, int minPoints){
 
   this->eps = eps;
   this->minPoints = minPoints;
-  
+
   int count = 0; // cluster id
   // goes through the entire dataset to create clusters
   for(int i = 0; i < database.size(); i++){
@@ -111,7 +113,7 @@ int Clusterer::get_clusters(double eps, int minPoints){
     // only continue if label has not been placed yet
     if(current_point.label != UNDEFINED)
       continue;
-    
+
     Neighbors n = get_neighbors(database, current_point.coordinate, eps);
     // point is "noise" if it does not have enough neighbors;
     if(n.size() < minPoints){
@@ -183,14 +185,14 @@ std::vector<int> Clusterer::get_correct(){
 // }
 
 // /**
-//   Calculates the closest location to the current position of the robot that 
+//   Calculates the closest location to the current position of the robot that
 //   contains a "correct" point. Returns a pose of the correct position
 
 //   @param robot_pose pose of robot
 // */
 // geometry_msgs::Point Clusterer::closest_correct(geometry_msgs::Pose robot_pose){
 
-//   double min_distance = DBL_MAX; 
+//   double min_distance = DBL_MAX;
 //   int cluster_num = -1;
 //   geometry_msgs::Point min_distance_point;
 
@@ -207,7 +209,7 @@ std::vector<int> Clusterer::get_correct(){
 //   return min_distance_point;
 // }
 
-/** 
+/**
   Returns whether or not a point is contained in a specific cluster
 
   @param point Point that is being checked

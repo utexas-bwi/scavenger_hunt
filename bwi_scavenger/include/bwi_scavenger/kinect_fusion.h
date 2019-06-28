@@ -9,6 +9,18 @@
 namespace kinect_fusion {
 
 /**
+  @brief binary interpolation search-based method for evaluating the point
+         representative of some region of greatest change within a vector
+*/
+int find_extreme(std::vector<float> &dat, int partitions, int thoroughness,
+    float minimum_extreme);
+
+/**
+  @brief override value in a depth map with bounds checking
+*/
+void safe_depth_override(cv::Mat &depth_map, int r, int c, float d);
+
+/**
   Used by estimate_distance to project a bounding box from the color camera's
   FOV onto the IR camera's FOV.
 
@@ -24,7 +36,8 @@ void adjust_bounding_box(darknet_ros_msgs::BoundingBox &box);
   @param depth_map depth field produced by IR camera
   @return estimated distance in units of depth field
 */
-double estimate_distance(darknet_ros_msgs::BoundingBox &box, cv::Mat &depth_map);
+double estimate_distance(darknet_ros_msgs::BoundingBox &box,
+    cv::Mat &depth_map);
 
 /**
   @brief identical to the above method but takes a ROS image

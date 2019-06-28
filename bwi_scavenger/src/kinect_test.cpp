@@ -9,7 +9,7 @@
 
 sensor_msgs::Image depth;
 bool depth_stale = true;
-std::string target = "tvmonitor";
+std::string target = "cup";
 
 ros::Publisher pub_map_visualizer;
 
@@ -29,13 +29,11 @@ void save_bounding_boxes(const darknet_ros_msgs::BoundingBoxes::ConstPtr &msg) {
       }
 
     if (box.Class == target) {
-      double distance = kinect_fusion::estimate_distance(box, depth);
-      if (distance > 0) {
-        pub_map_visualizer.publish(depth);
-        std::pair<double, double> offset = kinect_fusion::get_2d_offset(box, depth);
-        ROS_INFO("%s is %f m away at relative position (%f, %f)",
-            target.c_str(), distance, offset.first, offset.second);
-      }
+      // double distance = kinect_fusion::estimate_distance(box, depth);
+      std::pair<double, double> offset = kinect_fusion::get_2d_offset(box, depth);
+      pub_map_visualizer.publish(depth);
+      ROS_INFO("%s is at relative position (%f, %f)",
+          target.c_str(), offset.first, offset.second);
     }
   }
 }

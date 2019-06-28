@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <bwi_scavenger/dbscan.h>
 #include <bwi_scavenger/kinect_fusion.h>
 #include <cmath>
 #include <math.h>
@@ -13,6 +14,60 @@ static const float KINECT_VERT_FOV = 48.6 * RADIANS_PER_DEGREE;
 // Kinect sensor resolution
 static const int IMAGE_WIDTH = 640;
 static const int IMAGE_HEIGHT = 480;
+static const float VISUALIZE_DEPTH = 20;
+// Extrema identification parameters
+static const float FDEXT_MINIMUM_EXTREME = 0.25;
+static const float FDEXT_INTERQUARTILE = 0.85;
+static const int FDEXT_PARTITIONS = 16;
+static const int FDEXT_THOROUGHNESS = 3;
+
+int kinect_fusion::find_extreme(std::vector<float> &dat,
+                                int partitions = FDEXT_PARTITIONS,
+                                int thoroughness = FDEXT_THOROUGHNESS,
+                                float minimum_extreme = FDEXT_MINIMUM_EXTREME) {
+  int w = dat.size() * 0.5 / partitions, lower = 0, upper = dat.size() * 0.5;
+  bool valid_extreme = false;
+
+  // Levels of thoroughness
+  for (int i = 0; i < thoroughness && w > 0; i++) {
+    float record_high = std::numeric_limits<float>::min();
+    int record_high_pos = -1;
+    bool found_min_extreme = false;
+
+    // Evaluate slopes of each partition
+    for (int pos = lower; pos < upper; pos += w) {
+      int pos_end = pos + w > upper ? upper - 1 : pos + w;
+      float pos_d = std::isnan(dat[pos]) ? 0 : dat[pos];
+      float pos_end_d = std::isnan(dat[pos_end]) ? 0 : dat[pos_end];
+      float slope = fabs(pos_end_d - pos_d);
+      if ((found_min_extreme || slope > FDEXT_MINIMUM_EXTREME) &&
+          slope > record_high) {
+        record_high = slope;
+        record_high_pos = pos;
+        found_min_extreme = true;
+      }
+    }
+
+    // If a valid extreme wasn't found, we go no further
+    if (record_high_pos != -1)
+      valid_extreme = true;
+    else
+      break;
+
+    // Record high partition becomes next search range
+    lower = record_high_pos;
+    upper = lower + w;
+    w = (upper - lower) / partitions;
+  }
+
+  return valid_extreme ? (upper + lower) / 2 : 0;
+}
+
+void kinect_fusion::safe_depth_override(cv::Mat &depth_map, int r, int c,
+    float d) {
+  if (r >= 0 && r < depth_map.rows && c >= 0 && c < depth_map.cols)
+    depth_map.at<float>(r, c, 0) = d;
+}
 
 void kinect_fusion::adjust_bounding_box(darknet_ros_msgs::BoundingBox &box) {
   const int ALPHA = 34; // # Pixels between top of IR FOV and camera FOV
@@ -29,7 +84,7 @@ void kinect_fusion::adjust_bounding_box(darknet_ros_msgs::BoundingBox &box) {
   int d_d = IMAGE_HEIGHT - (IMAGE_HEIGHT - d) * sfact;
 
   // Scale horizontal
-  sfact = abs(IMAGE_WIDTH / 2 + BETA) * 1.0 / IMAGE_WIDTH;
+  sfact = abs(IMAGE_WIDTH / 2 + BETA) * 1.0 / (IMAGE_WIDTH / 2);
   int a_d = IMAGE_WIDTH / 2 - (IMAGE_WIDTH / 2 - a) * sfact;
   int b_d = IMAGE_WIDTH / 2 - (IMAGE_WIDTH / 2 - b) * sfact;
 
@@ -41,55 +96,147 @@ void kinect_fusion::adjust_bounding_box(darknet_ros_msgs::BoundingBox &box) {
 
 double kinect_fusion::estimate_distance(darknet_ros_msgs::BoundingBox &box,
     cv::Mat &depth_map) {
-  const float KAPPA = 0.25; // Scale factor for centroid sampling radius
-  const float KAPPA_LERP = 0.5; // Kappa scale factor when sampling fails to capture >0 points
-  const int MAX_ALLOWED_LERPS = 5; // Maximum number of allowed kappa lerps
-
   // Adjust bounding box to IR FOV
-  darknet_ros_msgs::BoundingBox box_adj = box;
-  adjust_bounding_box(box);
+  darknet_ros_msgs::BoundingBox focus_box = box;
+  adjust_bounding_box(focus_box);
 
-  int box_width = box_adj.xmax - box_adj.xmin;
-  int box_height = box_adj.ymax - box_adj.ymin;
+  // Ensure adjustment didn't clip the box outside map boundaries
+  if (focus_box.xmin < 0) focus_box.xmin = 0;
+  if (focus_box.xmax > depth_map.cols) focus_box.xmax = depth_map.cols;
+  if (focus_box.ymin < 0) focus_box.ymin = 0;
+  if (focus_box.ymax > depth_map.rows) focus_box.ymax = depth_map.rows;
 
-  double estimate = 0;
-  double kappa = KAPPA;
-  int lerps = 0;
+  int box_width = focus_box.xmax - focus_box.xmin;
+  int box_height = focus_box.ymax - focus_box.ymin;
 
-  // Loop until a nonzero estimate is made or we've exceeded max lerps
-  while (estimate == 0 && lerps < MAX_ALLOWED_LERPS) {
-    int radius = std::min(box_width, box_height) / 2 * KAPPA;
-    int depth_points_processed = 0;
-    double sigma_depth = 0;
+  // To be populated with "extreme" depth points that will be removed
+  std::vector<float> x_fdext, y_fdext;
 
-    // Sum depths of points within sampling radius of the centroid
-    for (int x = box_adj.xmin; x < box_adj.xmax; x++)
-      for (int y = box_adj.ymin; y < box_adj.ymax; y++) {
-        double dist = sqrt(pow(x - (box_adj.xmin + box_width / 2), 2) +
-            pow(y - (box_adj.ymin + box_height / 2), 2));
-        if (dist <= radius) {
-          float depth = depth_map.at<float>(y, x, 0);
-          if (!std::isnan(depth)) {
-            sigma_depth += depth;
-          #ifdef VISUALIZE
-            depth_map.at<float>(y, x, 0) = 20;
-          #endif
-            depth_points_processed++;
-          }
-        }
-      }
+  // Identify extreme vertical ranges
+  for (int i = focus_box.xmin; i < focus_box.xmax; i++) {
+    // Dump column data into a vector
+    std::vector<float> col;
+    for (int j = focus_box.ymin; j < focus_box.ymax; j++)
+      col.push_back(depth_map.at<float>(j, i, 0));
 
-    estimate = depth_points_processed > 0 ?
-        sigma_depth / depth_points_processed : 0;
+    // Eliminate lower extreme
+    int p = find_extreme(col);
+    for (int j = 0; j <= p; j++) {
+      x_fdext.push_back(i);
+      y_fdext.push_back(focus_box.ymin + j);
+    }
 
-    // If no depth points were processed, kappa likely wasn't large enough
-    if (estimate == 0) {
-      kappa += (1 - kappa) * KAPPA_LERP;
-      lerps++;
+    // Eliminate upper extreme
+    std::reverse(col.begin(), col.end());
+
+    p = find_extreme(col);
+    for (int j = 0; j <= p; j++) {
+      x_fdext.push_back(i);
+      y_fdext.push_back(focus_box.ymax - j);
     }
   }
 
-  return estimate;
+  // Identify extreme horizontal ranges
+  for (int i = focus_box.ymin; i < focus_box.ymax; i++) {
+    // Dump row data into a vector
+    std::vector<float> row;
+    for (int j = focus_box.xmin; j < focus_box.xmax; j++)
+      row.push_back(depth_map.at<float>(i, j, 0));
+
+    // Eliminate lower extreme
+    int p = find_extreme(row);
+    for (int j = 0; j <= p; j++) {
+      x_fdext.push_back(focus_box.xmin + j);
+      y_fdext.push_back(i);
+    }
+
+    // Eliminate upper extreme
+    std::reverse(row.begin(), row.end());
+
+    p = find_extreme(row);
+    for (int j = 0; j <= p; j++) {
+      x_fdext.push_back(focus_box.xmax - j);
+      y_fdext.push_back(i);
+    }
+  }
+
+  // Remove identified extrema
+  std::vector<std::vector<double>> points;
+
+  for (int i = 0; i < x_fdext.size(); i++) {
+    int x = x_fdext[i];
+    int y = y_fdext[i];
+    double d = depth_map.at<float>(y, x, 0);
+    if (!std::isnan(d)) {
+      std::vector<double> point;
+      point.push_back(d);
+      points.push_back(point);
+      safe_depth_override(depth_map, y, x, NAN);
+    }
+  }
+
+  // Clustering
+  /*ROS_INFO("About to cluster %d points", points.size());
+  Clusterer cl(points, 1);
+  int num_clusters = cl.get_clusters(0.25, 10);
+
+  if (num_clusters > 2) {
+    int largest_cluster = cl.get_largest_cluster();
+    for (int r = focus_box.ymin; r <= focus_box.ymax; r++)
+      for (int c = focus_box.xmin; c <= focus_box.xmax; c++) {
+        float d = depth_map.at<float>(r, c, 0);
+        if (!std::isnan(d)) {
+          std::vector<double> point;
+          point.push_back(d);
+
+          if (cl.in_cluster(point, largest_cluster))
+            safe_depth_override(depth_map, r, c, NAN);
+        }
+      }
+  }*/
+
+  // Assemble a set of the remaining points to be sorted
+  std::vector<float> point_set;
+  for (int r = focus_box.ymin; r <= focus_box.ymax; r++)
+    for (int c = focus_box.xmin; c <= focus_box.xmax; c++) {
+      float d = depth_map.at<float>(r, c, 0);
+      if (!std::isnan(d))
+        point_set.push_back(d);
+    }
+
+  std::sort(point_set.begin(), point_set.end());
+
+  // Remove the furthest and closest ranges of data
+  int fringe_width = point_set.size() * ((1 - FDEXT_INTERQUARTILE) / 2);
+
+  if (fringe_width > 0) {
+    float lower_fringe = point_set[fringe_width];
+    float upper_fringe = point_set[point_set.size() - fringe_width];
+
+    for (int r = focus_box.ymin; r <= focus_box.ymax; r++)
+      for (int c = focus_box.xmin; c <= focus_box.xmax; c++) {
+        float d = depth_map.at<float>(r, c, 0);
+        if (d <= lower_fringe || d >= upper_fringe)
+          safe_depth_override(depth_map, r, c, NAN);
+      }
+  }
+
+  // Average all remaining points for the final answer
+  double total_depth = 0;
+  int depth_points_processed = 0;
+  for (int r = focus_box.ymin; r < focus_box.ymax; r++)
+    for (int c = focus_box.xmin; c < focus_box.xmax; c++) {
+      float d = depth_map.at<float>(r, c, 0);
+      if (!std::isnan(d)) {
+        total_depth += d;
+        depth_points_processed++;
+      #ifdef VISUALIZE
+        safe_depth_override(depth_map, r, c, VISUALIZE_DEPTH);
+      #endif
+      }
+    }
+  double estimate = total_depth / depth_points_processed;
+  return std::isnan(estimate) ? 0 : estimate;
 }
 
 double kinect_fusion::estimate_distance(darknet_ros_msgs::BoundingBox &box,
