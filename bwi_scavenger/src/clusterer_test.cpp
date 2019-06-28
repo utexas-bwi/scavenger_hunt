@@ -2,9 +2,9 @@
 
 int main(int argc, char **argv){
 
-  double* points[1000];
+  float* points[1000];
   for(int i = 0; i < 1000; i++){
-    double* point = new double[2];
+    float* point = new float[2];
     *point = rand() % 100;
     *(point + 1) = rand() % 100;
     points[i] = point;
@@ -23,7 +23,7 @@ int main(int argc, char **argv){
 
 
   for(int i = 0; i < 100; i++){
-    double* point = new double[2];
+    float* point = new float[2];
     *point = rand() % 100;
     *(point + 1) = rand() % 100;
     if(c.in_cluster(point, largest_cluster)){
