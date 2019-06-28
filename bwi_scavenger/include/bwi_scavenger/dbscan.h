@@ -5,6 +5,7 @@
 #include <geometry_msgs/Point.h>
 #include <bwi_scavenger/file_editor.h>
 #include <limits.h>
+#include <math.h>
 
 enum label{
   UNDEFINED,
@@ -13,7 +14,7 @@ enum label{
 };
 
 typedef struct {
-  std::vector<double> coordinate;
+  double* coordinate;
   // int verification;
   int label;
   // int num;
@@ -28,14 +29,16 @@ typedef struct{
 
 class Clusterer{
 protected:
-  std::vector<point> database;
+  point* database;
   // std::vector<geometry_msgs::Point> robot_positions;
   double eps;
   int minPoints;
+  int size_of_database;
+  int num_dimensions;
   std::vector<cluster> cluster_list;
 
 public:
-  Clusterer(std::vector<std::vector<double>> db, int numDimensions);
+  Clusterer(double** db, int sizeOfDatabase, int numDimensions);
 
   ~Clusterer();
 
@@ -47,7 +50,7 @@ public:
 
   // geometry_msgs::Point closest_correct(geometry_msgs::Pose robot_pose);
 
-  bool in_cluster(std::vector<double> point, int cluster_num);
+  bool in_cluster(double* point, int cluster_num);
 
   cluster get_cluster(int cluster_num);
 
