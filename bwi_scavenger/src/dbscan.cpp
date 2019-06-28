@@ -12,18 +12,22 @@ typedef std::vector<point> Neighbors;
   Creates a new Clusterer object that stores the database of poses, radius eps and
   the minimum number of points for a cluster to form
 */
-Clusterer::Clusterer(std::vector<std::vector<double>> db, int numDimension){
-  for(int i = 0; i < db.size(); i++){
+Clusterer::Clusterer(float** db, int num_dimensions, int size_of_database){ 
+  this->num_dimensions = num_dimensions;
+  this->size_of_database = size_of_database;
+  this->database = new point[size_of_database];
+
+  for(int i = 0; i < size_of_database; i++){
     point temp;
-    temp.coordinate.push_back(0);
-    temp.coordinate.push_back(0);
-    for(int j = 0; j < numDimension; j++)
+    temp.coordinate = new float[num_dimensions];
+    for(int j = 0; j < num_dimensions; j++){
       temp.coordinate[j] = db[i][j];
+    }
     // temp.verification = db[i].verification;
     temp.label = UNDEFINED;
     // temp.num = i;
     // robot_positions.push_back(db[i].robot_pose.position);
-    database.push_back(temp);
+    database[i] = temp;
   }
 }
 
@@ -35,22 +39,26 @@ Clusterer::~Clusterer(){
 /**
   Calculates the distance between the two 3D points
 */
-double calculate_distance(std::vector<double> p1, std::vector<double> p2){
+static float calculate_distance(float* p1, float* p2, int num_dimensions){
   int total = 0;
-  for(int i = 0; i < p1.size(); i++)
+  for(int i = 0; i < num_dimensions; i++)
     total += pow((p1[i] - p2[i]), 2);
+<<<<<<< HEAD
   return abs(pow(total, 1.0 / p1.size()));
+=======
+  // std::cout << "distance" <<  std::to_string(abs(pow(total, 1.0 / num_dimensions))) << std::endl;
+  return abs(pow(total, 1.0 / num_dimensions));
+>>>>>>> e23f41da04eae9f14c5893b1add17288a8e7ff69
 }
 
 /**
   Gets all the points that are within radius from the point
 */
-Neighbors get_neighbors(std::vector<point> db, std::vector<double> p, double eps){
-  // std::cout << "calculating neighbors" << std::endl;
+Neighbors get_neighbors(point* db, float* p, float eps, int size_of_database, int num_dimensions){
   Neighbors n;
-  for(int i = 0; i < db.size(); i++){
+  for(int i = 0; i < size_of_database; i++){
     point p2 = db[i];
-    double dist = calculate_distance(p, p2.coordinate);
+    float dist = calculate_distance(p, p2.coordinate, num_dimensions);
     if(dist < eps && dist != 0)
       n.push_back(p2);
   }
@@ -60,7 +68,7 @@ Neighbors get_neighbors(std::vector<point> db, std::vector<double> p, double eps
 /**
   Expands the cluster for each of the original point's neighbors
 */
-void expand_cluster(std::vector<point> db, cluster current_cluster, Neighbors n, double eps, int minPoints){
+void expand_cluster(point* db, cluster current_cluster, Neighbors n, float eps, int minPoints, int size_of_database, int num_dimensions){
 
   for(int j = 0; j < n.size(); j++){
     point secondary_point = n[j];
@@ -74,12 +82,18 @@ void expand_cluster(std::vector<point> db, cluster current_cluster, Neighbors n,
     // continues if already in a cluster or was previously defined as noise and now is in this cluster (edge point)
     if(secondary_point.label != UNDEFINED)
       continue;
+<<<<<<< HEAD
 
     Neighbors n2 = get_neighbors(db, secondary_point.coordinate, eps);
+=======
+    
+    Neighbors n2 = get_neighbors(db, secondary_point.coordinate, eps, size_of_database, num_dimensions);
+>>>>>>> e23f41da04eae9f14c5893b1add17288a8e7ff69
     secondary_point.label = IN_CLUSTER;
     // main cluster gets points that are also with the min points required
     if(n2.size() < minPoints)
       continue;
+<<<<<<< HEAD
 
     // std::cout << "expanding cluster again" << std::endl;
     // // labels each neighbors as in a cluster and add to cluster's list
@@ -90,6 +104,14 @@ void expand_cluster(std::vector<point> db, cluster current_cluster, Neighbors n,
     //   expand_cluster(db, current_cluster, get_neighbors(db, n2[k].coordinate, eps), eps, minPoints);
 
     // }
+=======
+    
+    // labels each neighbors as in a cluster and add to cluster's list
+    for(int k = 0; k < n2.size(); k++){
+      n2[k].label = IN_CLUSTER;
+      current_cluster.list.push_back(n2[k]);
+    }
+>>>>>>> e23f41da04eae9f14c5893b1add17288a8e7ff69
   }
 }
 
@@ -100,21 +122,26 @@ void expand_cluster(std::vector<point> db, cluster current_cluster, Neighbors n,
   @param eps radius to check for neighbors at and main cluster radius
   @param minPoints minimum number of points required to create a cluster
 */
-int Clusterer::get_clusters(double eps, int minPoints){
+int Clusterer::get_clusters(float eps, int minPoints){
 
   this->eps = eps;
   this->minPoints = minPoints;
 
   int count = 0; // cluster id
   // goes through the entire dataset to create clusters
-  for(int i = 0; i < database.size(); i++){
+  for(int i = 0; i < size_of_database; i++){
     point current_point = database[i];
 
     // only continue if label has not been placed yet
     if(current_point.label != UNDEFINED)
       continue;
+<<<<<<< HEAD
 
     Neighbors n = get_neighbors(database, current_point.coordinate, eps);
+=======
+    
+    Neighbors n = get_neighbors(database, current_point.coordinate, eps, size_of_database, num_dimensions);
+>>>>>>> e23f41da04eae9f14c5893b1add17288a8e7ff69
     // point is "noise" if it does not have enough neighbors;
     if(n.size() < minPoints){
       current_point.label = NOISE;
@@ -130,11 +157,12 @@ int Clusterer::get_clusters(double eps, int minPoints){
     cluster.list = n;
     cluster_list.push_back(cluster);
     // expand cluster with the current point's neighbors
-    expand_cluster(database, cluster, n, eps, minPoints);
+    expand_cluster(database, cluster, n, eps, minPoints, size_of_database, num_dimensions);
   }
   return count;
 }
 
+<<<<<<< HEAD
 /**
   Obtains all of the clusters above a certain threshold of "incorrectness"
   Returns a vector of cluster numbers that are considered "incorrect"
@@ -210,15 +238,18 @@ std::vector<int> Clusterer::get_correct(){
 // }
 
 /**
+=======
+/** 
+>>>>>>> e23f41da04eae9f14c5893b1add17288a8e7ff69
   Returns whether or not a point is contained in a specific cluster
 
   @param point Point that is being checked
   @param cluster_num cluster number that the point is being checked against
 */
-bool Clusterer::in_cluster(std::vector<double> point, int cluster_num){
+bool Clusterer::in_cluster(float* point, int cluster_num){
   cluster cluster = get_cluster(cluster_num);
   for(int i = 0; i < cluster.list.size(); i++){
-    double distance = calculate_distance(cluster.list[i].coordinate, point);
+    float distance = calculate_distance(cluster.list[i].coordinate, point, num_dimensions);
     if(distance < eps)
       return true;
   }
