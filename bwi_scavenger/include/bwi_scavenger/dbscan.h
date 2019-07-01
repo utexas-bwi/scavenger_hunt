@@ -14,39 +14,53 @@ enum label{
 };
 
 typedef struct {
-  float* coordinate;
-  // int verification;
   int label;
-  // int num;
+  int num;
+  float* coordinate;
 } point;
 
-typedef struct{
-  std::vector<point> list;
-  int num;
-} cluster;
+float calculate_distance(float* p1, float* p2, int num_dimensions);
+
+class Cluster{
+  protected:
+    int num;
+    std::vector<point> list;
+
+  public:
+    Cluster(int num, point point);
+
+    ~Cluster();
+
+    void add_to_list(point p);
+
+    int cluster_num();
+
+    int size();
+
+    point get_point(int pos);
+};
 
 class Clusterer{
 protected:
   point* database;
-  // std::vector<geometry_msgs::Point> robot_positions;
   float eps;
   int minPoints;
   int size_of_database;
   int num_dimensions;
-  std::vector<cluster> cluster_list;
+  std::vector<Cluster> cluster_list;
 
 public:
-  Clusterer(float** db, int sizeOfDatabase, int numDimensions);
+  Clusterer(float** db, int num_dimensions, int size_of_database);
 
   ~Clusterer();
 
-  int get_clusters(float eps, int minPoints);
+  int generate_clusters(float eps, int minPoints);
 
-  bool in_cluster(float* point, int cluster_num);
+  Cluster get_cluster(int cluster_num);
 
-  cluster get_cluster(int cluster_num);
-
-  int get_largest_cluster();
+  Cluster get_largest_cluster();
+    
+  bool in_cluster(float* point, Cluster cluster);
 };
 
 #endif

@@ -204,13 +204,14 @@ target_link_libraries(yolo_node
 #  ${catkin_LIBRARIES}
 #  curl)
 
-#add_executable(clusterer_test
-#  src/clusterer_test.cpp
-#  src/dbscan.cpp)
+add_executable(clusterer_test
+  src/clusterer_test.cpp
+  src/dbscan.cpp)
+  #src/dbscan_object.cpp
 
-#target_link_libraries(clusterer_test
-#  ${OpenCV_LIBS}
-#  ${catkin_LICRARIES})
+target_link_libraries(clusterer_test
+  ${OpenCV_LIBS}
+  ${catkin_LICRARIES})
 
 add_executable(go
   src/go.cpp)
