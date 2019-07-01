@@ -41,9 +41,6 @@ public:
   are added to the set.
 */
 class OrderedLocationSet : public LocationSet {
-protected:
-  int laps = 0;
-
 public:
   /**
     @brief gets the next location in order; passing the last location loops back

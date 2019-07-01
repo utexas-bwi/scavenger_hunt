@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <bwi_scavenger/dbscan.h>
 #include <bwi_scavenger/kinect_fusion.h>
 #include <cmath>
 #include <math.h>
@@ -8,7 +7,7 @@
 #define VISUALIZE
 
 static const float RADIANS_PER_DEGREE = 3.14159 / 180;
-// Dimensions of Kinect color FOV in degrees
+// Dimensions of Kinect color FOV in radians
 static const float KINECT_HORIZ_FOV = 62 * RADIANS_PER_DEGREE;
 static const float KINECT_VERT_FOV = 48.6 * RADIANS_PER_DEGREE;
 // Kinect sensor resolution
@@ -18,8 +17,8 @@ static const float VISUALIZE_DEPTH = 20;
 // Extrema identification parameters
 static const float FDEXT_MINIMUM_EXTREME = 0.25;
 static const float FDEXT_INTERQUARTILE = 0.85;
-static const int FDEXT_PARTITIONS = 16;
-static const int FDEXT_THOROUGHNESS = 3;
+static const int FDEXT_PARTITIONS = 32;
+static const int FDEXT_THOROUGHNESS = 6;
 
 int kinect_fusion::find_extreme(std::vector<float> &dat,
                                 int partitions = FDEXT_PARTITIONS,
@@ -70,8 +69,8 @@ void kinect_fusion::safe_depth_override(cv::Mat &depth_map, int r, int c,
 }
 
 void kinect_fusion::adjust_bounding_box(darknet_ros_msgs::BoundingBox &box) {
-  const int ALPHA = 34; // # Pixels between top of IR FOV and camera FOV
-  const int BETA = 27; // # Pixels between left/right of IR FOV and camera FOV
+  const int ALPHA = 34; // # pixels between top of IR FOV and camera FOV
+  const int BETA = 27; // # pixels between left/right of IR FOV and camera FOV
 
   int a = box.xmin;
   int b = box.xmax;
