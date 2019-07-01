@@ -1,6 +1,8 @@
 #include <bwi_scavenger/mapping.h>
+#include <iostream>
 #include <math.h>
 #include <ros/ros.h>
+#include <stdexcept>
 
 LocationSet::LocationSet() {
   index = 0;
@@ -39,4 +41,33 @@ environment_location OrderedLocationSet::get_next_location() {
   environment_location l = locations[index % locations.size()];
   index++;
   return l;
+}
+
+int OrderedLocationSet::get_laps() {
+  return index / locations.size();
+}
+
+void PriorityLocationSet::set_location_priority(environment_location l,
+    float p) {
+  priorities[l] = p;
+}
+
+void PriorityLocationSet::prioritize() {
+  if (priorities.size() != locations.size())
+    throw std::runtime_error("Cannot prioritize; cardinality mismatch");
+
+  std::vector<PriorityLocation> p_locations;
+
+  for (const auto &pair : priorities) {
+    PriorityLocation pl;
+    pl.location = pair.first;
+    pl.priority = priorities[pair.first];
+    p_locations.push_back(pl);
+  }
+
+  std::sort(p_locations.begin(), p_locations.end());
+  locations.clear();
+
+  for (PriorityLocation pl : p_locations)
+    locations.push_back(pl.location);
 }

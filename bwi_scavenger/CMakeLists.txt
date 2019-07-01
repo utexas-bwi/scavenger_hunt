@@ -192,23 +192,23 @@ target_link_libraries(yolo_node
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
-add_executable(do_hunt
-  src/do_hunt.cpp
-  src/file_editor.cpp
-  src/dbscan.cpp)
+#add_executable(do_hunt
+#  src/do_hunt.cpp
+#  src/file_editor.cpp
+#  src/dbscan.cpp)
 
-target_link_libraries(do_hunt
-  ${OpenCV_LIBS}
-  ${catkin_LIBRARIES}
-  curl)
+#target_link_libraries(do_hunt
+#  ${OpenCV_LIBS}
+#  ${catkin_LIBRARIES}
+#  curl)
 
-add_executable(clusterer_test
-  src/clusterer_test.cpp
-  src/dbscan.cpp)
+#add_executable(clusterer_test
+#  src/clusterer_test.cpp
+#  src/dbscan.cpp)
 
-target_link_libraries(clusterer_test
-  ${OpenCV_LIBS}
-  ${catkin_LICRARIES})
+#target_link_libraries(clusterer_test
+#  ${OpenCV_LIBS}
+#  ${catkin_LICRARIES})
 
 add_executable(go
   src/go.cpp)
@@ -223,6 +223,16 @@ add_executable(kinect_test
   src/kinect_fusion.cpp)
 
 target_link_libraries(kinect_test
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES}
+  curl)
+
+add_executable(priority_test
+  src/priority_test.cpp
+  src/robot_motion.cpp
+  src/mapping.cpp)
+
+target_link_libraries(priority_test
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES}
   curl)
