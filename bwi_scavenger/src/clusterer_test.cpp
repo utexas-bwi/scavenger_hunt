@@ -4,8 +4,8 @@
 void generateCluster(float** points, int numPoints, int start){
   for(int i = 0; i < numPoints; i++){
     float* point = new float[2];
-    *point = rand() % 100 + start;
-    *(point + 1) = rand() % 100 + start;
+    *point = rand() % 75 + start;
+    *(point + 1) = rand() % 75 + start;
     *(points + i + start) = point;
   }
 }
@@ -53,12 +53,15 @@ int main(int argc, char **argv){
   // }
 
   //ObjectClusterer
+
   float* robot_points[1500];
-  for(int i = 0; i < 1500; i++){
+  for(int i = 0; i < 10; i++)
+    generateCluster(robot_points, 100, 100 * i);
+  for(int i = 0 ; i < 500; i++){
     float* point = new float[2];
-    *point = rand() % 100;
-    *(point + 1) = rand() % 100;
-    robot_points[i] = point;
+    *point = rand() % 1000;
+    *(point + 1) = rand() % 1000;
+    *(robot_points + i + 1000) = point;  
   }
 
   bool verification[1500];
@@ -72,12 +75,12 @@ int main(int argc, char **argv){
   
   std::cout << "There were " << std::to_string(incorrect.size()) << " 'incorrect' clusters" << std::endl;
 
-  // for(int i = 0; i < 20; i++){
-  //   float* point = new float[2];
-  //   *point = rand() % 100;
-  //   *(point + 1) = rand() % 100;
-  //   float* close = oc.closest_correct(point);
-  //   std::cout << "The closest correct cluster from (" << std::to_string(point[0]) << ", " << std::to_string(point[1])
-  //   << ") is at the location (" << std::to_string(close[0]) << ", " << std::to_string(close[1]) << std::endl;
-  // }
+  for(int i = 0; i < 20; i++){
+    float* point = new float[2];
+    *point = rand() % 1000;
+    *(point + 1) = rand() % 1000;
+    float* close = oc.closest_correct(point);
+    std::cout << "The closest correct cluster from (" << std::to_string(point[0]) << ", " << std::to_string(point[1])
+    << ") is associated with the robot location (" << std::to_string(close[0]) << ", " << std::to_string(close[1]) << ")" << std::endl;
+  }
 }
