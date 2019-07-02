@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <bwi_scavenger/robot_motion.h>
-#include <bwi_scavenger/TaskProof.h>
+#include <bwi_scavenger_msgs/TaskProof.h>
 #include <darknet_ros_msgs/BoundingBoxes.h>
 #include <darknet_ros_msgs/BoundingBox.h>
 #include <std_msgs/Bool.h>

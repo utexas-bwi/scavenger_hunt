@@ -1,4 +1,5 @@
 #include <bwi_scavenger/global_topics.h>
+#include <bwi_scavenger_msgs/TaskStart.h>
 #include <map>
 #include <ros/ros.h>
 #include <scavenger_hunt/scavenger_hunt.h>
@@ -109,8 +110,8 @@ void next_task(bool upload=false) {
     ros::Duration(6.0).sleep();
 
     // Begin Conclude
-    std_msgs::String task;
-    task.data = "Conclude";
+    bwi_scavenger_msgs::TaskStart task;
+    task.name = "Conclude";
     pub_task_start.publish(task);
     conclude = true;
     return;
@@ -130,8 +131,9 @@ void next_task(bool upload=false) {
     pub_yolo_node_target.publish(target_object);
 
     // Begin Find Object
-    std_msgs::String task;
-    task.data = "Find Object";
+    bwi_scavenger_msgs::TaskStart task;
+    task.name = "Find Object";
+    task.parameters.push_back(target_object);
     pub_task_start.publish(task);
   }
 }
@@ -147,7 +149,7 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "hunt_node");
   ros::NodeHandle nh;
 
-  pub_task_start = nh.advertise<std_msgs::String>(TPC_MAIN_NODE_TASK_START, 1);
+  pub_task_start = nh.advertise<bwi_scavenger_msgs::TaskStart>(TPC_MAIN_NODE_TASK_START, 1);
   pub_yolo_node_target = nh.advertise<std_msgs::String>(TPC_YOLO_NODE_TARGET, 1);
   pub_location = nh.advertise<std_msgs::Bool>(TPC_MOVE_NODE_REQUEST_POSE, 1);
 

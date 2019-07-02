@@ -1,6 +1,6 @@
 #include <actionlib/client/simple_action_client.h>
 #include <bwi_scavenger/global_topics.h>
-#include <bwi_scavenger/PerceptionMoment.h>
+#include <bwi_scavenger_msgs/PerceptionMoment.h>
 #include <cv_bridge/cv_bridge.h>
 #include <darknet_ros_msgs/CheckForObjectsAction.h>
 #include <opencv2/highgui/highgui.hpp>
@@ -57,7 +57,7 @@ void vision(const sensor_msgs::Image &msg) {
 
   // Wait for the action server to launch
   if (!cv_sweep_ac->waitForServer(ros::Duration(10.0))) {
-    ROS_ERROR("[perception_node] Failed to connect to CvSweepActionClient. Aborting perception. Is Darknet running?");
+    ROS_ERROR("[perception_node] Failed to connect to CvSweepActionClient. Aborting perception moment.");
 	  return;
   }
 
@@ -73,12 +73,12 @@ void vision(const sensor_msgs::Image &msg) {
 
   // Wait for result
   if (!cv_sweep_ac->waitForResult(ros::Duration(120.0))) {
-    ROS_ERROR("[perception_node] CvSweepActionClient took too long to respond. Aborting perception.");
+    ROS_ERROR("[perception_node] CvSweepActionClient took too long to respond. Aborting perception moment.");
     return;
   }
 
   // Build perception moment
-  bwi_scavenger::PerceptionMoment perception;
+  bwi_scavenger_msgs::PerceptionMoment perception;
   perception.color_image = msg;
   perception.depth_image = depth_image;
   perception.bounding_boxes = *cv_sweep_result_dest;
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "perception_node");
   nh = new ros::NodeHandle();
 
-  pub_moment = nh->advertise<bwi_scavenger::PerceptionMoment>(
+  pub_moment = nh->advertise<bwi_scavenger_msgs::PerceptionMoment>(
       TPC_PERCEPTION_NODE_MOMENT, 1);
   ros::Subscriber sub_depth =
       nh->subscribe("/camera/depth/image", 1, save_depth);

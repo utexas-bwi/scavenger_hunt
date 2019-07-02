@@ -13,11 +13,11 @@ std::string gridFrameId;
 
 ros::Publisher pub_robot_pose;
 
-void stop(const bwi_scavenger::RobotStop::ConstPtr &data){
+void stop(const bwi_scavenger_msgs::RobotStop::ConstPtr &data){
     rm->end_movement();
 }
 
-void move(const bwi_scavenger::RobotMove::ConstPtr &data){
+void move(const bwi_scavenger_msgs::RobotMove::ConstPtr &data){
   if(data -> type == MOVE){
     environment_location goal = static_cast<environment_location>(data->location % NUM_ENVIRONMENT_LOCATIONS);
     ROS_INFO("[move_node] Moving to location %d.", (int)goal);

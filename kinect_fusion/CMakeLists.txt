@@ -1,35 +1,22 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(bwi_scavenger)
+project(kinect_fusion)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
 
-
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(
-catkin REQUIRED COMPONENTS
-  roscpp
-  rospy
-  std_msgs
-  scavenger_hunt
-  kinect_fusion
+find_package(catkin REQUIRED COMPONENTS
   darknet_ros_msgs
-  bwi_scavenger_msgs
+  roscpp
+  std_msgs
   cv_bridge
-  actionlib
-  geometry_msgs
-  move_base_msgs
-  actionlib
-  tf
-  sensor_msgs
-  message_generation
-  OpenCV
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -63,6 +50,8 @@ catkin REQUIRED COMPONENTS
 ## Generate messages in the 'msg' folder
 # add_message_files(
 #   FILES
+#   Message1.msg
+#   Message2.msg
 # )
 
 ## Generate services in the 'srv' folder
@@ -80,12 +69,10 @@ catkin REQUIRED COMPONENTS
 # )
 
 ## Generate added messages and services with any dependencies listed here
- generate_messages(
-   DEPENDENCIES
-   sensor_msgs
-   darknet_ros_msgs
-   bwi_scavenger_msgs
- )
+# generate_messages(
+#   DEPENDENCIES
+#   darknet_ros_msgs#   std_msgs
+# )
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -117,10 +104,10 @@ catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-   INCLUDE_DIRS include
-#   LIBRARIES scavenger_hunt
-   CATKIN_DEPENDS roscpp std_msgs scavenger_hunt kinect_fusion sensor_msgs message_runtime
-#  DEPENDS system_lib
+  INCLUDE_DIRS include
+  LIBRARIES kinect_fusion
+  CATKIN_DEPENDS darknet_ros_msgs roscpp std_msgs
+  DEPENDS system_lib
 )
 
 ###########
@@ -132,103 +119,33 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  ${scavenger_hunt_INCLUDE_DIRS}
-  ${kinect_fusion_INCLUDE_DIRS}
-  ${CMAKE_SOURCE_DIR}/../curl-7.65.0/include
 )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/bwi_scavenger.cpp
+#   src/${PROJECT_NAME}/kinect_fusion.cpp
 # )
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-
-add_executable(find_object_node
-  src/mapping.cpp
-  src/find_object_node.cpp
-  src/state_machine.cpp)
-
-add_dependencies(find_object_node
-  bwi_scavenger_generate_messages_cpp)
-
-target_link_libraries(find_object_node
-  ${OpenCV_LIBS}
-  ${catkin_LIBRARIES})
-
-add_executable(conclude_node
-  src/conclude_node.cpp)
-
-add_dependencies(conclude_node
-  bwi_scavenger_generate_messages_cpp)
-
-target_link_libraries(conclude_node
-  ${OpenCV_LIBS}
-  ${catkin_LIBRARIES})
-
-add_executable(move_node
-  src/move_node.cpp
-  src/robot_motion.cpp)
-
-add_dependencies(move_node
-  bwi_scavenger_generate_messages_cpp)
-
-target_link_libraries(move_node
-  ${OpenCV_LIBS}
-  ${catkin_LIBRARIES})
-
-add_executable(yolo_node
-  src/yolo_node.cpp)
-
-target_link_libraries(yolo_node
-  ${OpenCV_LIBS}
-  ${catkin_LIBRARIES})
-
-#add_executable(do_hunt
-#  src/do_hunt.cpp
-#  src/file_editor.cpp
-#  src/dbscan.cpp)
-
-#target_link_libraries(do_hunt
-#  ${OpenCV_LIBS}
-#  ${catkin_LIBRARIES}
-#  curl)
-
-add_executable(clusterer_test
-  src/clusterer_test.cpp
-  src/dbscan.cpp
-  src/dbscan_object.cpp)
-
-target_link_libraries(clusterer_test
-  ${OpenCV_LIBS}
-  ${catkin_LICRARIES})
-
-add_executable(go
-  src/go.cpp)
-
-target_link_libraries(go
-  ${OpenCV_LIBS}
-  ${catkin_LIBRARIES}
-  curl)
-
-add_executable(perception_node
-  src/perception_node.cpp)
-
-add_dependencies(perception_node
-  bwi_scavenger_generate_messages_cpp)
-
-target_link_libraries(perception_node
-  ${OpenCV_LIBS}
-  ${catkin_LIBRARIES})
-
-# add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
+# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/bwi_scavenger_node.cpp)
+add_executable(kinect_fusion_test_node
+  src/kinect_fusion.cpp
+  src/kinect_fusion_test_node.cpp
+)
+
+target_link_libraries(kinect_fusion_test_node
+  ${catkin_LIBRARIES}
+)
+
+add_library(kinect_fusion
+  src/kinect_fusion.cpp
+)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -285,7 +202,7 @@ target_link_libraries(perception_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_bwi_scavenger.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_kinect_fusion.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

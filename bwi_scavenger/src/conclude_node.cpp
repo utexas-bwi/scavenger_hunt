@@ -1,7 +1,8 @@
 #include <bwi_scavenger/global_topics.h>
-#include <bwi_scavenger/RobotMove.h>
-#include <bwi_scavenger/RobotStop.h>
+#include <bwi_scavenger_msgs/RobotMove.h>
+#include <bwi_scavenger_msgs/RobotStop.h>
 #include <bwi_scavenger/robot_motion.h>
+#include <bwi_scavenger_msgs/TaskStart.h>
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
@@ -13,14 +14,14 @@ static ros::Publisher pub_move;
 static ros::Publisher pub_task_complete;
 
 // Called when the main node is starting a task
-void task_start_cb(const std_msgs::String::ConstPtr &msg) {
-  if (msg->data == "Conclude") {
+void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
+  if (msg->name == "Conclude") {
     ROS_INFO("%s Conclusion protocol firing!", TELEM_TAG);
     node_active = true;
     ros::Duration(1.0).sleep();
 
     // Go to conclusion spot
-    bwi_scavenger::RobotMove msg;
+    bwi_scavenger_msgs::RobotMove msg;
     msg.type = 0;
     msg.location = FELLOW_COMPUTERS;
     pub_move.publish(msg);
@@ -46,7 +47,7 @@ int main(int argc, char **argv) {
   ros::Subscriber sub0 = nh.subscribe(TPC_MAIN_NODE_TASK_START, 1, task_start_cb);
   ros::Subscriber sub1 = nh.subscribe(TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
 
-  pub_move = nh.advertise<bwi_scavenger::RobotMove>(TPC_MOVE_NODE_GO, 1);
+  pub_move = nh.advertise<bwi_scavenger_msgs::RobotMove>(TPC_MOVE_NODE_GO, 1);
   pub_task_complete = nh.advertise<std_msgs::Bool>(TPC_TASK_COMPLETE, 1);
 
   // Wait for ROS services to spin up

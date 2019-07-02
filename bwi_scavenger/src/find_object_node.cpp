@@ -1,13 +1,16 @@
 #include <bwi_scavenger/global_topics.h>
-#include <bwi_scavenger/kinect_fusion.h>
-#include <bwi_scavenger/RobotMove.h>
-#include <bwi_scavenger/RobotStop.h>
 #include <bwi_scavenger/mapping.h>
 #include <bwi_scavenger/robot_motion.h>
 #include <bwi_scavenger/state_machine.h>
 
+#include <bwi_scavenger_msgs/RobotMove.h>
+#include <bwi_scavenger_msgs/RobotStop.h>
+#include <bwi_scavenger_msgs/TaskStart.h>
+#include <bwi_scavenger_msgs/PerceptionMoment.h>
+
 #include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/Pose.h>
+#include <kinect_fusion/kinect_fusion.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 #include <ros/ros.h>
@@ -49,6 +52,8 @@ static bool pose_request_sent = false;
 static sensor_msgs::Image::ConstPtr last_darknet_img;
 
 static OrderedLocationSet map;
+
+static std::string target_object;
 
 /*------------------------------------------------------------------------------
 STATE MACHINE DEFINITION
@@ -138,7 +143,7 @@ public:
     // One-time travel command send
     if (!svec->travel_in_progress) {
       svec->travel_in_progress = true;
-      bwi_scavenger::RobotMove msg;
+      bwi_scavenger_msgs::RobotMove msg;
       msg.type = 0;
       msg.location = svec->destination;
       pub_move.publish(msg);
@@ -149,7 +154,7 @@ public:
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     if (!svec->travel_finished) {
       ROS_INFO("%s Leaving TRAVELING. Suspected early stop.", TELEM_TAG);
-      bwi_scavenger::RobotStop stop;
+      bwi_scavenger_msgs::RobotStop stop;
       pub_stop.publish(stop);
     } else
       svec->destination = map.get_next_location();
@@ -191,7 +196,7 @@ public:
     if (!svec->turn_in_progress && !svec->turn_sleeping) {
       svec->turn_in_progress = true;
       const int TURN_AMOUNT = 45;
-      bwi_scavenger::RobotMove msg;
+      bwi_scavenger_msgs::RobotMove msg;
       msg.type = 1;
       msg.degrees = TURN_AMOUNT;
       pub_move.publish(msg);
@@ -208,7 +213,7 @@ public:
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     if (!svec->turn_finished) {
       ROS_INFO("%s Leaving SCANNING. Suspected early stop.", TELEM_TAG);
-      bwi_scavenger::RobotStop stop;
+      bwi_scavenger_msgs::RobotStop stop;
       pub_stop.publish(stop);
     }
   }
@@ -302,7 +307,7 @@ void target_seen_cb(const darknet_ros_msgs::BoundingBox::ConstPtr &msg) {
     state_id_t state = sm.get_current_state()->get_id();
     if (state == STATE_SCANNING || state == STATE_TRAVELING)
       ssv.target_seen = true;
-    else if (!ssv.inspect_finished)
+    else if (state == STATE_INSPECTING && !ssv.inspect_finished)
       ssv.inspect_confirmations++;
   }
 }
@@ -329,15 +334,19 @@ void image_cb(const sensor_msgs::Image::ConstPtr &img) {
 }
 
 // Called when the main node is starting a task
-void task_start_cb(const std_msgs::String::ConstPtr &msg) {
-  if (msg->data == "Find Object") {
+void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
+  if (msg->name == "Find Object") {
     wipe_ssv();
     ros::Duration(5.0).sleep();
 
-    // Request current robot pose from move_node to inform mapping
-    std_msgs::Bool msg;
-    pub_pose_request.publish(msg);
-    pose_request_sent = true;
+    if (msg->parameters.size() > 0) {
+      target_object = msg->parameters[0];
+      // Request current robot pose from move_node to inform mapping
+      std_msgs::Bool msg;
+      pub_pose_request.publish(msg);
+      pose_request_sent = true;
+    } else
+      ROS_ERROR("[find_object_node] Start failed because message had no parameters.");
   }
 }
 
@@ -350,6 +359,29 @@ void pose_request_cb(const geometry_msgs::Pose::ConstPtr &msg) {
   if (pose_request_sent) {
     pose_request_sent = false;
     node_active = true;
+  }
+}
+
+// Called when the perception node publishes a new moment
+void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
+  const darknet_ros_msgs::BoundingBoxes &boxes = msg->bounding_boxes;
+
+  for (int i = 0; i < boxes.bounding_boxes.size(); i++) {
+    const darknet_ros_msgs::BoundingBox &box = boxes.bounding_boxes[i];
+    const sensor_msgs::Image &depth_image = msg->depth_image;
+
+    if (box.Class == target_object) {
+      // std::pair<double, double> target_position =
+          // kinect_fusion::get_2d_offset(box, depth_image);
+      double d = kinect_fusion::estimate_distance(box, depth_image);
+      // if position is not in a cluster of previous failures {
+        state_id_t state = sm.get_current_state()->get_id();
+        if (state == STATE_SCANNING || state == STATE_TRAVELING)
+          ssv.target_seen = true;
+        else if (state == STATE_INSPECTING && !ssv.inspect_finished)
+          ssv.inspect_confirmations++;
+      // }
+    }
   }
 }
 
@@ -372,8 +404,8 @@ int main(int argc, char **argv) {
   map.add_location(LARG_LEFT);
 
   // Setup SSV update callbacks
-  pub_move = nh.advertise<bwi_scavenger::RobotMove>(TPC_MOVE_NODE_GO, 1);
-  pub_stop = nh.advertise<bwi_scavenger::RobotStop>(TPC_MOVE_NODE_STOP, 1);
+  pub_move = nh.advertise<bwi_scavenger_msgs::RobotMove>(TPC_MOVE_NODE_GO, 1);
+  pub_stop = nh.advertise<bwi_scavenger_msgs::RobotStop>(TPC_MOVE_NODE_STOP, 1);
   pub_task_complete = nh.advertise<std_msgs::Bool>(TPC_TASK_COMPLETE, 1);
   pub_pose_request = nh.advertise<std_msgs::Bool>(TPC_MOVE_NODE_REQUEST_POSE, 1);
 
@@ -382,6 +414,7 @@ int main(int argc, char **argv) {
   ros::Subscriber sub2 = nh.subscribe("/darknet_ros/detection_image", 1, image_cb);
   ros::Subscriber sub3 = nh.subscribe(TPC_MAIN_NODE_TASK_START, 1, task_start_cb);
   ros::Subscriber sub4 = nh.subscribe(TPC_MOVE_NODE_ROBOT_POSE, 1, pose_request_cb);
+  ros::Subscriber sub5 = nh.subscribe(TPC_PERCEPTION_NODE_MOMENT, 1, perceive);
 
   // Build state machine
   s_traveling->add_output(s_end);
