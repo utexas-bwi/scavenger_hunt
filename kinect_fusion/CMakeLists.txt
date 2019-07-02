@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   darknet_ros_msgs
   roscpp
   std_msgs
+  geometry_msgs
   cv_bridge
 )
 
@@ -106,7 +107,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES kinect_fusion
-  CATKIN_DEPENDS darknet_ros_msgs roscpp std_msgs
+  CATKIN_DEPENDS darknet_ros_msgs geometry_msgs roscpp std_msgs
   DEPENDS system_lib
 )
 

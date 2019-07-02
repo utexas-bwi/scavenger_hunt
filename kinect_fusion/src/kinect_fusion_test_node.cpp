@@ -17,10 +17,10 @@ void save_depth(const sensor_msgs::Image::ConstPtr &msg) {
 /**
   @brief YOLO has produced bounding boxes; see if one contains our target
 */
-void save_bounding_boxes(const darknet_ros_msgs::BoundingBoxes::ConstPtr &msg) {
+void process(const darknet_ros_msgs::BoundingBoxes::ConstPtr &msg) {
   if (!depth_stale && depth.height > 0 && msg->bounding_boxes.size() > 0) {
     // Mark the depth map as stale to prevent multiple estimations on the same
-    // map, which may be mutated for visualization purposes
+    // map
     depth_stale = true;
     darknet_ros_msgs::BoundingBox box;
 
@@ -33,11 +33,12 @@ void save_bounding_boxes(const darknet_ros_msgs::BoundingBoxes::ConstPtr &msg) {
 
     if (box.Class == target) {
       // Target spotted!
-      std::pair<double, double> offset = kinect_fusion::get_2d_offset(box, depth);
-      ROS_INFO("%s is at relative position (%f, %f)",
+      geometry_msgs::Point offset = kinect_fusion::get_position(box, depth);
+      ROS_INFO("%s is at relative position (%f, %f, %f)",
                target.c_str(),
-               offset.first,
-               offset.second);
+               offset.x,
+               offset.y,
+               offset.z);
     }
   }
 }
@@ -48,7 +49,7 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh;
   ros::Subscriber sub_boxes = nh.subscribe("/darknet_ros/bounding_boxes/",
                                            1,
-                                           save_bounding_boxes);
+                                           process);
   ros::Subscriber sub_depth = nh.subscribe("/camera/depth/image",
                                            1,
                                            save_depth);

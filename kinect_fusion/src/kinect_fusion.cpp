@@ -4,11 +4,11 @@
   Uncomment to get a visualization of the algorithm's depth map processing.
   A marked-up depth map will be published to /kinect_fusion/vis on every call
   to estimate_distance. Visualized as a 32F1C image, every pixel in the
-  specified bounding box will either be white or black. Black pixels were ruled
-  out as belonging to the target object. White pixels had a high probability of
-  belonging to the target object, and were factored into the final estimate.
+  specified bounding box will be either white or black. Black pixels were
+  labeled unlikely to belong to the target object, and vice versa for white
+  pixels.
 */
-#define VISUALIZE
+// #define VISUALIZE
 
 static const float RADIANS_PER_DEGREE = 3.14159 / 180;
 
@@ -22,12 +22,6 @@ static const int   IMAGE_HEIGHT     = 480;
 static const int KINECT_FOV_ALPHA = 34;
 static const int KINECT_FOV_BETA  = 27;
 
-// Extrema identification parameters
-static const float FDEXT_MINIMUM_EXTREME     = 0.25;
-static const float FDEXT_INTERQUARTILE_WIDTH = 0.85;
-static const int   FDEXT_PARTITIONS          = 32;
-static const int   FDEXT_THOROUGHNESS        = 6;
-
 #ifdef VISUALIZE
   #include <ros/ros.h>
 
@@ -38,22 +32,32 @@ static const int   FDEXT_THOROUGHNESS        = 6;
 
 namespace kinect_fusion {
 
+/**
+  Default extrema identification parameters. Freely reconfigurable at compile
+  or run time.
+*/
+float extrema_search_minimum_magnitude = 0.15; // 0.15 m between partition ends
+float interquartile_trim_width         = 0.85; // Avg inner 85%
+int   extrema_search_partitions        = 16;   // 16 partitions per iteration
+int   extrema_search_thoroughness      = 3;    // 3 iterations per search
+int   erode_dilate_strength            = 10;   // 10 layers of erode/dilate
+
 // Private utilities
 namespace {
   /**
     A binary interpolation-esque search for the point representative of the
     region of greatest change within a vector.
 
-    @param  dat             vector to analyze
-    @param  partitions      number of partitions in interpolation search
-    @param  thoroughness    maximum depth of search
-    @param  minimum_extreme minimum magnitude of an "extreme" value
+    @param  dat          vector to analyze
+    @param  partitions   number of partitions in interpolation search
+    @param  thoroughness maximum depth of search
+    @param  min_mag      minimum magnitude of an "extreme" value
     @return index of greatest change
   */
   int find_extreme(std::vector<float> &dat,
-                   unsigned int partitions = FDEXT_PARTITIONS,
-                   unsigned int thoroughness = FDEXT_THOROUGHNESS,
-                   float minimum_extreme = FDEXT_MINIMUM_EXTREME)
+                   unsigned int partitions = extrema_search_partitions,
+                   unsigned int thoroughness = extrema_search_thoroughness,
+                   float min_mag = extrema_search_minimum_magnitude)
   {
     int w = dat.size() * 0.5 / partitions, lower = 0, upper = dat.size() * 0.5;
     bool valid_extreme = false;
@@ -62,7 +66,6 @@ namespace {
     for (int i = 0; i < thoroughness && w > 0; i++) {
       float record_high = std::numeric_limits<float>::min();
       int record_high_pos = -1;
-      bool found_min_extreme = false;
 
       // Evaluate slopes of each partition
       for (int pos = lower; pos < upper; pos += w) {
@@ -70,11 +73,9 @@ namespace {
         float pos_d = std::isnan(dat[pos]) ? 0 : dat[pos];
         float pos_end_d = std::isnan(dat[pos_end]) ? 0 : dat[pos_end];
         float slope = fabs(pos_end_d - pos_d);
-        if ((found_min_extreme || slope > FDEXT_MINIMUM_EXTREME) &&
-            slope > record_high) {
+        if (slope > min_mag && (record_high_pos == -1 || slope > record_high)) {
           record_high = slope;
           record_high_pos = pos;
-          found_min_extreme = true;
         }
       }
 
@@ -103,6 +104,18 @@ namespace {
   {
     if (r < depth_map.rows && c < depth_map.cols)
       depth_map.at<float>(r, c, 0) = d;
+  }
+
+  /**
+    @brief matrix indexing with bounds checking
+  */
+  float safe_depth_sample(cv::Mat &depth_map,
+                          unsigned int r,
+                          unsigned int c) {
+    if (r < depth_map.rows && c < depth_map.cols)
+      return depth_map.at<float>(r, c, 0);
+    else
+      return 0;
   }
 
   /**
@@ -215,8 +228,8 @@ double estimate_distance(const darknet_ros_msgs::BoundingBox &box,
   // Assemble a set of the remaining points to be sorted
   std::vector<float> point_set;
 
-  for (int r = focus_box.ymin; r <= focus_box.ymax; r++)
-    for (int c = focus_box.xmin; c <= focus_box.xmax; c++) {
+  for (int r = focus_box.ymin; r < focus_box.ymax; r++)
+    for (int c = focus_box.xmin; c < focus_box.xmax; c++) {
       float d = depth_map.at<float>(r, c, 0);
       if (!std::isnan(d))
         point_set.push_back(d);
@@ -225,18 +238,64 @@ double estimate_distance(const darknet_ros_msgs::BoundingBox &box,
   std::sort(point_set.begin(), point_set.end());
 
   // Remove the furthest and closest ranges of data
-  int fringe_width = point_set.size() * ((1 - FDEXT_INTERQUARTILE_WIDTH) / 2);
+  int fringe_width = point_set.size() * ((1 - interquartile_trim_width) / 2);
 
   if (fringe_width > 0) {
     float lower_fringe = point_set[fringe_width];
     float upper_fringe = point_set[point_set.size() - fringe_width];
 
-    for (int r = focus_box.ymin; r <= focus_box.ymax; r++)
-      for (int c = focus_box.xmin; c <= focus_box.xmax; c++) {
+    for (int r = focus_box.ymin; r < focus_box.ymax; r++)
+      for (int c = focus_box.xmin; c < focus_box.xmax; c++) {
         float d = depth_map.at<float>(r, c, 0);
         if (d <= lower_fringe || d >= upper_fringe)
           safe_depth_override(depth_map, r, c, NAN);
       }
+  }
+
+  // Erode the mask
+  std::vector<int> x_erode, y_erode;
+  cv::Mat temp = depth_map.colRange(focus_box.xmin, focus_box.xmax)
+                          .rowRange(focus_box.ymin, focus_box.ymax);
+  depth_map.copyTo(temp);
+
+  for (int i = 0; i < erode_dilate_strength; i++) {
+    for (int r = focus_box.ymin; r < focus_box.ymax; r++)
+      for (int c = focus_box.xmin; c < focus_box.xmax; c++) {
+        float d = depth_map.at<float>(r, c, 0);
+        if (!std::isnan(d)) {
+          int neighbors = (safe_depth_sample(depth_map, r + 1, c) > 0) +
+                          (safe_depth_sample(depth_map, r - 1, c) > 0) +
+                          (safe_depth_sample(depth_map, r, c + 1) > 0) +
+                          (safe_depth_sample(depth_map, r, c - 1) > 0);
+          if (neighbors != 4) {
+            x_erode.push_back(c);
+            y_erode.push_back(r);
+          }
+        }
+      }
+
+    for (int i = 0; i < x_erode.size(); i++)
+      safe_depth_override(depth_map, y_erode[i], x_erode[i], NAN);
+
+    x_erode.clear();
+    y_erode.clear();
+  }
+
+  // Dilate the mask
+  for (int i = 0; i < erode_dilate_strength; i++) {
+    for (int r = focus_box.ymin; r < focus_box.ymax; r++) {
+      for (int c = focus_box.xmin; c < focus_box.xmax; c++) {
+        float d = depth_map.at<float>(r, c, 0);
+
+        if (std::isnan(d)) {
+          if (!std::isnan(safe_depth_sample(depth_map, r + 1, c)) ||
+              !std::isnan(safe_depth_sample(depth_map, r - 1, c)) ||
+              !std::isnan(safe_depth_sample(depth_map, r, c + 1)) ||
+              !std::isnan(safe_depth_sample(depth_map, r, c - 1)))
+            safe_depth_override(depth_map, r, c, safe_depth_sample(temp, r, c));
+        }
+      }
+    }
   }
 
   // Average all remaining points for the final answer
@@ -278,26 +337,32 @@ double estimate_distance(const darknet_ros_msgs::BoundingBox &box,
   return estimate;
 }
 
-std::pair<double, double> get_2d_offset(
-    const darknet_ros_msgs::BoundingBox &box,
-    const sensor_msgs::Image &img)
+geometry_msgs::Point get_position(const darknet_ros_msgs::BoundingBox &box,
+                                  const sensor_msgs::Image &img)
 {
   double distance = estimate_distance(box, img);
 
   if (distance == 0)
-    return std::pair<double, double>(0, 0);
+    return geometry_msgs::Point();
 
   int box_x = (box.xmin + box.xmax) / 2;
   int box_y = (box.ymin + box.ymax) / 2;
 
   float theta_x = (box_x - IMAGE_WIDTH / 2) * 1.0 / (IMAGE_WIDTH / 2)
                   * (KINECT_HORIZ_FOV / 2);
-  float theta_y = (IMAGE_HEIGHT - box_y) * 1.0 / IMAGE_HEIGHT * KINECT_VERT_FOV;
+  float theta_y = -(box_y - IMAGE_HEIGHT / 2) * 1.0 / (IMAGE_HEIGHT / 2)
+                  * (KINECT_VERT_FOV / 2);
   float x_comp_off = distance * cos(theta_y);
   float x_rel = x_comp_off * sin(theta_x);
   float y_rel = x_comp_off * cos(theta_x);
+  float z_rel = distance * sin(theta_y);
 
-  return std::pair<double, double>(x_rel, y_rel);
+  geometry_msgs::Point position;
+  position.x = x_rel;
+  position.y = y_rel;
+  position.z = z_rel;
+
+  return position;
 }
 
 }; // end namespace kinect_fusion
