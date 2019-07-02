@@ -1,4 +1,5 @@
 #include <bwi_scavenger/global_topics.h>
+#include <bwi_scavenger/kinect_fusion.h>
 #include <bwi_scavenger/RobotMove.h>
 #include <bwi_scavenger/RobotStop.h>
 #include <bwi_scavenger/mapping.h>

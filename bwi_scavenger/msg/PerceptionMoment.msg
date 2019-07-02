@@ -1,0 +1,4 @@
+sensor_msgs/Image depth_image
+sensor_msgs/Image color_image
+darknet_ros_msgs/BoundingBoxes bounding_boxes
+int64 uid

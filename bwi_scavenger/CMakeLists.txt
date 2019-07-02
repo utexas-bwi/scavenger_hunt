@@ -64,6 +64,7 @@ catkin REQUIRED COMPONENTS
    TaskProof.msg
    RobotMove.msg
    RobotStop.msg
+   PerceptionMoment.msg
  )
 
 ## Generate services in the 'srv' folder
@@ -84,6 +85,7 @@ catkin REQUIRED COMPONENTS
  generate_messages(
    DEPENDENCIES
    sensor_msgs
+   darknet_ros_msgs
  )
 
 ################################################
@@ -228,15 +230,15 @@ target_link_libraries(kinect_test
   ${catkin_LIBRARIES}
   curl)
 
-add_executable(priority_test
-  src/priority_test.cpp
-  src/robot_motion.cpp
-  src/mapping.cpp)
+add_executable(perception_node
+  src/perception_node.cpp)
 
-target_link_libraries(priority_test
+add_dependencies(perception_node
+  bwi_scavenger_generate_messages_cpp)
+
+target_link_libraries(perception_node
   ${OpenCV_LIBS}
-  ${catkin_LIBRARIES}
-  curl)
+  ${catkin_LIBRARIES})
 
 # add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
 

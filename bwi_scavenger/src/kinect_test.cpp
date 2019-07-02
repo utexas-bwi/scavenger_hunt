@@ -9,7 +9,7 @@
 
 sensor_msgs::Image depth;
 bool depth_stale = true;
-std::string target = "cup";
+std::string target = "person";
 
 ros::Publisher pub_map_visualizer;
 
