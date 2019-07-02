@@ -124,7 +124,8 @@ int Clusterer::generate_clusters(float eps, int minPoints){
     }
 
     current_point.label = IN_CLUSTER;
-    Cluster cluster(count, current_point);
+    Cluster cluster(count);
+    cluster.add_to_list(current_point);
     count++;
     // expand cluster with the current point's neighbors
     std::cout << std::to_string(current_point.num);
@@ -156,11 +157,9 @@ Cluster Clusterer::get_largest_cluster(){
   return *maxCluster;
 }
 
-Cluster::Cluster(int num, point p){
+Cluster::Cluster(int num){
   this->num = num;
   std::vector<point> newList;
-  list = newList;
-  list.push_back(p);
 }
 
 Cluster::~Cluster(){}
@@ -172,14 +171,19 @@ Cluster::~Cluster(){}
   @param cluster cluster  that the point is being checked against
 */
 bool Clusterer::in_cluster(float* point, Cluster cluster){
-  // std::cout << "coor: " << std::to_string(point[0]) << ", " << std::to_string(point[1]) << std::endl;
+  float dimen[num_dimensions];
   for(int i = 0; i < cluster.size(); i++){
-    float distance = calculate_distance(cluster.get_point(i).coordinate, point, num_dimensions);
-    // std::cout << "hi hi" << std::endl;
-    if(distance < eps)
-      return true;
+    for(int j = 0; j < num_dimensions; j++)
+      dimen[j] += cluster.get_point(i).coordinate[j];
   }
-  return false;
+  
+  for(int i = 0; i < num_dimensions; i++){
+    // std::cout << dimen[i] << " ";
+    dimen[i] /= cluster.size();
+  }
+  // std::cout << dimen[0] << ", " << dimen[1] << std::endl;
+  float distance = calculate_distance(dimen, point, num_dimensions);
+  return distance < eps;
 }
 
 void Cluster::add_to_list(point p){

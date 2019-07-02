@@ -27,7 +27,7 @@ class Cluster{
     std::vector<point> list;
 
   public:
-    Cluster(int num, point point);
+    Cluster(int num);
 
     ~Cluster();
 

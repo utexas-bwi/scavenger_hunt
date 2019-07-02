@@ -204,8 +204,8 @@ target_link_libraries(yolo_node
 
 add_executable(clusterer_test
   src/clusterer_test.cpp
-  src/dbscan.cpp)
-  #src/dbscan_object.cpp
+  src/dbscan.cpp
+  src/dbscan_object.cpp)
 
 target_link_libraries(clusterer_test
   ${OpenCV_LIBS}
