@@ -1,6 +1,7 @@
 #include <bwi_scavenger/dbscan.h>
 
 #define OBJECT_DIMEN 2
+#define ROBOT_DIMEN 2
 #define EPS 50
 #define MIN_POINTS 80
 #define INCORRECT_THRESHOLD 0.50
@@ -10,6 +11,8 @@ class ObjectCluster: public Cluster{
   protected:
     int num_correct;
     int num_incorrect;
+    float* robot_location;
+    bool correct;
   
   public:
     ObjectCluster(int num);
@@ -19,10 +22,18 @@ class ObjectCluster: public Cluster{
     int get_correct();
 
     int get_incorrect();
+    
+    float* get_robot_location();
+
+    bool get_verification();
 
     void set_num_correct(int num);
 
     void set_num_incorrect(int num);
+
+    void set_robot_location(float* point);
+
+    void set_verification(bool ver);
 };
 
 class ObjectClusterer: public Clusterer{
@@ -30,7 +41,6 @@ class ObjectClusterer: public Clusterer{
     float** object_points;
     float** robot_points;
     int size_of_database;
-    int num_clusters;
 
   public:
     ObjectClusterer(float** object_points, float** robot_points, bool* verification, int size_of_database);
