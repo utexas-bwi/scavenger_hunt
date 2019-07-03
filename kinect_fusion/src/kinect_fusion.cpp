@@ -36,11 +36,11 @@ namespace kinect_fusion {
   Default extrema identification parameters. Freely reconfigurable at compile
   or run time.
 */
-float extrema_search_minimum_magnitude = 0.15; // 0.15 m between partition ends
-float interquartile_trim_width         = 0.85; // Avg inner 85%
-int   extrema_search_partitions        = 16;   // 16 partitions per iteration
-int   extrema_search_thoroughness      = 3;    // 3 iterations per search
-int   erode_dilate_strength            = 10;   // 10 layers of erode/dilate
+unsigned int extrema_search_partitions        = 16;   // 16 partitions per iteration
+unsigned int extrema_search_thoroughness      = 3;    // 3 iterations per search
+unsigned int erode_dilate_strength            = 10;   // 10 layers of erode/dilate
+float        extrema_search_minimum_magnitude = 0.15; // 0.15 m between partition ends
+float        interquartile_trim_width         = 0.85; // Avg inner 85%
 
 // Private utilities
 namespace {
@@ -348,14 +348,14 @@ geometry_msgs::Point get_position(const darknet_ros_msgs::BoundingBox &box,
   int box_x = (box.xmin + box.xmax) / 2;
   int box_y = (box.ymin + box.ymax) / 2;
 
-  float theta_x = (box_x - IMAGE_WIDTH / 2) * 1.0 / (IMAGE_WIDTH / 2)
+  float theta_xy = (box_x - IMAGE_WIDTH / 2) * 1.0 / (IMAGE_WIDTH / 2)
                   * (KINECT_HORIZ_FOV / 2);
-  float theta_y = -(box_y - IMAGE_HEIGHT / 2) * 1.0 / (IMAGE_HEIGHT / 2)
+  float theta_z = -(box_y - IMAGE_HEIGHT / 2) * 1.0 / (IMAGE_HEIGHT / 2)
                   * (KINECT_VERT_FOV / 2);
-  float x_comp_off = distance * cos(theta_y);
-  float x_rel = x_comp_off * sin(theta_x);
-  float y_rel = x_comp_off * cos(theta_x);
-  float z_rel = distance * sin(theta_y);
+  float x_comp_off = distance * cos(theta_z);
+  float y_rel = x_comp_off * sin(theta_xy);
+  float x_rel = x_comp_off * cos(theta_xy);
+  float z_rel = distance * sin(theta_z);
 
   geometry_msgs::Point position;
   position.x = x_rel;
