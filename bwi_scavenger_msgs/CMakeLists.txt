@@ -21,6 +21,10 @@ add_message_files(FILES
   DatabaseInfo.msg
 )
 
+add_service_files(FILES
+  PoseRequest.srv
+)
+
 generate_messages(DEPENDENCIES
   sensor_msgs
   std_msgs

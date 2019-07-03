@@ -1,6 +1,8 @@
 #include <bwi_scavenger/global_topics.h>
 #include <bwi_scavenger/move_node.h>
 
+#include <bwi_scavenger_msgs/PoseRequest.h>
+
 #include <geometry_msgs/Pose.h>
 #include <math.h>
 #include <limits.h>
@@ -34,6 +36,32 @@ void getMapId(const nav_msgs::OccupancyGrid::ConstPtr &grid){
   listener = new tf::TransformListener();
   gridFrameId = grid->header.frame_id;
   rm = new RobotMotion(gridFrameId, *listener);
+}
+
+bool serveRobotPose(bwi_scavenger_msgs::PoseRequest::Request &req,
+                    bwi_scavenger_msgs::PoseRequest::Response &res) {
+  tf::StampedTransform robotTransform;
+  listener->waitForTransform(gridFrameId, "base_link", ros::Time::now(), ros::Duration(4));
+  listener->lookupTransform(gridFrameId, "base_link", ros::Time(0), robotTransform);
+
+  geometry_msgs::Point pose_position;
+  pose_position.x = robotTransform.getOrigin().x();
+  pose_position.y = robotTransform.getOrigin().y();
+  pose_position.z = 0;
+
+  geometry_msgs::Quaternion pose_orientation;
+  pose_orientation.w = robotTransform.getRotation().w();
+  pose_orientation.x = robotTransform.getRotation().x();
+  pose_orientation.y = robotTransform.getRotation().y();
+  pose_orientation.z = robotTransform.getRotation().z();
+
+  geometry_msgs::Pose pose;
+  pose.position = pose_position;
+  pose.orientation = pose_orientation;
+
+  res.pose = pose;
+
+  return true;
 }
 
 void broadcastRobotPose(const std_msgs::Bool::ConstPtr &msg) {
@@ -71,6 +99,9 @@ int main(int argc, char **argv){
 
   movePub = moveNode.advertise<std_msgs::Bool>(TPC_MOVE_NODE_FINISHED, 1);
   pub_robot_pose = moveNode.advertise<geometry_msgs::Pose>(TPC_MOVE_NODE_ROBOT_POSE, 1);
+
+  ros::ServiceServer srv_pose_request =
+      moveNode.advertiseService("pose_request", serveRobotPose);
 
   ROS_INFO("[move_node] Standing by.");
 

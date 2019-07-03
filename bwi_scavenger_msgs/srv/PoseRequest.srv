@@ -1,0 +1,3 @@
+bool b
+---
+geometry_msgs/Pose pose
