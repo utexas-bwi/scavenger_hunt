@@ -14,7 +14,7 @@ typedef darknet_ros_msgs::CheckForObjectsGoal CvSweepGoal;
 typedef actionlib::SimpleActionClient<CvSweepAction> CvSweepActionClient;
 typedef std::shared_ptr<CvSweepActionClient> CvSweepActionClientPtr;
 
-static darknet_ros_msgs::BoundingBoxes *cv_sweep_result_dest;
+static darknet_ros_msgs::BoundingBoxes cv_sweep_result_dest;
 
 static sensor_msgs::Image depth_image;
 
@@ -38,7 +38,7 @@ void save_depth(const sensor_msgs::Image::ConstPtr &msg) {
 */
 void cv_sweep_cb(const actionlib::SimpleClientGoalState& state,
     const darknet_ros_msgs::CheckForObjectsResultConstPtr& result) {
-  *cv_sweep_result_dest = result->bounding_boxes;
+  cv_sweep_result_dest = result->bounding_boxes;
 }
 
 /**
@@ -81,7 +81,7 @@ void vision(const sensor_msgs::Image &msg) {
   bwi_scavenger_msgs::PerceptionMoment perception;
   perception.color_image = msg;
   perception.depth_image = depth_image;
-  perception.bounding_boxes = *cv_sweep_result_dest;
+  perception.bounding_boxes = cv_sweep_result_dest;
   perception.uid = moment_uid;
 
   moment_uid++;
