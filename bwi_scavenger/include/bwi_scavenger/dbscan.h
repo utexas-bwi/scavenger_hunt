@@ -60,7 +60,7 @@ public:
 
   Cluster get_largest_cluster();
     
-  bool in_cluster(float* point, Cluster cluster);
+  bool in_cluster(float* point, int cluster_num);
 };
 
 #endif

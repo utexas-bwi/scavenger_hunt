@@ -17,6 +17,8 @@ add_message_files(FILES
   RobotMove.msg
   RobotStop.msg
   PerceptionMoment.msg
+  DatabaseProof.msg
+  DatabaseInfo.msg
 )
 
 generate_messages(DEPENDENCIES

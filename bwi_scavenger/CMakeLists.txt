@@ -84,6 +84,7 @@ catkin REQUIRED COMPONENTS
    DEPENDENCIES
    sensor_msgs
    darknet_ros_msgs
+   geometry_msgs
    bwi_scavenger_msgs
  )
 
@@ -186,15 +187,24 @@ target_link_libraries(yolo_node
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
-#add_executable(do_hunt
-#  src/do_hunt.cpp
-#  src/file_editor.cpp
-#  src/dbscan.cpp)
+add_executable(database_node
+  src/database_node.cpp
+  src/dbscan.cpp
+  src/dbscan_object.cpp)
 
-#target_link_libraries(do_hunt
-#  ${OpenCV_LIBS}
-#  ${catkin_LIBRARIES}
-#  curl)
+target_link_libraries(database_node
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
+
+add_executable(do_hunt
+  src/do_hunt.cpp
+  src/file_editor.cpp
+  src/dbscan.cpp)
+
+target_link_libraries(do_hunt
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES}
+  curl)
 
 add_executable(clusterer_test
   src/clusterer_test.cpp

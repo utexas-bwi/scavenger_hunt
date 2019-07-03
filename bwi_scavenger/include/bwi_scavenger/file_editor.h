@@ -21,10 +21,10 @@ typedef struct{
 enum proof_item_num{
   PROOF_ID,
   VERIFICATION,
-  ROBOT_POSE,
-  SECONDARY_POSE,
   TASK,
-  PARAMETER
+  PARAMETER,
+  ROBOT_POSE,
+  SECONDARY_POSE
 };
 
 enum verification{

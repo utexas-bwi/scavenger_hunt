@@ -1,5 +1,7 @@
 #include <bwi_scavenger/global_topics.h>
 #include <bwi_scavenger_msgs/TaskStart.h>
+#include <bwi_scavenger_msgs/DatabaseProof.h>
+
 #include <map>
 #include <ros/ros.h>
 #include <scavenger_hunt/scavenger_hunt.h>
@@ -13,12 +15,12 @@
 #define PATH_TO_FILE "/home/scavenger_hunt/proofs.txt"
 #define FILENAME "proofs.txt"
 
-static ScavengerHuntClient client("stefandebruyn@utexas.edu", "sick robots");
+static ScavengerHuntClient client("jsuriadinata@utexas.edu", "Tr3asure");
 static std::vector<Task> tasks;
 static int task_index = 0;
 static double t_task_start, t_task_end;
 
-static ros::Publisher pub_task_start, pub_yolo_node_target;
+static ros::Publisher pub_task_start, pub_yolo_node_target, pub_done_parse, pub_proof;
 
 static bool hunt_started = false;
 static bool conclude = false;
@@ -27,22 +29,42 @@ static bool can_write = false;
 static proof_item proof;
 static ros::Publisher pub_location;
 
+enum writing{
+  READ,
+  WRITE
+};
+
 /**
   Updates verification of the proof (incorrect or correct)
 */
 void parse_proofs(){
-  FileEditor *read = new FileEditor("proofs.txt", false);
-  FileEditor *write = new FileEditor("temp.txt", true);
+  FileEditor *read = new FileEditor("proofs.txt", READ);
+  FileEditor *write = new FileEditor("temp.txt", WRITE);
 
   std::string str;
   while((*read).read_line()){
     proof.proof_id = (*read).get_proof_id();
-    if(proof.proof_id){
+    proof.verification = (*read).get_verification();
+    if(proof.verification == UNVERIFIED)
       proof.verification = client.get_proof_status(proof.proof_id);
+
+    if(proof.proof_id){
       proof.task_name = (*read).get_task_name();
       proof.parameter_name = (*read).get_parameter();
       proof.robot_pose = (*read).get_robot_pose();
-      proof.robot_pose = (*read).get_secondary_pose();
+      proof.secondary_pose = (*read).get_secondary_pose();
+
+      if(proof.verification != UNVERIFIED){
+        bwi_scavenger_msgs::DatabaseProof proofMsg;
+        proofMsg.task = proof.task_name;
+        proofMsg.param = proof.parameter_name;
+        proofMsg.robot_pose = proof.robot_pose;
+        proofMsg.secondary_pose = proof.secondary_pose;
+        proofMsg.verification = proof.verification;
+        pub_proof.publish(proofMsg);
+        ros::Duration(0.25).sleep();
+      }
+
       (*write).write_to_file(proof);
     }
   }
@@ -52,6 +74,12 @@ void parse_proofs(){
   (*read).delete_file();
   // will delete invalid proofs (based on proof id)
   (*write).rename_file("proofs.txt");
+
+  std_msgs::Bool msg;
+  pub_done_parse.publish(msg);
+  
+  ros::Duration(1.0).sleep();
+
 }
 
 /**
@@ -60,10 +88,10 @@ void parse_proofs(){
 void write_file(const geometry_msgs::Pose::ConstPtr &pose){
   if(can_write){
     ROS_INFO("[main_node] Writing to file");
-    FileEditor *fe = new FileEditor("proofs.txt", true);
+    FileEditor *fe = new FileEditor("proofs.txt", WRITE);
     proof.verification = UNVERIFIED;
     proof.robot_pose = *pose;
-    // TODO change for object pose
+    // TODO change for object pose... need another callback that receives object pose and stores it
     proof.secondary_pose = *pose;
     fe->write_to_file(proof);
     fe->close();
@@ -133,7 +161,7 @@ void next_task(bool upload=false) {
     // Begin Find Object
     bwi_scavenger_msgs::TaskStart task;
     task.name = "Find Object";
-    task.parameters.push_back(target_object);
+    task.parameters.push_back(target_object.data);
     pub_task_start.publish(task);
   }
 }
@@ -152,6 +180,8 @@ int main(int argc, char **argv) {
   pub_task_start = nh.advertise<bwi_scavenger_msgs::TaskStart>(TPC_MAIN_NODE_TASK_START, 1);
   pub_yolo_node_target = nh.advertise<std_msgs::String>(TPC_YOLO_NODE_TARGET, 1);
   pub_location = nh.advertise<std_msgs::Bool>(TPC_MOVE_NODE_REQUEST_POSE, 1);
+  pub_done_parse = nh.advertise<std_msgs::Bool>(TPC_DATABASE_NODE_DONE_PARSE, 1);
+  pub_proof = nh.advertise<bwi_scavenger_msgs::DatabaseProof>(TPC_DATABASE_NODE_UPDATE_PROOF, 1);
 
   ros::Subscriber sub_task_complete = nh.subscribe(TPC_TASK_COMPLETE, 1, next_task_cb);
   ros::Subscriber sub_location = nh.subscribe(TPC_MOVE_NODE_ROBOT_POSE, 1, write_file);

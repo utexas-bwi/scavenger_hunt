@@ -17,4 +17,10 @@ const char TPC_MAIN_NODE_TASK_START[] = "/bwi_scavenger/main_node/task_start";
 
 const char TPC_PERCEPTION_NODE_MOMENT[] = "/bwi_scavenger/perception_node/moment";
 
+const char TPC_DATABASE_NODE_UPDATE_PROOF[] = "/bwi_scavenger/database_node/update_proof";
+const char TPC_DATABASE_NODE_DONE_PARSE[] = "/bwi_scavenger/database_node/done_parse";
+const char TPC_DATABASE_NODE_GET_INFO[] = "/bwi_scavenger/database_node/get_info";
+const char TPC_DATABASE_NODE_INCORRECT[] = "/bwi_scavenger/database_node/incorrect";
+
+
 #endif

@@ -7,6 +7,8 @@
 #include <bwi_scavenger_msgs/RobotStop.h>
 #include <bwi_scavenger_msgs/TaskStart.h>
 #include <bwi_scavenger_msgs/PerceptionMoment.h>
+#include <bwi_scavenger_msgs/DatabaseProof.h>
+#include <bwi_scavenger_msgs/DatabaseInfo.h>
 
 #include <cv_bridge/cv_bridge.h>
 #include <geometry_msgs/Pose.h>
@@ -36,6 +38,7 @@ static ros::Publisher pub_move;
 static ros::Publisher pub_stop;
 static ros::Publisher pub_task_complete;
 static ros::Publisher pub_pose_request;
+static ros::Publisher pub_get_info;
 
 static environment_location current_location;
 
@@ -54,6 +57,8 @@ static sensor_msgs::Image::ConstPtr last_darknet_img;
 static OrderedLocationSet map;
 
 static std::string target_object;
+
+static bool incorrect = true;
 
 /*------------------------------------------------------------------------------
 STATE MACHINE DEFINITION
@@ -362,6 +367,7 @@ void pose_request_cb(const geometry_msgs::Pose::ConstPtr &msg) {
   }
 }
 
+
 // Called when the perception node publishes a new moment
 void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
   const darknet_ros_msgs::BoundingBoxes &boxes = msg->bounding_boxes;
@@ -373,15 +379,28 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
     if (box.Class == target_object) {
       // std::pair<double, double> target_position =
           // kinect_fusion::get_2d_offset(box, depth_image);
-      double d = kinect_fusion::estimate_distance(box, depth_image);
-      // if position is not in a cluster of previous failures {
-        state_id_t state = sm.get_current_state()->get_id();
-        if (state == STATE_SCANNING || state == STATE_TRAVELING)
-          ssv.target_seen = true;
-        else if (state == STATE_INSPECTING && !ssv.inspect_finished)
-          ssv.inspect_confirmations++;
-      // }
+      // double d = kinect_fusion::estimate_distance(box, depth_image);
+
+      bwi_scavenger_msgs::DatabaseInfo get_info;
+      get_info.task_name = "Find Object";
+      get_info.parameter_name = target_object;
+      get_info.data = 0;
+      get_info.pose.position = kinect_fusion::get_position(box, depth_image);
+
+      pub_get_info.publish(get_info);
+      break;
     }
+  }
+}
+
+void incorrect_cb(const std_msgs::Bool::ConstPtr &msg){
+  // if it is NOT in an incorrect cluster, add to count of correct data
+  if(!(msg->data)){
+    state_id_t state = sm.get_current_state()->get_id();
+    if (state == STATE_SCANNING || state == STATE_TRAVELING)
+      ssv.target_seen = true;
+    else if (state == STATE_INSPECTING && !ssv.inspect_finished)
+      ssv.inspect_confirmations++;
   }
 }
 
@@ -408,6 +427,7 @@ int main(int argc, char **argv) {
   pub_stop = nh.advertise<bwi_scavenger_msgs::RobotStop>(TPC_MOVE_NODE_STOP, 1);
   pub_task_complete = nh.advertise<std_msgs::Bool>(TPC_TASK_COMPLETE, 1);
   pub_pose_request = nh.advertise<std_msgs::Bool>(TPC_MOVE_NODE_REQUEST_POSE, 1);
+  pub_get_info = nh.advertise<bwi_scavenger_msgs::DatabaseInfo>(TPC_DATABASE_NODE_GET_INFO, 1);
 
   ros::Subscriber sub0 = nh.subscribe(TPC_YOLO_NODE_TARGET_SEEN, 1, target_seen_cb);
   ros::Subscriber sub1 = nh.subscribe(TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
@@ -415,7 +435,7 @@ int main(int argc, char **argv) {
   ros::Subscriber sub3 = nh.subscribe(TPC_MAIN_NODE_TASK_START, 1, task_start_cb);
   ros::Subscriber sub4 = nh.subscribe(TPC_MOVE_NODE_ROBOT_POSE, 1, pose_request_cb);
   ros::Subscriber sub5 = nh.subscribe(TPC_PERCEPTION_NODE_MOMENT, 1, perceive);
-
+  ros::Subscriber sub6 = nh.subscribe(TPC_DATABASE_NODE_INCORRECT, 1, incorrect_cb);
   // Build state machine
   s_traveling->add_output(s_end);
   s_traveling->add_output(s_scanning);

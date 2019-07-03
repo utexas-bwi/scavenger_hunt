@@ -170,7 +170,8 @@ Cluster::~Cluster(){}
   @param point Point that is being checked
   @param cluster cluster  that the point is being checked against
 */
-bool Clusterer::in_cluster(float* point, Cluster cluster){
+bool Clusterer::in_cluster(float* point, int cluster_num){
+  Cluster &cluster = cluster_list[cluster_num];
   float dimen[num_dimensions];
   for(int i = 0; i < cluster.size(); i++){
     for(int j = 0; j < num_dimensions; j++)
