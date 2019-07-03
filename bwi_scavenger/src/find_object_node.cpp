@@ -396,6 +396,7 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
 void incorrect_cb(const std_msgs::Bool::ConstPtr &msg){
   // if it is NOT in an incorrect cluster, add to count of correct data
   if(!(msg->data)){
+  ROS_INFO("[find_object_node] Not in an incorrect position, add to data");
     state_id_t state = sm.get_current_state()->get_id();
     if (state == STATE_SCANNING || state == STATE_TRAVELING)
       ssv.target_seen = true;
