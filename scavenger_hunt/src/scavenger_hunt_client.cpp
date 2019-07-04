@@ -443,10 +443,15 @@ proof_id_t ScavengerHuntClient::send_proof(std::string image_path, Task &task,
 
   proof_id_t uid = UPLOAD_FAILED;
 
+  std::cout << http_received_data;
+
+  bool upload_succeeded =
+      http_received_data.find("failed") == std::string::npos;
+
   if (!success)
     std::cout << get_telemetry_tag(user_email, "send_proof") <<
         "Failed to contact Scavenger Hunt." << std::endl;
-  else {
+  else if (upload_succeeded) {
     // Parse proof ID
     std::string key = "Proof ID: ";
     std::size_t pos = http_received_data.find(key);
