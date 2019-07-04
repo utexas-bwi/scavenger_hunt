@@ -1,4 +1,4 @@
-#include <bwi_scavenger/dbscan.h>
+// #include <bwi_scavenger/dbscan.h>
 #include <bwi_scavenger/dbscan_object.h>
 
 void generateCluster(float** points, int numPoints, int start){
@@ -22,7 +22,7 @@ int main(int argc, char **argv){
     *(points + i + 1000) = point;  
   }
 
-  // Clusterer c(points, 2, 1500);
+  // Clusterer<Cluster> c(points, 2, 1500);
   // std::cout << "Created clusterer" << std::endl;
 
   // int num_clusters = c.generate_clusters(50, 80);
@@ -38,9 +38,9 @@ int main(int argc, char **argv){
 
   // std::cout << "There were " << std::to_string(num_clusters) << " clusters in this data set" << std::endl;
 
-  // Cluster largest_cluster = c.get_largest_cluster();
+  // int largest_cluster = c.get_largest_cluster().cluster_num();
 
-  // std::cout << "The largest cluster was cluster number " << std::to_string(largest_cluster.cluster_num()) << std::endl;
+  // std::cout << "The largest cluster was cluster number " << std::to_string(largest_cluster) << std::endl;
 
 
   // for(int i = 0; i < 100; i++){

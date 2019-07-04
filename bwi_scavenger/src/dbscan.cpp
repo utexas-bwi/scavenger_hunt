@@ -6,7 +6,7 @@ typedef std::vector<point*> Neighbors;
   Creates a new Clusterer object that stores the database of poses, radius eps and
   the minimum number of points for a cluster to form
 */
-Clusterer::Clusterer(float** db, int num_dimensions, int size_of_database){ 
+template <class T> Clusterer<T>::Clusterer(float** db, int num_dimensions, int size_of_database){ 
   this->num_dimensions = num_dimensions;
   this->size_of_database = size_of_database;
   this->database = new point[size_of_database];
@@ -22,9 +22,9 @@ Clusterer::Clusterer(float** db, int num_dimensions, int size_of_database){
   }
 }
 
-Clusterer::~Clusterer(){
-  // delete database;
-  // delete &cluster_list;
+template <class T> Clusterer<T>::~Clusterer(){
+  delete database;
+  delete &cluster_list;
 }
 
 /**
@@ -56,7 +56,7 @@ Neighbors get_neighbors(point* db, point &p, float eps, int size_of_database, in
   Expands the cluster for each of the original point's neighbors
 */
 void expand_cluster(point* db, Cluster &current_cluster, Neighbors n, float eps, int minPoints, int size_of_database, int num_dimensions){
-  std::cout << " expand_cluster " << std::endl;
+  // std::cout << " expand_cluster " << std::endl;
   for(int j = 0; j < n.size(); j++){
     point &secondary_point = *(n[j]);
 
@@ -96,7 +96,7 @@ void expand_cluster(point* db, Cluster &current_cluster, Neighbors n, float eps,
   @param eps radius to check for neighbors at and main cluster radius
   @param minPoints minimum number of points required to create a cluster
 */
-int Clusterer::generate_clusters(float eps, int minPoints){
+template <class T> int Clusterer<T>::generate_clusters(float eps, int minPoints){
 
   this->eps = eps;
   this->minPoints = minPoints;
@@ -118,7 +118,7 @@ int Clusterer::generate_clusters(float eps, int minPoints){
       
     Neighbors n = get_neighbors(database, current_point, eps, size_of_database, num_dimensions);
     // point is "noise" if it does not have enough neighbors;
-    if(n.size() < minPoints){
+    if(n.size() + 1 < minPoints){
       current_point.label = NOISE;
       continue;
     }
@@ -128,8 +128,9 @@ int Clusterer::generate_clusters(float eps, int minPoints){
     cluster.add_to_list(current_point);
     count++;
     // expand cluster with the current point's neighbors
-    std::cout << std::to_string(current_point.num);
+    // std::cout << std::to_string(current_point.num);
     expand_cluster(database, cluster, n, eps, minPoints, size_of_database, num_dimensions);
+    // std::cout << "adding to cluster list" << std::endl;
     cluster_list.push_back(cluster);
   }
   return count;
@@ -138,13 +139,13 @@ int Clusterer::generate_clusters(float eps, int minPoints){
 /**
   Returns a the cluster associated with the cluster number
 */
-Cluster Clusterer::get_cluster(int cluster_num){
+template <class T> Cluster Clusterer<T>::get_cluster(int cluster_num){
   return cluster_list[cluster_num];
 }
 /**
   Returns the cluster number of the largest cluster in the data set
 */
-Cluster Clusterer::get_largest_cluster(){
+template <class T> Cluster Clusterer<T>::get_largest_cluster(){
   int max = 0;
   Cluster *maxCluster;
   for(int i = 0; i < cluster_list.size(); i++){
@@ -157,20 +158,13 @@ Cluster Clusterer::get_largest_cluster(){
   return *maxCluster;
 }
 
-Cluster::Cluster(int num){
-  this->num = num;
-  std::vector<point> newList;
-}
-
-Cluster::~Cluster(){}
-
 /** 
   Returns whether or not a point is contained in a specific cluster
 
   @param point Point that is being checked
   @param cluster cluster  that the point is being checked against
 */
-bool Clusterer::in_cluster(float* point, int cluster_num){
+template <class T> bool Clusterer<T>::in_cluster(float* point, int cluster_num){
   Cluster &cluster = cluster_list[cluster_num];
   float dimen[num_dimensions];
   for(int i = 0; i < cluster.size(); i++){
@@ -186,6 +180,15 @@ bool Clusterer::in_cluster(float* point, int cluster_num){
   float distance = calculate_distance(dimen, point, num_dimensions);
   return distance < eps;
 }
+
+Cluster::Cluster(int num){
+  this->num = num;
+  std::vector<point> newList;
+  this->list = newList;
+}
+
+Cluster::~Cluster(){}
+
 
 void Cluster::add_to_list(point p){
   list.push_back(p);

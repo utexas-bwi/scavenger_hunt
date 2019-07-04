@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(bwi_scavenger)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
+add_compile_options(-std=c++11 -g)
 
 
 ## Find catkin macros and libraries
@@ -189,17 +189,16 @@ target_link_libraries(yolo_node
 
 add_executable(database_node
   src/database_node.cpp
-  src/dbscan.cpp
   src/dbscan_object.cpp)
 
-target_link_libraries(database_node
+ target_link_libraries(database_node
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
 add_executable(do_hunt
   src/do_hunt.cpp
   src/file_editor.cpp
-  src/dbscan.cpp)
+  src/dbscan_object.cpp)
 
 target_link_libraries(do_hunt
   ${OpenCV_LIBS}
@@ -208,7 +207,6 @@ target_link_libraries(do_hunt
 
 add_executable(clusterer_test
   src/clusterer_test.cpp
-  src/dbscan.cpp
   src/dbscan_object.cpp)
 
 target_link_libraries(clusterer_test
