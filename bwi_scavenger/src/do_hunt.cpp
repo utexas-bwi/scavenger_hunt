@@ -1,4 +1,5 @@
-#include <bwi_scavenger/global_topics.h>
+#include <bwi_scavenger/globals.h>
+#include <bwi_scavenger_msgs/TaskEnd.h>
 #include <bwi_scavenger_msgs/TaskStart.h>
 #include <bwi_scavenger_msgs/DatabaseProof.h>
 
@@ -12,22 +13,18 @@
 #include <std_msgs/Bool.h>
 
 #define CURRENT_TASK tasks[task_index]
-#define PATH_TO_FILE "/home/scavenger_hunt/proofs.txt"
-#define FILENAME "proofs.txt"
 
-static ScavengerHuntClient client("jsuriadinata@utexas.edu", "Tr3asure");
+static ScavengerHuntClient client("stefandebruyn@utexas.edu", "sick robots");
 static std::vector<Task> tasks;
 static int task_index = 0;
-static double t_task_start, t_task_end;
+static double t_task_start;
 
-static ros::Publisher pub_task_start, pub_yolo_node_target, pub_done_parse, pub_proof;
+static ros::Publisher pub_task_start, pub_done_parse, pub_proof;
 
 static bool hunt_started = false;
 static bool conclude = false;
 
-static bool can_write = false;
 static proof_item proof;
-static ros::Publisher pub_location;
 
 enum writing{
   READ,
@@ -38,8 +35,8 @@ enum writing{
   Updates verification of the proof (incorrect or correct)
 */
 void parse_proofs(){
-  FileEditor *read = new FileEditor("proofs.txt", READ);
-  FileEditor *write = new FileEditor("temp.txt", WRITE);
+  FileEditor *read = new FileEditor(PROOF_DATABASE_PATH, READ);
+  FileEditor *write = new FileEditor(PROOF_DATABASE_PATH + ".tmp", WRITE);
 
   std::string str;
   while((*read).read_line()){
@@ -73,30 +70,13 @@ void parse_proofs(){
 
   (*read).delete_file();
   // will delete invalid proofs (based on proof id)
-  (*write).rename_file("proofs.txt");
+  (*write).rename_file(PROOF_DATABASE_PATH);
 
   std_msgs::Bool msg;
   pub_done_parse.publish(msg);
-  
+
   ros::Duration(1.0).sleep();
 
-}
-
-/**
-  Appends proof onto proofs file
-*/
-void write_file(const geometry_msgs::Pose::ConstPtr &pose){
-  if(can_write){
-    ROS_INFO("[main_node] Writing to file");
-    FileEditor *fe = new FileEditor("proofs.txt", WRITE);
-    proof.verification = UNVERIFIED;
-    proof.robot_pose = *pose;
-    // TODO change for object pose... need another callback that receives object pose and stores it
-    proof.secondary_pose = *pose;
-    fe->write_to_file(proof);
-    fe->close();
-    can_write = false;
-  }
 }
 
 /**
@@ -104,24 +84,29 @@ void write_file(const geometry_msgs::Pose::ConstPtr &pose){
 
   @param upload whether or not to upload a proof
 */
-void next_task(bool upload=false) {
+void next_task(const bwi_scavenger_msgs::TaskEnd::ConstPtr &msg) {
   if (hunt_started) {
     // Upload proof if requested by the last task node
-    if (upload) {
-      // saving task and parameter to write to file with location
+    if (msg->success) {
+      double task_duration = ros::Time::now().toSec() - t_task_start;
+
       proof.task_name = CURRENT_TASK.get_name();
       proof.parameter_name = CURRENT_TASK.get_parameter_value("object");
-      can_write = true;
-      std_msgs::Bool msg;
-      pub_location.publish(msg);
+      proof.proof_id = client.send_proof(PROOF_MATERIAL_PATH,
+                                         CURRENT_TASK,
+                                         task_duration);
+      proof.verification = UNVERIFIED;
+      proof.robot_pose = msg->robot_pose;
+      proof.secondary_pose = msg->secondary_pose;
 
-      t_task_end = ros::Time::now().toSec();
-      proof.proof_id = client.send_proof("proof.jpg", CURRENT_TASK, t_task_end - t_task_start);
+      FileEditor *fe = new FileEditor(PROOF_DATABASE_PATH, WRITE);
+      fe->write_to_file(proof);
+      fe->close();
     }
 
     task_index++;
   } else {
-    ROS_INFO("[main_node] Starting Hunt.");
+    ROS_INFO("[main_node] Starting hunt.");
     hunt_started = true;
     parse_proofs();
   }
@@ -139,52 +124,43 @@ void next_task(bool upload=false) {
 
     // Begin Conclude
     bwi_scavenger_msgs::TaskStart task;
-    task.name = "Conclude";
+    task.name = TASK_CONCLUDE;
     pub_task_start.publish(task);
     conclude = true;
     return;
   }
 
-/*******************************************************************************
-  FIND OBJECT TASK
-*******************************************************************************/
-  if (CURRENT_TASK.get_name() == "Find object") {
-    ROS_INFO("[main_node] Beginning Find Object protocol");
+/*------------------------------------------------------------------------------
+FIND OBJECT
+------------------------------------------------------------------------------*/
+  if (CURRENT_TASK.get_name() == TASK_FIND_OBJECT) {
+    ROS_INFO("[main_node] Waking up find_object_node...");
 
     t_task_start = ros::Time::now().toSec();
 
-    // Set object target
-    std_msgs::String target_object;
-    target_object.data = CURRENT_TASK.get_parameter_value("object");
-    pub_yolo_node_target.publish(target_object);
+    // Fetch parameter
+    std::string target_object = CURRENT_TASK.get_parameter_value("object");
 
-    // Begin Find Object
+    // Initiate task
     bwi_scavenger_msgs::TaskStart task;
-    task.name = "Find Object";
-    task.parameters.push_back(target_object.data);
+    task.name = TASK_FIND_OBJECT;
+    task.parameters.push_back(target_object);
     pub_task_start.publish(task);
   }
-}
-
-/**
-  @brief called when a task node finishes its task
-*/
-void next_task_cb(const std_msgs::Bool::ConstPtr &msg) {
-  next_task(msg->data);
 }
 
 int main(int argc, char **argv) {
   ros::init(argc, argv, "hunt_node");
   ros::NodeHandle nh;
 
-  pub_task_start = nh.advertise<bwi_scavenger_msgs::TaskStart>(TPC_MAIN_NODE_TASK_START, 1);
-  pub_yolo_node_target = nh.advertise<std_msgs::String>(TPC_YOLO_NODE_TARGET, 1);
-  pub_location = nh.advertise<std_msgs::Bool>(TPC_MOVE_NODE_REQUEST_POSE, 1);
-  pub_done_parse = nh.advertise<std_msgs::Bool>(TPC_DATABASE_NODE_DONE_PARSE, 1);
-  pub_proof = nh.advertise<bwi_scavenger_msgs::DatabaseProof>(TPC_DATABASE_NODE_UPDATE_PROOF, 1);
+  pub_task_start = nh.advertise<bwi_scavenger_msgs::TaskStart>(
+      TPC_TASK_START, 1);
+  pub_done_parse = nh.advertise<std_msgs::Bool>(
+      TPC_DATABASE_NODE_DONE_PARSE, 1);
+  pub_proof = nh.advertise<bwi_scavenger_msgs::DatabaseProof>(
+      TPC_DATABASE_NODE_UPDATE_PROOF, 1);
 
-  ros::Subscriber sub_task_complete = nh.subscribe(TPC_TASK_COMPLETE, 1, next_task_cb);
-  ros::Subscriber sub_location = nh.subscribe(TPC_MOVE_NODE_ROBOT_POSE, 1, write_file);
+  ros::Subscriber sub_task_complete = nh.subscribe(TPC_TASK_END, 1, next_task);
 
   if (argc < 2) {
     ROS_ERROR("Usage: do_hunt <hunt name>");
@@ -192,10 +168,6 @@ int main(int argc, char **argv) {
   }
 
   client.get_hunt(argv[1], tasks);
-
-  ros::Duration(1.0).sleep();
-
-  next_task();
-
+  next_task(nullptr);
   ros::spin();
 }

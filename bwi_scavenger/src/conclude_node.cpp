@@ -1,7 +1,8 @@
-#include <bwi_scavenger/global_topics.h>
+#include <bwi_scavenger/globals.h>
 #include <bwi_scavenger_msgs/RobotMove.h>
 #include <bwi_scavenger_msgs/RobotStop.h>
 #include <bwi_scavenger/robot_motion.h>
+#include <bwi_scavenger_msgs/TaskEnd.h>
 #include <bwi_scavenger_msgs/TaskStart.h>
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
@@ -35,20 +36,20 @@ void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
 
   ROS_INFO("%s Conclusion protocol complete.", TELEM_TAG);
 
-  std_msgs::Bool complete_msg;
-  complete_msg.data = false;
-  pub_task_complete.publish(complete_msg);
+  bwi_scavenger_msgs::TaskEnd end_msg;
+  end_msg.success = false;
+  pub_task_complete.publish(end_msg);
   node_active = false;
 }
 
 int main(int argc, char **argv) {
   ros::init(argc, argv, "conclude_node");
   ros::NodeHandle nh;
-  ros::Subscriber sub0 = nh.subscribe(TPC_MAIN_NODE_TASK_START, 1, task_start_cb);
+  ros::Subscriber sub0 = nh.subscribe(TPC_TASK_START, 1, task_start_cb);
   ros::Subscriber sub1 = nh.subscribe(TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
 
   pub_move = nh.advertise<bwi_scavenger_msgs::RobotMove>(TPC_MOVE_NODE_GO, 1);
-  pub_task_complete = nh.advertise<std_msgs::Bool>(TPC_TASK_COMPLETE, 1);
+  pub_task_complete = nh.advertise<bwi_scavenger_msgs::TaskEnd>(TPC_TASK_END, 1);
 
   // Wait for ROS services to spin up
   ros::Duration(5.0).sleep();

@@ -1,27 +1,33 @@
-#include <bwi_scavenger/global_topics.h>
-#include <bwi_scavenger/mapping.h>
-#include <bwi_scavenger/robot_motion.h>
-#include <bwi_scavenger/state_machine.h>
-
-#include <bwi_scavenger_msgs/RobotMove.h>
-#include <bwi_scavenger_msgs/RobotStop.h>
-#include <bwi_scavenger_msgs/TaskStart.h>
-#include <bwi_scavenger_msgs/PerceptionMoment.h>
-#include <bwi_scavenger_msgs/DatabaseProof.h>
-#include <bwi_scavenger_msgs/DatabaseInfo.h>
-
 #include <cv_bridge/cv_bridge.h>
-#include <geometry_msgs/Pose.h>
 #include <kinect_fusion/kinect_fusion.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 #include <ros/ros.h>
+
+#include <bwi_scavenger_msgs/DatabaseProof.h>
+#include <bwi_scavenger_msgs/DatabaseInfo.h>
+#include <bwi_scavenger_msgs/RobotMove.h>
+#include <bwi_scavenger_msgs/RobotStop.h>
+#include <bwi_scavenger_msgs/PerceptionMoment.h>
+#include <bwi_scavenger_msgs/PoseRequest.h>
+#include <bwi_scavenger_msgs/TaskEnd.h>
+#include <bwi_scavenger_msgs/TaskStart.h>
+
+#include <darknet_ros_msgs/BoundingBox.h>
+
+#include <geometry_msgs/Pose.h>
+
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
+
 #include <std_msgs/Bool.h>
 #include <std_msgs/Int32.h>
 #include <std_msgs/String.h>
-#include <darknet_ros_msgs/BoundingBox.h>
+
+#include "bwi_scavenger/globals.h"
+#include "bwi_scavenger/mapping.h"
+#include "bwi_scavenger/robot_motion.h"
+#include "bwi_scavenger/state_machine.h"
 
 using namespace scavenger_fsm;
 
@@ -37,28 +43,27 @@ static const char TELEM_TAG[] = "[find_object_node]";
 static ros::Publisher pub_move;
 static ros::Publisher pub_stop;
 static ros::Publisher pub_task_complete;
-static ros::Publisher pub_pose_request;
 static ros::Publisher pub_get_info;
 
 static environment_location current_location;
 
 static const float INSPECT_DURATION = 8.0;
 static const float INSPECT_GOOD_CONFIRMATIONS = 3;
-
 static const double T_TURN_SLEEP = 6.0;
 
 static StateMachine sm;
 
 static bool node_active = false;
-static bool pose_request_sent = false;
-
-static sensor_msgs::Image::ConstPtr last_darknet_img;
 
 static OrderedLocationSet map;
 
 static std::string target_object;
 
-static bool incorrect = true;
+static bwi_scavenger_msgs::PerceptionMoment last_perception_moment;
+
+static geometry_msgs::Pose target_pose;
+
+static ros::ServiceClient client_pose_request;
 
 /*------------------------------------------------------------------------------
 STATE MACHINE DEFINITION
@@ -84,7 +89,7 @@ struct FindObjectSystemStateVector : SystemStateVector {
   bool turn_sleeping = false;
   double t_turn_sleep_begin = 0;
 
-  environment_location destination = BWI_LAB_LEFT;
+  environment_location destination;
 } ssv;
 
 class FindObjectEndState : public State {
@@ -112,15 +117,23 @@ public:
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
 
     if(svec->target_confirmed) {
-      ROS_INFO("%s Saving proof locally...", TELEM_TAG);
       cv_bridge::CvImagePtr cv_ptr;
-      cv_ptr = cv_bridge::toCvCopy(last_darknet_img, sensor_msgs::image_encodings::BGR8);
-      cv::imwrite("proof.jpg", cv_ptr -> image);
+      cv_ptr = cv_bridge::toCvCopy(last_perception_moment.color_image,
+                                   sensor_msgs::image_encodings::BGR8);
+      cv::imwrite(PROOF_MATERIAL_PATH, cv_ptr -> image);
     }
 
-    std_msgs::Bool complete_msg;
-    complete_msg.data = svec->target_confirmed;
-    pub_task_complete.publish(complete_msg);
+    // Fetch most recent robot pose
+    bwi_scavenger_msgs::PoseRequest req;
+    client_pose_request.call(req);
+    geometry_msgs::Pose robot_pose = req.response.pose;
+
+    // Build success msg
+    bwi_scavenger_msgs::TaskEnd end_msg;
+    end_msg.robot_pose = robot_pose;
+    end_msg.secondary_pose = target_pose;
+    end_msg.success = svec->target_confirmed;
+    pub_task_complete.publish(end_msg);
     node_active = false;
   }
 };
@@ -136,7 +149,6 @@ public:
     if (from->get_id() == STATE_SCANNING &&
         svec->turn_finished &&
         !svec->target_seen) {
-      ROS_INFO("%s Scan saw nothing. Transitioning to TRAVELING.", TELEM_TAG);
       return true;
     }
     // Continue in current state otherwise
@@ -158,7 +170,6 @@ public:
   void on_transition_from(SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     if (!svec->travel_finished) {
-      ROS_INFO("%s Leaving TRAVELING. Suspected early stop.", TELEM_TAG);
       bwi_scavenger_msgs::RobotStop stop;
       pub_stop.publish(stop);
     } else
@@ -187,10 +198,8 @@ public:
     // Enter SCANNING because INSPECTING failed
     } else if (from->get_id() == STATE_INSPECTING &&
                !svec->target_confirmed &&
-               svec->inspect_finished) {
-      ROS_INFO("%s INSPECTING failed to confirm target. Transitioning to SCANNING.", TELEM_TAG);
+               svec->inspect_finished)
       return true;
-    }
     // Continue in current state otherwise
     return false;
   }
@@ -209,7 +218,8 @@ public:
     }
 
     // Exiting sleep
-    if (svec->turn_sleeping && svec->t - svec->t_turn_sleep_begin >= T_TURN_SLEEP) {
+    if (svec->turn_sleeping &&
+        svec->t - svec->t_turn_sleep_begin >= T_TURN_SLEEP) {
       svec->turn_sleeping = false;
     }
   }
@@ -217,7 +227,6 @@ public:
   void on_transition_from(SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     if (!svec->turn_finished) {
-      ROS_INFO("%s Leaving SCANNING. Suspected early stop.", TELEM_TAG);
       bwi_scavenger_msgs::RobotStop stop;
       pub_stop.publish(stop);
     }
@@ -241,7 +250,7 @@ public:
     // Enter INSPECTING when target is seen and current state is not END
     if (from->get_id() != STATE_END &&
         svec->target_seen) {
-      ROS_INFO("%s Saw the target. Transitioning to INSPECTING.", TELEM_TAG);
+      ROS_INFO("%s Glimpsed the target. Transitioning to INSPECTING.", TELEM_TAG);
       return true;
     }
     // Continue in current state otherwise
@@ -253,7 +262,9 @@ public:
 
     if (svec->t - svec->t_inspect_begin >= INSPECT_DURATION) {
       svec->inspect_finished = true;
-      ROS_INFO("%s Inspection got %d confirmation(s).", TELEM_TAG, svec->inspect_confirmations);
+      ROS_INFO("%s Inspection yielded %d confirmation(s).",
+               TELEM_TAG,
+               svec->inspect_confirmations);
       if (svec->inspect_confirmations >= INSPECT_GOOD_CONFIRMATIONS)
         svec->target_confirmed = true;
     }
@@ -262,8 +273,6 @@ public:
   void on_transition_from(SystemStateVector *vec) {}
 
   void on_transition_to(SystemStateVector *vec) {
-    ROS_INFO("%s Entering state INSPECTING", TELEM_TAG);
-
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     svec->target_seen = false;
     svec->inspect_finished = false;
@@ -297,8 +306,6 @@ void wipe_ssv() {
   ssv.turn_sleeping = false;
   ssv.t_turn_sleep_begin = 0;
 
-  ssv.destination = BWI_LAB_LEFT;
-
   sm.init(s_traveling);
 }
 
@@ -306,18 +313,9 @@ void wipe_ssv() {
 SYSTEM STATE VECTOR UPDATE CALLBACKS
 ------------------------------------------------------------------------------*/
 
-// Called when target is seen - prompts stop
-void target_seen_cb(const darknet_ros_msgs::BoundingBox::ConstPtr &msg) {
-  if(msg->probability > MIN_INSPECT_PROBABILITY){
-    state_id_t state = sm.get_current_state()->get_id();
-    if (state == STATE_SCANNING || state == STATE_TRAVELING)
-      ssv.target_seen = true;
-    else if (state == STATE_INSPECTING && !ssv.inspect_finished)
-      ssv.inspect_confirmations++;
-  }
-}
-
-// Called when move finished - prompts state transition
+/**
+  @brief called when move_node completes a particular command
+*/
 void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
   if (ssv.travel_in_progress && !ssv.travel_finished)
     ssv.travel_finished = true;
@@ -332,44 +330,40 @@ void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
   }
 }
 
-// Called when image of object is recieved
-void image_cb(const sensor_msgs::Image::ConstPtr &img) {
-  if (!ssv.target_confirmed)
-    last_darknet_img = img;
-}
-
-// Called when the main node is starting a task
+/**
+  @brief called when the main node begins a new task
+*/
 void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
-  if (msg->name == "Find Object") {
+  if (msg->name == TASK_FIND_OBJECT) {
     wipe_ssv();
-    ros::Duration(5.0).sleep();
+    ros::Duration(2.0).sleep();
 
     if (msg->parameters.size() > 0) {
+      // Set the target object
       target_object = msg->parameters[0];
-      // Request current robot pose from move_node to inform mapping
-      std_msgs::Bool msg;
-      pub_pose_request.publish(msg);
-      pose_request_sent = true;
+
+      ROS_INFO("%s Beginning %s protocol with parameter \"%s\".",
+               TELEM_TAG, TASK_FIND_OBJECT.c_str(), target_object.c_str());
+
+      // Query the current robot pose for planning purposes
+      bwi_scavenger_msgs::PoseRequest req;
+      client_pose_request.call(req);
+      geometry_msgs::Pose robot_pose = req.response.pose;
+      map.start(robot_pose.position.x, robot_pose.position.y);
+      ssv.destination = map.get_next_location();
+
+      node_active = true;
     } else
-      ROS_ERROR("[find_object_node] Start failed because message had no parameters.");
+      ROS_ERROR("%s Start failed because message had no parameters.",
+                TELEM_TAG);
   }
 }
 
-// Called when the move node computes the closest waypoint
-void pose_request_cb(const geometry_msgs::Pose::ConstPtr &msg) {
-  map.start(msg->position.x, msg->position.y);
-  ssv.destination = map.get_next_location();
-  ROS_INFO("%s Pose request fulfilled. Circuit will begin at location %d.",
-      TELEM_TAG, (int)(ssv.destination));
-  if (pose_request_sent) {
-    pose_request_sent = false;
-    node_active = true;
-  }
-}
-
-
-// Called when the perception node publishes a new moment
+/**
+  @brief called when perception_node publishes a new moment
+*/
 void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
+  last_perception_moment = *msg;
   const darknet_ros_msgs::BoundingBoxes &boxes = msg->bounding_boxes;
 
   for (int i = 0; i < boxes.bounding_boxes.size(); i++) {
@@ -377,17 +371,17 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
     const sensor_msgs::Image &depth_image = msg->depth_image;
 
     if (box.Class == target_object) {
-      // std::pair<double, double> target_position =
-          // kinect_fusion::get_2d_offset(box, depth_image);
-      // double d = kinect_fusion::estimate_distance(box, depth_image);
+      geometry_msgs::Point target_position =
+          kinect_fusion::get_position(box, depth_image);
+      target_pose.position = target_position;
 
       bwi_scavenger_msgs::DatabaseInfo get_info;
       get_info.task_name = "Find Object";
       get_info.parameter_name = target_object;
       get_info.data = 0;
       get_info.pose.position = kinect_fusion::get_position(box, depth_image);
-
       pub_get_info.publish(get_info);
+
       break;
     }
   }
@@ -396,7 +390,6 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
 void incorrect_cb(const std_msgs::Bool::ConstPtr &msg){
   // if it is NOT in an incorrect cluster, add to count of correct data
   if(!(msg->data)){
-  ROS_INFO("[find_object_node] Not in an incorrect position, add to data");
     state_id_t state = sm.get_current_state()->get_id();
     if (state == STATE_SCANNING || state == STATE_TRAVELING)
       ssv.target_seen = true;
@@ -414,36 +407,47 @@ int main(int argc, char **argv) {
   ros::NodeHandle nh;
 
   // Build search circuit
-  map.add_location(BWI_LAB_RIGHT);
-  map.add_location(CLEARING_RIGHT);
-  map.add_location(CLEARING_LEFT);
+  map.add_location(BWI_LAB_DOOR_NORTH);
+  map.add_location(CLEARING_NORTH);
+  map.add_location(CLEARING_SOUTH);
   map.add_location(ALCOVE);
   map.add_location(KITCHEN);
-  map.add_location(BWI_LAB_LEFT);
-  map.add_location(LARG_RIGHT);
-  map.add_location(LARG_LEFT);
+  map.add_location(BWI_LAB_DOOR_SOUTH);
+  map.add_location(SOCCER_LAB_DOOR_SOUTH);
+  map.add_location(SOCCER_LAB_DOOR_NORTH);
+
+  // Create clients
+  client_pose_request = nh.serviceClient<bwi_scavenger_msgs::PoseRequest>(
+      SRV_POSE_REQUEST);
 
   // Setup SSV update callbacks
-  pub_move = nh.advertise<bwi_scavenger_msgs::RobotMove>(TPC_MOVE_NODE_GO, 1);
-  pub_stop = nh.advertise<bwi_scavenger_msgs::RobotStop>(TPC_MOVE_NODE_STOP, 1);
-  pub_task_complete = nh.advertise<std_msgs::Bool>(TPC_TASK_COMPLETE, 1);
-  pub_pose_request = nh.advertise<std_msgs::Bool>(TPC_MOVE_NODE_REQUEST_POSE, 1);
-  pub_get_info = nh.advertise<bwi_scavenger_msgs::DatabaseInfo>(TPC_DATABASE_NODE_GET_INFO, 1);
+  pub_move = nh.advertise<bwi_scavenger_msgs::RobotMove>(
+      TPC_MOVE_NODE_GO, 1);
+  pub_stop = nh.advertise<bwi_scavenger_msgs::RobotStop>(
+      TPC_MOVE_NODE_STOP, 1);
+  pub_task_complete = nh.advertise<bwi_scavenger_msgs::TaskEnd>(
+      TPC_TASK_END, 1);
+  pub_get_info = nh.advertise<bwi_scavenger_msgs::DatabaseInfo>(
+      TPC_DATABASE_NODE_GET_INFO, 1);
 
-  ros::Subscriber sub0 = nh.subscribe(TPC_YOLO_NODE_TARGET_SEEN, 1, target_seen_cb);
-  ros::Subscriber sub1 = nh.subscribe(TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
-  ros::Subscriber sub2 = nh.subscribe("/darknet_ros/detection_image", 1, image_cb);
-  ros::Subscriber sub3 = nh.subscribe(TPC_MAIN_NODE_TASK_START, 1, task_start_cb);
-  ros::Subscriber sub4 = nh.subscribe(TPC_MOVE_NODE_ROBOT_POSE, 1, pose_request_cb);
-  ros::Subscriber sub5 = nh.subscribe(TPC_PERCEPTION_NODE_MOMENT, 1, perceive);
-  ros::Subscriber sub6 = nh.subscribe(TPC_DATABASE_NODE_INCORRECT, 1, incorrect_cb);
+  ros::Subscriber sub_move_finished = nh.subscribe(
+      TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
+  ros::Subscriber sub_task_start = nh.subscribe(
+      TPC_TASK_START, 1, task_start_cb);
+  ros::Subscriber sub_perception = nh.subscribe(
+      TPC_PERCEPTION_NODE_MOMENT, 1, perceive);
+  ros::Subscriber sub_db_incorrect = nh.subscribe(
+      TPC_DATABASE_NODE_INCORRECT, 1, incorrect_cb);
+
   // Build state machine
   s_traveling->add_output(s_end);
   s_traveling->add_output(s_scanning);
   s_traveling->add_output(s_inspecting);
+
   s_scanning->add_output(s_traveling);
   s_scanning->add_output(s_end);
   s_scanning->add_output(s_inspecting);
+
   s_inspecting->add_output(s_scanning);
   s_inspecting->add_output(s_end);
 
