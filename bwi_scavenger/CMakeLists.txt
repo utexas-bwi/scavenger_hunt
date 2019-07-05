@@ -180,13 +180,6 @@ target_link_libraries(move_node
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
-add_executable(yolo_node
-  src/yolo_node.cpp)
-
-target_link_libraries(yolo_node
-  ${OpenCV_LIBS}
-  ${catkin_LIBRARIES})
-
 add_executable(database_node
   src/database_node.cpp
   src/dbscan_object.cpp)

@@ -7,7 +7,6 @@ FileEditor::FileEditor(std::string filename, bool output){
   this->filename = filename;
   this->output = output;
   if(output){
-    std::cout << "[FileEditor] Creating output file" << std::endl;
     oFile = new std::ofstream();
     (*oFile).open(filename, std::ios::app);
   } else {
@@ -81,7 +80,7 @@ bool FileEditor::read_line(){
 
       if (i == PROOF_ID)
         proof.proof_id = std::atoi(word.c_str());
-      
+
       else if (i == VERIFICATION)
         proof.verification = std::atoi(word.c_str());
 
@@ -89,7 +88,7 @@ bool FileEditor::read_line(){
         std::stringstream wordStream(word);
         std::string point;
         geometry_msgs::Pose *pose = (i == ROBOT_POSE) ? &(proof.robot_pose) : &(proof.secondary_pose);
-        
+
         std::getline(wordStream, point, ' ');
         double temp = ::atof(point.c_str());
         (*pose).position.x = temp;
@@ -114,7 +113,7 @@ bool FileEditor::read_line(){
         temp = ::atof(point.c_str());
         (*pose).orientation.w = temp;
 
-      } else if (i == TASK) 
+      } else if (i == TASK)
         proof.task_name = word;
 
       else if (i == PARAMETER)
@@ -122,10 +121,8 @@ bool FileEditor::read_line(){
     }
     return true;
   }
-  
-  std::cout << "[FileEditor] Cannot read the next line of the file, no more lines to read" << std::endl;
-  return false;
 
+  return false;
 }
 
 /**
@@ -141,16 +138,16 @@ bool FileEditor::read_line(){
 void FileEditor::write_to_file(proof_item proof){
 
     geometry_msgs::Pose pose = proof.robot_pose;
-    std::string robot_pose_string = std::to_string(pose.position.x) + " " + std::to_string(pose.position.y) + " " + 
-      std::to_string(pose.orientation.x) + " " + std::to_string(pose.orientation.y) + " " + std::to_string(pose.orientation.z) + " " + 
+    std::string robot_pose_string = std::to_string(pose.position.x) + " " + std::to_string(pose.position.y) + " " +
+      std::to_string(pose.orientation.x) + " " + std::to_string(pose.orientation.y) + " " + std::to_string(pose.orientation.z) + " " +
       std::to_string(pose.orientation.w);
 
     pose = proof.secondary_pose;
-    std::string secondary_pose_string = std::to_string(pose.position.x) + " " + std::to_string(pose.position.y) + " " + 
-      std::to_string(pose.orientation.x) + " " + std::to_string(pose.orientation.y) + " " + std::to_string(pose.orientation.z) + " " + 
+    std::string secondary_pose_string = std::to_string(pose.position.x) + " " + std::to_string(pose.position.y) + " " +
+      std::to_string(pose.orientation.x) + " " + std::to_string(pose.orientation.y) + " " + std::to_string(pose.orientation.z) + " " +
       std::to_string(pose.orientation.w);
-    
-    (*oFile) << std::to_string(proof.proof_id) << "," << std::to_string(proof.verification) << "," << proof.task_name 
+
+    (*oFile) << std::to_string(proof.proof_id) << "," << std::to_string(proof.verification) << "," << proof.task_name
       << "," << proof.parameter_name << "," << robot_pose_string << "," << secondary_pose_string << "\n";
 }
 
@@ -168,7 +165,7 @@ void FileEditor::delete_file(){
   @param new_name name to rename the file to
 */
 void FileEditor::rename_file(std::string new_name){
-  rename(filename.c_str(), new_name.c_str());  
+  rename(filename.c_str(), new_name.c_str());
 }
 
 /**
@@ -185,4 +182,3 @@ FileEditor::~FileEditor(){
   delete oFile;
   delete iFile;
 }
-

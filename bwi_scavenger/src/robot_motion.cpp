@@ -3,6 +3,7 @@
 #include <tf/transform_datatypes.h>
 
 #define PI 3.14159265359
+// #define VERBOSE
 
 RobotMotion::RobotMotion(std::string grid_frame_id, tf::TransformListener &tfl) {
   this->grid_frame_id = grid_frame_id;

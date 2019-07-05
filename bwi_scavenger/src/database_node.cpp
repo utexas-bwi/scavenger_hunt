@@ -1,21 +1,20 @@
 #include <ros/ros.h>
+#include <std_msgs/Bool.h>
+#include <tf/tf.h>
+#include <tf/transform_listener.h>
+#include <unordered_map>
 
-#include <bwi_scavenger/global_topics.h>
 #include <bwi_scavenger_msgs/DatabaseProof.h>
 #include <bwi_scavenger_msgs/DatabaseInfo.h>
 #include <bwi_scavenger_msgs/PoseRequest.h>
 
-// #include <bwi_scavenger/dbscan.h>
-#include <bwi_scavenger/dbscan_object.h>
-
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseStamped.h>
-#include <std_msgs/Bool.h>
-#include <unordered_map>
 
-#include <tf/tf.h>
-#include <tf/transform_listener.h>
 #include <nav_msgs/OccupancyGrid.h>
+
+#include "bwi_scavenger/dbscan_object.h"
+#include "bwi_scavenger/globals.h"
 
 enum data_label{
   GET_INCORRECT
@@ -63,7 +62,7 @@ void update_proofs_cb(const bwi_scavenger_msgs::DatabaseProof::ConstPtr &msg){
   } else { // map does not contain this task yet, simply add in
     std::vector<proof> newList;
     newList.push_back(curProof);
-    proofsMap->insert({curTask, newList}); 
+    proofsMap->insert({curTask, newList});
   }
 }
 
@@ -81,7 +80,7 @@ void create_clusterers_cb(const std_msgs::Bool::ConstPtr &msg){
       proof curProof = curProofList[count];
       count++;
       verification_v.push_back(curProof.verification);
-      
+
       float* robot_point = new float[3];
       robot_point[0] = curProof.robot_pose.position.x;
       robot_point[1] = curProof.robot_pose.position.y;
@@ -127,9 +126,9 @@ void get_info_cb(const bwi_scavenger_msgs::DatabaseInfo::ConstPtr &msg){
 
   if(msg->data == GET_INCORRECT){
     task curTask = {msg->task_name, msg->parameter_name};
-    
+
     if(clustererMap->count(curTask)){
-      
+
       ROS_INFO("getting incorrect position");
 
       geometry_msgs::Pose obj_pose = msg->pose;
@@ -177,7 +176,7 @@ void get_info_cb(const bwi_scavenger_msgs::DatabaseInfo::ConstPtr &msg){
     std_msgs::Bool msgIncorrect;
     msgIncorrect.data = false;
     pub_incorrect_point.publish(msgIncorrect);
-  
+
   }
 
 }

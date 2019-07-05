@@ -1,5 +1,5 @@
 #include <actionlib/client/simple_action_client.h>
-#include <bwi_scavenger/global_topics.h>
+#include <bwi_scavenger/globals.h>
 #include <bwi_scavenger_msgs/PerceptionMoment.h>
 #include <cv_bridge/cv_bridge.h>
 #include <darknet_ros_msgs/CheckForObjectsAction.h>
@@ -9,10 +9,10 @@
 #include <std_msgs/String.h>
 #include <vector>
 
-typedef darknet_ros_msgs::CheckForObjectsAction CvSweepAction;
-typedef darknet_ros_msgs::CheckForObjectsGoal CvSweepGoal;
-typedef actionlib::SimpleActionClient<CvSweepAction> CvSweepActionClient;
-typedef std::shared_ptr<CvSweepActionClient> CvSweepActionClientPtr;
+typedef darknet_ros_msgs::CheckForObjectsAction YOLOAction;
+typedef darknet_ros_msgs::CheckForObjectsGoal YOLOGoal;
+typedef actionlib::SimpleActionClient<YOLOAction> YOLOActionClient;
+typedef std::shared_ptr<YOLOActionClient> YOLOActionClientPtr;
 
 static darknet_ros_msgs::BoundingBoxes cv_sweep_result_dest;
 
@@ -47,33 +47,33 @@ void cv_sweep_cb(const actionlib::SimpleClientGoalState& state,
          depth map are packaged into a PerceptionMoment and broadcast
 */
 void vision(const sensor_msgs::Image &msg) {
-  CvSweepActionClientPtr cv_sweep_ac;
+  YOLOActionClientPtr cv_sweep_ac;
 
   // Create action client and associate it with the correct action
   std::string cv_sweep_action_name;
   nh->param("/darknet_ros/camera_action", cv_sweep_action_name,
       std::string("/darknet_ros/check_for_objects"));
-  cv_sweep_ac.reset(new CvSweepActionClient(*nh, cv_sweep_action_name, true));
+  cv_sweep_ac.reset(new YOLOActionClient(*nh, cv_sweep_action_name, true));
 
   // Wait for the action server to launch
   if (!cv_sweep_ac->waitForServer(ros::Duration(10.0))) {
-    ROS_ERROR("[perception_node] Failed to connect to CvSweepActionClient. Aborting perception moment.");
+    ROS_ERROR("[perception_node] Failed to connect to YOLO server. Aborting perception moment.");
 	  return;
   }
 
   // Send goal to action server
-  CvSweepGoal goal;
+  YOLOGoal goal;
   goal.image = msg;
 
   cv_sweep_ac->sendGoal(
       goal,
       boost::bind(&cv_sweep_cb, _1, _2),
-      CvSweepActionClient::SimpleActiveCallback(),
-      CvSweepActionClient::SimpleFeedbackCallback());
+      YOLOActionClient::SimpleActiveCallback(),
+      YOLOActionClient::SimpleFeedbackCallback());
 
   // Wait for result
-  if (!cv_sweep_ac->waitForResult(ros::Duration(120.0))) {
-    ROS_ERROR("[perception_node] CvSweepActionClient took too long to respond. Aborting perception moment.");
+  if (!cv_sweep_ac->waitForResult(ros::Duration(5.0))) {
+    ROS_ERROR("[perception_node] YOLO took too long to respond. Aborting perception moment.");
     return;
   }
 
