@@ -1,6 +1,8 @@
 #ifndef BWI_SCAVENGER_ROBOT_MOTION_H
 #define BWI_SCAVENGER_ROBOT_MOTION_H
 
+#define SIMULATION
+
 #include <actionlib/client/simple_action_client.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <map>
@@ -10,36 +12,46 @@
 #include <tf/transform_listener.h>
 #include <nav_msgs/OccupancyGrid.h>
 
-typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
+typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>
+    MoveBaseClient;
+typedef std::pair<float, float> coords;
 
 enum environment_location {
-  BWI_LAB_RIGHT,
-  CLEARING_RIGHT,
-  // WHITEBOARD_ROOM,
-  CLEARING_LEFT,
+  BWI_LAB_DOOR_NORTH,
+  BWI_LAB_DOOR_SOUTH,
+  CLEARING_NORTH,
+  CLEARING_SOUTH,
   ALCOVE,
   KITCHEN,
-  BWI_LAB_LEFT,
-  LARG_RIGHT,
-  LARG_LEFT,
+  SOCCER_LAB_DOOR_NORTH,
+  SOCCER_LAB_DOOR_SOUTH,
   FELLOW_COMPUTERS
 };
 
 const int NUM_ENVIRONMENT_LOCATIONS = 9;
 
-static std::map<environment_location, std::pair<float, float>>
-    environment_location_coordinates {
-  // {BWI_LAB_RIGHT, std::pair<float, float>(14.956, 109.94)},
-  {BWI_LAB_RIGHT, std::pair<float, float>(-39.3304, -11.2288)},
-  {BWI_LAB_LEFT, std::pair<float, float>(-38.2976, -4.32444)},
-  // {WHITEBOARD_ROOM, std::pair<float, float>(-8.98598, -12.0676)},
-  {CLEARING_LEFT, std::pair<float, float>(-13.7639, -5.56475)},
-  {CLEARING_RIGHT, std::pair<float, float>(-13.999, -12.024)},
-  {ALCOVE, std::pair<float, float>(-18.2928, -4.93057)},
-  {KITCHEN, std::pair<float, float>(-30.1798, -4.59807)},
-  {LARG_RIGHT, std::pair<float, float>(-47.581, -4.14724)},
-  {LARG_LEFT, std::pair<float, float>(-47.7036, -11.216)},
-  {FELLOW_COMPUTERS, std::pair<float, float>(-35.0182, -11.4877)}
+static std::map<environment_location, coords> environment_location_coordinates {
+#ifndef SIMULATION
+  {BWI_LAB_DOOR_NORTH,    coords( -39.3304, -11.2290 )},
+  {BWI_LAB_DOOR_SOUTH,    coords( -38.2976, -4.3244  )},
+  {CLEARING_NORTH,        coords( -13.9990, -12.024  )},
+  {CLEARING_SOUTH,        coords( -13.7639, -5.5648  )},
+  {ALCOVE,                coords( -18.2928, -4.9306  )},
+  {KITCHEN,               coords( -30.1798, -4.5981  )},
+  {SOCCER_LAB_DOOR_NORTH, coords( -47.7036, -11.2160 )},
+  {SOCCER_LAB_DOOR_SOUTH, coords( -47.5810, -4.1472  )},
+  {FELLOW_COMPUTERS,      coords( -35.0182, -11.4877 )}
+#else
+  {BWI_LAB_DOOR_NORTH,    coords( 39.6831, 112.569   )},
+  {BWI_LAB_DOOR_SOUTH,    coords( 39.553,  105.192   )},
+  {CLEARING_NORTH,        coords( 14.4326, 112.49    )},
+  {CLEARING_SOUTH,        coords( 14.3866, 105.104   )},
+  {ALCOVE,                coords( 19.6725, 105.155   )},
+  {KITCHEN,               coords( 30.9585, 105.623   )},
+  {SOCCER_LAB_DOOR_NORTH, coords( 48.2878, 112.392   )},
+  {SOCCER_LAB_DOOR_SOUTH, coords( 48.3504, 105.226   )},
+  {FELLOW_COMPUTERS,      coords( 35.8519, 112.632   )}
+#endif
 };
 
 static std::string grid_frame_id;
