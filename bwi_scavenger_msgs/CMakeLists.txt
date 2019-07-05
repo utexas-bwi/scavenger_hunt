@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(FILES
   TaskProof.msg
   TaskStart.msg
+  TaskEnd.msg
   RobotMove.msg
   RobotStop.msg
   PerceptionMoment.msg
