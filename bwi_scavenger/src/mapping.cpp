@@ -12,6 +12,10 @@ void LocationSet::add_location(environment_location l) {
   locations.push_back(l);
 }
 
+int LocationSet::get_laps(){
+  return index / locations.size();
+}
+
 void LocationSet::start(environment_location l) {
   for (int i = 0; i < locations.size(); i++)
     if (locations[i] == l) {
@@ -43,9 +47,6 @@ environment_location OrderedLocationSet::get_next_location() {
   return l;
 }
 
-int OrderedLocationSet::get_laps() {
-  return index / locations.size();
-}
 
 void PriorityLocationSet::set_location_priority(environment_location l,
     float p) {
@@ -71,3 +72,7 @@ void PriorityLocationSet::prioritize() {
   for (PriorityLocation pl : p_locations)
     locations.push_back(pl.location);
 }
+
+// void PriorityLocationSet::add_loation(std::pair<float, float> l){
+
+// }

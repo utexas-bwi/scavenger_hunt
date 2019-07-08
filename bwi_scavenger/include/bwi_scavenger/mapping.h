@@ -34,6 +34,11 @@ public:
   @brief advances the current position within the set
   */
   virtual environment_location get_next_location() = 0;
+  
+  /**
+    @brief gets the number of laps traveled so far in the circuit
+  */
+  int get_laps();
 };
 
 /**
@@ -48,10 +53,6 @@ public:
   */
   environment_location get_next_location() override;
 
-  /**
-    @brief gets the number of laps traveled so far in the circuit
-  */
-  int get_laps();
 };
 
 /**
