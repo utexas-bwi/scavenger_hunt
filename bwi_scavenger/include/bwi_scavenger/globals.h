@@ -14,8 +14,8 @@ const std::string PROOF_MATERIAL_PATH = "/home/bwilab/scavenger_hunt/BWI_SCAVENG
 NODES
 ------------------------------------------------------------------------------*/
 
-const char NODE_FIND_OBJECT = "find_object_node";
-const char NODE_CONCLUDE = "conclude_node";
+const char* NODE_FIND_OBJECT = "find_object_node";
+const char* NODE_CONCLUDE = "conclude_node";
 
 /*------------------------------------------------------------------------------
 TASKS
