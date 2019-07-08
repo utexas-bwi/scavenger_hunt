@@ -7,7 +7,7 @@
 */
 class LocationSet {
 protected:
-  std::vector<environment_location> locations;
+  std::vector<coordinate> locations;
   int index;
 
 public:
@@ -21,19 +21,24 @@ public:
   virtual void add_location(environment_location l);
 
   /**
+    @brief adds a coordinate location c to the set
+  */
+  virtual void add_location(coordinate c);
+
+  /**
     @brief sets the initial location to location l
   */
   virtual void start(environment_location l);
 
   /**
-    @brief starts the set at the location closest to (x, y)
+    @brief starts the set at the location closest to the coordinate point
   */
-  virtual void start(float x, float y);
+  virtual void start(coordinate c);
 
   /**
   @brief advances the current position within the set
   */
-  virtual environment_location get_next_location() = 0;
+  virtual coordinate get_next_location() = 0;
   
   /**
     @brief gets the number of laps traveled so far in the circuit
@@ -51,7 +56,7 @@ public:
     @brief gets the next location in order; passing the last location loops back
            to the beginning
   */
-  environment_location get_next_location() override;
+  coordinate get_next_location() override;
 
 };
 
@@ -59,7 +64,7 @@ public:
   A location with some associated priority scalar.
 */
 struct PriorityLocation {
-  environment_location location;
+  coordinate coor;
   float priority;
 
   bool operator<(const PriorityLocation& str) const {
@@ -72,13 +77,13 @@ struct PriorityLocation {
 */
 class PriorityLocationSet : public OrderedLocationSet {
 protected:
-  std::map<environment_location, float> priorities;
+  std::map<coordinate, float> priorities;
 
 public:
   /**
     @brief sets the priority of location l to p
   */
-  void set_location_priority(environment_location l, float p);
+  void set_location_priority(coordinate c, float p);
 
   /**
     @brief sorts the internal circuit by priority; will fail if not every

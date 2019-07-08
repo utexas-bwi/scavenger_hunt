@@ -32,7 +32,9 @@ int main(int argc, char **argv) {
 
   bwi_scavenger_msgs::RobotMove msg;
   msg.type = 0;
-  msg.location = l;
+  coordinate c = environment_location_coordinates[l];
+  msg.location.push_back(c.first);
+  msg.location.push_back(c.second);
   pub_move.publish(msg);
 
   ros::spinOnce();

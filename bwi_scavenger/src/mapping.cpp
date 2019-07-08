@@ -9,7 +9,12 @@ LocationSet::LocationSet() {
 }
 
 void LocationSet::add_location(environment_location l) {
-  locations.push_back(l);
+  coordinate c = environment_location_coordinates[l];
+  locations.push_back(c);
+}
+
+void LocationSet::add_location(coordinate c) {
+  locations.push_back(c);
 }
 
 int LocationSet::get_laps(){
@@ -17,21 +22,21 @@ int LocationSet::get_laps(){
 }
 
 void LocationSet::start(environment_location l) {
+  coordinate c = environment_location_coordinates[l];
   for (int i = 0; i < locations.size(); i++)
-    if (locations[i] == l) {
+    if (locations[i] == c) {
       index = i;
       return;
     }
 }
 
-void LocationSet::start(float x, float y) {
+void LocationSet::start(coordinate c) {
   float shortest_distance = -1;
   int closest_ind = index;
 
   for (int i = 0; i < locations.size(); i++) {
-    std::pair<float, float> coords =
-        environment_location_coordinates[locations[i]];
-    float dist = sqrt(pow(coords.first - x, 2) + pow(coords.second - y, 2));
+    coordinate cur_coord = locations[i];
+    float dist = sqrt(pow(cur_coord.first - c.first, 2) + pow(cur_coord.second - c.second, 2));
     if (shortest_distance == -1 || dist < shortest_distance) {
       closest_ind = i;
       shortest_distance = dist;
@@ -41,16 +46,17 @@ void LocationSet::start(float x, float y) {
   index = closest_ind;
 }
 
-environment_location OrderedLocationSet::get_next_location() {
-  environment_location l = locations[index % locations.size()];
+// TODO rewrite
+coordinate OrderedLocationSet::get_next_location() {
+  coordinate c = locations[index % locations.size()];
   index++;
-  return l;
+  return c;
 }
 
 
-void PriorityLocationSet::set_location_priority(environment_location l,
+void PriorityLocationSet::set_location_priority(coordinate c,
     float p) {
-  priorities[l] = p;
+  priorities[c] = p;
 }
 
 void PriorityLocationSet::prioritize() {
@@ -61,7 +67,7 @@ void PriorityLocationSet::prioritize() {
 
   for (const auto &pair : priorities) {
     PriorityLocation pl;
-    pl.location = pair.first;
+    pl.coor = pair.first;
     pl.priority = priorities[pair.first];
     p_locations.push_back(pl);
   }
@@ -70,7 +76,7 @@ void PriorityLocationSet::prioritize() {
   locations.clear();
 
   for (PriorityLocation pl : p_locations)
-    locations.push_back(pl.location);
+    locations.push_back(pl.coor);
 }
 
 // void PriorityLocationSet::add_loation(std::pair<float, float> l){

@@ -1,3 +1,3 @@
-uint8 type
-uint8 location
 float32 degrees
+uint8 type
+float32[] location

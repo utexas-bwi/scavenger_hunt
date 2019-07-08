@@ -14,7 +14,7 @@
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>
     MoveBaseClient;
-typedef std::pair<float, float> coords;
+typedef std::pair<float, float> coordinate;
 
 enum environment_location {
   BWI_LAB_DOOR_NORTH,
@@ -30,27 +30,27 @@ enum environment_location {
 
 const int NUM_ENVIRONMENT_LOCATIONS = 9;
 
-static std::map<environment_location, coords> environment_location_coordinates {
+static std::map<environment_location, coordinate> environment_location_coordinates {
 #ifndef SIMULATION
-  {BWI_LAB_DOOR_NORTH,    coords( -39.3304, -11.2290 )},
-  {BWI_LAB_DOOR_SOUTH,    coords( -38.2976, -4.3244  )},
-  {CLEARING_NORTH,        coords( -13.9990, -12.024  )},
-  {CLEARING_SOUTH,        coords( -13.7639, -5.5648  )},
-  {ALCOVE,                coords( -18.2928, -4.9306  )},
-  {KITCHEN,               coords( -30.1798, -4.5981  )},
-  {SOCCER_LAB_DOOR_NORTH, coords( -47.7036, -11.2160 )},
-  {SOCCER_LAB_DOOR_SOUTH, coords( -47.5810, -4.1472  )},
-  {FELLOW_COMPUTERS,      coords( -35.0182, -11.4877 )}
+  {BWI_LAB_DOOR_NORTH,    coordinate( -39.3304, -11.2290 )},
+  {BWI_LAB_DOOR_SOUTH,    coordinate( -38.2976, -4.3244  )},
+  {CLEARING_NORTH,        coordinate( -13.9990, -12.024  )},
+  {CLEARING_SOUTH,        coordinate( -13.7639, -5.5648  )},
+  {ALCOVE,                coordinate( -18.2928, -4.9306  )},
+  {KITCHEN,               coordinate( -30.1798, -4.5981  )},
+  {SOCCER_LAB_DOOR_NORTH, coordinate( -47.7036, -11.2160 )},
+  {SOCCER_LAB_DOOR_SOUTH, coordinate( -47.5810, -4.1472  )},
+  {FELLOW_COMPUTERS,      coordinate( -35.0182, -11.4877 )}
 #else
-  {BWI_LAB_DOOR_NORTH,    coords( 39.6831, 112.569   )},
-  {BWI_LAB_DOOR_SOUTH,    coords( 39.553,  105.192   )},
-  {CLEARING_NORTH,        coords( 14.4326, 112.49    )},
-  {CLEARING_SOUTH,        coords( 14.3866, 105.104   )},
-  {ALCOVE,                coords( 19.6725, 105.155   )},
-  {KITCHEN,               coords( 30.9585, 105.623   )},
-  {SOCCER_LAB_DOOR_NORTH, coords( 48.2878, 112.392   )},
-  {SOCCER_LAB_DOOR_SOUTH, coords( 48.3504, 105.226   )},
-  {FELLOW_COMPUTERS,      coords( 35.8519, 112.632   )}
+  {BWI_LAB_DOOR_NORTH,    coordinate( 39.6831, 112.569   )},
+  {BWI_LAB_DOOR_SOUTH,    coordinate( 39.553,  105.192   )},
+  {CLEARING_NORTH,        coordinate( 14.4326, 112.49    )},
+  {CLEARING_SOUTH,        coordinate( 14.3866, 105.104   )},
+  {ALCOVE,                coordinate( 19.6725, 105.155   )},
+  {KITCHEN,               coordinate( 30.9585, 105.623   )},
+  {SOCCER_LAB_DOOR_NORTH, coordinate( 48.2878, 112.392   )},
+  {SOCCER_LAB_DOOR_SOUTH, coordinate( 48.3504, 105.226   )},
+  {FELLOW_COMPUTERS,      coordinate( 35.8519, 112.632   )}
 #endif
 };
 
@@ -69,7 +69,7 @@ public:
 
   void end_movement();
 
-  void move_to_location(environment_location location);
+  void move_to_location(coordinate location);
 
   void turn(float degrees);
 };

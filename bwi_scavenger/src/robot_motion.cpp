@@ -19,9 +19,7 @@ void RobotMotion::end_movement(){
   ac->cancelGoal();
 }
 
-void RobotMotion::move_to_location(environment_location location) {
-  std::pair<float, float> coordinates =
-      environment_location_coordinates[location];
+void RobotMotion::move_to_location(coordinate coordinates) {
   double start = ros::Time::now().toSec();
 
   move_base_msgs::MoveBaseGoal goal;

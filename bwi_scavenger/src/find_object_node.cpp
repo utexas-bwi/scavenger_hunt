@@ -6,6 +6,7 @@
 
 #include <bwi_scavenger_msgs/DatabaseProof.h>
 #include <bwi_scavenger_msgs/DatabaseInfo.h>
+#include <bwi_scavenger_msgs/DatabaseLocationList.h>
 #include <bwi_scavenger_msgs/RobotMove.h>
 #include <bwi_scavenger_msgs/RobotStop.h>
 #include <bwi_scavenger_msgs/PerceptionMoment.h>
@@ -56,6 +57,7 @@ static StateMachine sm;
 static bool node_active = false;
 
 static OrderedLocationSet map;
+static PriorityLocationSet prioritized_map;
 
 static std::string target_object;
 
@@ -78,6 +80,7 @@ struct FindObjectSystemStateVector : SystemStateVector {
 
   bool travel_in_progress = false;
   bool travel_finished = false;
+  // bool travel_do_not_disturb = true;
 
   bool inspect_finished = false;
   int inspect_confirmations = 0;
@@ -89,7 +92,7 @@ struct FindObjectSystemStateVector : SystemStateVector {
   bool turn_sleeping = false;
   double t_turn_sleep_begin = 0;
 
-  environment_location destination;
+  coordinate destination;
 } ssv;
 
 class FindObjectEndState : public State {
@@ -160,9 +163,12 @@ public:
     // One-time travel command send
     if (!svec->travel_in_progress) {
       svec->travel_in_progress = true;
+      // svec->travel_do_not_disturb = prioritized_map.get_laps() < 1;
       bwi_scavenger_msgs::RobotMove msg;
       msg.type = 0;
-      msg.location = svec->destination;
+      coordinate dest = svec->destination;
+      msg.location.push_back(dest.first);
+      msg.location.push_back(dest.second);
       pub_move.publish(msg);
     }
   }
@@ -247,9 +253,10 @@ public:
 
   bool can_transition(State *from, SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
-    // Enter INSPECTING when target is seen and current state is not END
+    // Enter INSPECTING when target is seen and current state is not END and currently not travelling to a prioritized location
     if (from->get_id() != STATE_END &&
         svec->target_seen) {
+          //&& !svec->travel_do_not_disturb
       ROS_INFO("%s Glimpsed the target. Transitioning to INSPECTING.", TELEM_TAG);
       return true;
     }
@@ -349,7 +356,10 @@ void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
       bwi_scavenger_msgs::PoseRequest req;
       client_pose_request.call(req);
       geometry_msgs::Pose robot_pose = req.response.pose;
-      map.start(robot_pose.position.x, robot_pose.position.y);
+      coordinate c;
+      c.first = robot_pose.position.x;
+      c.second = robot_pose.position.y;
+      map.start(c);
       ssv.destination = map.get_next_location();
 
       node_active = true;
@@ -363,6 +373,8 @@ void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
   @brief called when perception_node publishes a new moment
 */
 void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
+  if(!node_active)
+    return;
   last_perception_moment = *msg;
   const darknet_ros_msgs::BoundingBoxes &boxes = msg->bounding_boxes;
 
@@ -376,7 +388,7 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
       target_pose.position = target_position;
 
       bwi_scavenger_msgs::DatabaseInfo get_info;
-      get_info.task_name = "Find Object";
+      get_info.task_name = TASK_FIND_OBJECT;
       get_info.parameter_name = target_object;
       get_info.data = 0;
       get_info.pose.position = kinect_fusion::get_position(box, depth_image);
@@ -398,6 +410,11 @@ void incorrect_cb(const std_msgs::Bool::ConstPtr &msg){
   }
 }
 
+// void set_locations_cb(const bwi_scavenger_msgs::DatabaseLocationList::ConstPtr &msg){
+//   unsigned int size = msg->size;
+//   for(int i = 0; i < size / 2; i++){}
+// }
+
 /*------------------------------------------------------------------------------
 NODE ENTRYPOINT
 ------------------------------------------------------------------------------*/
@@ -406,15 +423,6 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "find_object_node");
   ros::NodeHandle nh;
 
-  // Build search circuit
-  map.add_location(BWI_LAB_DOOR_NORTH);
-  map.add_location(CLEARING_NORTH);
-  map.add_location(CLEARING_SOUTH);
-  map.add_location(ALCOVE);
-  map.add_location(KITCHEN);
-  map.add_location(BWI_LAB_DOOR_SOUTH);
-  map.add_location(SOCCER_LAB_DOOR_SOUTH);
-  map.add_location(SOCCER_LAB_DOOR_NORTH);
 
   // Create clients
   client_pose_request = nh.serviceClient<bwi_scavenger_msgs::PoseRequest>(
@@ -438,6 +446,26 @@ int main(int argc, char **argv) {
       TPC_PERCEPTION_NODE_MOMENT, 1, perceive);
   ros::Subscriber sub_db_incorrect = nh.subscribe(
       TPC_DATABASE_NODE_INCORRECT, 1, incorrect_cb);
+  // ros::Subscriber sub_prioritize_locations = nh.subscribe(
+  //     TPC_DATABASE_NODE_LOCATIONS, 1, set_locations_cb);
+
+  // Build default search circuit
+  map.add_location(BWI_LAB_DOOR_NORTH);
+  map.add_location(CLEARING_NORTH);
+  map.add_location(CLEARING_SOUTH);
+  map.add_location(ALCOVE);
+  map.add_location(KITCHEN);
+  map.add_location(BWI_LAB_DOOR_SOUTH);
+  map.add_location(SOCCER_LAB_DOOR_SOUTH);
+  map.add_location(SOCCER_LAB_DOOR_NORTH);
+
+  // Creating prioritized location setup
+  // bwi_scavenger_msgs::DatabaseInfo get_info;
+  // get_info.task_name = TASK_FIND_OBJECT;
+  // get_info.parameter_name = target_object;
+  // get_info.data = 1;
+  // pub_get_info.publish(get_info);
+  // ros::spinOnce();
 
   // Build state machine
   s_traveling->add_output(s_end);
@@ -465,10 +493,8 @@ int main(int argc, char **argv) {
   // Run until state machine exit
   while (ros::ok()) {
     ros::spinOnce();
-
     if (!node_active)
       continue;
-
     sm.run(&ssv);
     ssv.t = ros::Time::now().toSec() - ssv.t_system_epoch;
   }

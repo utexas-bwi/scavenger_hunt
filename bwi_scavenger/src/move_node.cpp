@@ -21,11 +21,11 @@ void stop(const bwi_scavenger_msgs::RobotStop::ConstPtr &data){
 
 void move(const bwi_scavenger_msgs::RobotMove::ConstPtr &data){
   if(data -> type == MOVE){
-    environment_location goal = static_cast<environment_location>(data->location % NUM_ENVIRONMENT_LOCATIONS);
+    coordinate goal_coord = {data->location[0], data->location[1]};
   #ifdef VERBOSE
     ROS_INFO("[move_node] Moving to location %d.", (int)goal);
   #endif
-    rm -> move_to_location(goal);
+    rm -> move_to_location(goal_coord);
     movePub.publish(result);
   } else if (data -> type == SPIN){
     rm -> turn (data->degrees);

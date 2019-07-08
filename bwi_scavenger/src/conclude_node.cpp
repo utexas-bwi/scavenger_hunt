@@ -24,7 +24,9 @@ void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
     // Go to conclusion spot
     bwi_scavenger_msgs::RobotMove msg;
     msg.type = 0;
-    msg.location = FELLOW_COMPUTERS;
+    coordinate c = environment_location_coordinates[FELLOW_COMPUTERS];
+    msg.location.push_back(c.first);
+    msg.location.push_back(c.second);
     pub_move.publish(msg);
   }
 }
