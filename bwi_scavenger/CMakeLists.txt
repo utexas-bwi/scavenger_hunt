@@ -8,6 +8,8 @@ add_compile_options(-std=c++11 -g)
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
+find_package(OpenCV REQUIRED COMPONENTS)
+
 find_package(
 catkin REQUIRED COMPONENTS
   roscpp
@@ -25,7 +27,6 @@ catkin REQUIRED COMPONENTS
   tf
   sensor_msgs
   message_generation
-  OpenCV
 )
 
 ## System dependencies are found with CMake's conventions
@@ -182,6 +183,7 @@ target_link_libraries(move_node
 
 add_executable(database_node
   src/database_node.cpp
+  src/object_cluster.cpp
   src/dbscan_object.cpp)
 
  target_link_libraries(database_node
@@ -191,6 +193,7 @@ add_executable(database_node
 add_executable(do_hunt
   src/do_hunt.cpp
   src/file_editor.cpp
+  src/object_cluster.cpp
   src/dbscan_object.cpp)
 
 target_link_libraries(do_hunt
@@ -200,6 +203,7 @@ target_link_libraries(do_hunt
 
 add_executable(clusterer_test
   src/clusterer_test.cpp
+  src/object_cluster.cpp
   src/dbscan_object.cpp)
 
 target_link_libraries(clusterer_test

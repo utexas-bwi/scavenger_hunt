@@ -145,11 +145,9 @@ bool ObjectClusterer::in_cluster(float* point, int cluster_num){
       dimen[j] += cluster.get_point(i).coordinate[j];
   }
   
-  for(int i = 0; i < OBJECT_DIMEN; i++){
-    // std::cout << dimen[i] << " ";
+  for(int i = 0; i < OBJECT_DIMEN; i++)
     dimen[i] /= cluster.size();
-  }
-  // std::cout << dimen[0] << ", " << dimen[1] << std::endl;
+
   float distance = calculate_distance(dimen, point);
   return distance < EPS;
 }
@@ -178,10 +176,8 @@ void set_variables(int size_of_database, float** object_points, ObjectCluster &o
   // for robot location
   float* robot_location = new float[ROBOT_DIMEN];
 
-  // std::cout << size_of_database << std::endl;
   for(int j = 0; j < size_of_database; j++){
     if(contains_point(object_points[j], objc)){
-      // std::cout << j << std::endl;
       // for verification
       if(verification[j])
         correct++;
@@ -190,12 +186,9 @@ void set_variables(int size_of_database, float** object_points, ObjectCluster &o
 
       // for robot location
       float* cur_robot_point = robot_points[j];
-      for(int k = 0; k < ROBOT_DIMEN; k++){
-        // std::cout << cur_robot_point[k] << " ";
+      for(int k = 0; k < ROBOT_DIMEN; k++)
         robot_location[k] += cur_robot_point[k];
-      }
-      // std::cout << std::endl;
-        
+      
     }
   }
   
@@ -207,11 +200,10 @@ void set_variables(int size_of_database, float** object_points, ObjectCluster &o
   // for robot location
   for(int k = 0; k < ROBOT_DIMEN; k++)
     robot_location[k] /= objc.size();
-  // std::cout << objc -> size() << " " << robot_location[0] << " " << robot_location[1] << std::endl;
   objc.set_robot_location(robot_location);
 
-  std::cout << "size: " << objc.size() << " correct: " << std::to_string(correct) << " incorrect: " 
-    << std::to_string(objc.get_incorrect()) << " robot location: (" << std::to_string(robot_location[0])
+  std::cout << "size: " << objc.size() << ", correct: " << std::to_string(correct) << ", incorrect: " 
+    << std::to_string(objc.get_incorrect()) << ", robot location: (" << std::to_string(robot_location[0])
     << ", " << std::to_string(objc.get_robot_location()[1]) << ") ";
   if(objc.get_verification())
     std::cout << "CORRECT";
@@ -233,9 +225,8 @@ ObjectClusterer::ObjectClusterer(float** object_points, float** robot_points, bo
   for(int i = 0; i < size_of_database; i++){
     point temp;
     temp.coordinate = new float[OBJECT_DIMEN];
-    for(int j = 0; j < OBJECT_DIMEN; j++){
+    for(int j = 0; j < OBJECT_DIMEN; j++)
       temp.coordinate[j] = object_points[i][j];
-    }
     temp.label = UNDEFINED;
     database[i] = temp;
   }
@@ -245,29 +236,21 @@ ObjectClusterer::ObjectClusterer(float** object_points, float** robot_points, bo
   // std::cout << cluster_list[1].num << std::endl;
 
   for(int i = 0; i < num_clusters; i++){
-
     ObjectCluster &objc = cluster_list[i];
 
     set_variables(size_of_database, object_points, objc, verification, robot_points);
-
-    // std::cout << "Cluster number " << std::to_string(i)<< " size " << std::to_string(objc->size()) << std::endl;
-    // for(int k = 0; k < objc->size(); k++)
-    //   std::cout << "(" << std::to_string(objc->get_point(k).coordinate[0]) << ", " << 
-    //   std::to_string(objc->get_point(k).coordinate[1]) << ") " << 
-    //   std::to_string(objc->get_point(k).num) << std::endl;
-    // std::cout << std::endl;
   }
 
   this->robot_points = robot_points;
 }
 
 ObjectClusterer::~ObjectClusterer(){
-  // delete database;
-  // delete &cluster_list;
+  delete database;
+  delete &cluster_list;
   // delete c;
   // delete obj_cluster_list;
-  // delete object_points;
-  // delete robot_points;
+  delete object_points;
+  delete robot_points;
 }
 
 /**
@@ -292,8 +275,6 @@ std::vector<int> ObjectClusterer::get_incorrect_clusters(){
   std::vector<int> result;
   for(int i = 0; i < cluster_list.size(); i++){
     ObjectCluster objc = cluster_list[i];
-    // std::cout << "size: " << objc.size();
-    // std::cout << " There are " << std::to_string(objc.get_incorrect()) << " num incorrect in this cluster" << std::endl;
     if(objc.get_incorrect() / (float) objc.size() > INCORRECT_THRESHOLD)
       result.push_back(objc.cluster_num());
   }
@@ -319,89 +300,9 @@ float* ObjectClusterer::closest_correct(float* robot_position){
         min_distance = distance;
         cluster_num = i;
         min_distance_position = robot_location;
-    }
+      }
     }
   }
   return min_distance_position;
-}
-
-//ObjectCluster 
-
-ObjectCluster::ObjectCluster(int num){
-    
-  this->num = num;
-  std::vector<point> newList;
-  this->list = newList;
-
-  robot_location = new float[ROBOT_DIMEN];
-}
-
-ObjectCluster::~ObjectCluster(){}
-
-/**
-  Returns the number of correct values in this cluster
-*/
-int ObjectCluster::get_correct(){
-  return num_correct;
-}
-
-/**
-  Returns the number of incorrect values in this cluster
-*/
-int ObjectCluster::get_incorrect(){
-  return num_incorrect;
-}
-
-/**
-  Returns the average robot location associated with this cluster of object points
-*/
-float* ObjectCluster::get_robot_location(){
-  return robot_location;
-}
-
-bool ObjectCluster::get_verification(){
-  return correct;
-}
-
-/**
-  Sets the number of correct values in this cluster to num
-*/
-void ObjectCluster::set_num_correct(int num){
-  num_correct = num;
-}
-/**
-  Sets the number of incorrect values in this cluster to num
-*/
-void ObjectCluster::set_num_incorrect(int num){
-  num_incorrect = num;
-}
-
-void ObjectCluster::set_verification(bool ver){
-  correct = ver;
-}
-
-void ObjectCluster::set_robot_location(float* point){
-  // robot_location = point;
-  for(int i = 0; i < ROBOT_DIMEN; i++){
-    // std::cout << "set robot location: " << i << std::endl;
-    robot_location[i] = point[i];
-  }
-}
-
-
-void ObjectCluster::add_to_list(point p){
-  list.push_back(p);
-}
-
-int ObjectCluster::cluster_num(){
-  return num;
-}
-
-int ObjectCluster::size(){
-  return list.size();
-}
-
-point ObjectCluster::get_point(int pos){
-  return list[pos];
 }
 

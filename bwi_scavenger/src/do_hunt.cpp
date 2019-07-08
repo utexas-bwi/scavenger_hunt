@@ -7,11 +7,11 @@
 #include <ros/ros.h>
 #include <scavenger_hunt/scavenger_hunt.h>
 #include <bwi_scavenger/file_editor.h>
-#include <bwi_scavenger/dbscan.h>
 #include <std_msgs/String.h>
 #include <vector>
 #include <std_msgs/Bool.h>
 
+#define FAILED_PROOF_UPLOAD -1
 #define CURRENT_TASK tasks[task_index]
 
 static ScavengerHuntClient client("stefandebruyn@utexas.edu", "sick robots");
@@ -25,6 +25,7 @@ static bool hunt_started = false;
 static bool conclude = false;
 
 static proof_item proof;
+
 
 enum writing{
   READ,
@@ -41,16 +42,18 @@ void parse_proofs(){
   std::string str;
   while((*read).read_line()){
     proof.proof_id = (*read).get_proof_id();
-    proof.verification = (*read).get_verification();
-    if(proof.verification == UNVERIFIED)
-      proof.verification = client.get_proof_status(proof.proof_id);
-
-    if(proof.proof_id){
+    // updates proof if proof id is not 0 (thus it has been sent to the server)
+    if(proof.proof_id != FAILED_PROOF_UPLOAD){
       proof.task_name = (*read).get_task_name();
       proof.parameter_name = (*read).get_parameter();
       proof.robot_pose = (*read).get_robot_pose();
       proof.secondary_pose = (*read).get_secondary_pose();
+      proof.verification = (*read).get_verification();
+      // updates verification if it has been recently verified
+      if(proof.verification == UNVERIFIED)
+        proof.verification = client.get_proof_status(proof.proof_id);
 
+      // sends message of proof to database node
       if(proof.verification != UNVERIFIED){
         bwi_scavenger_msgs::DatabaseProof proofMsg;
         proofMsg.task = proof.task_name;
@@ -76,7 +79,6 @@ void parse_proofs(){
   pub_done_parse.publish(msg);
 
   ros::Duration(1.0).sleep();
-
 }
 
 /**
