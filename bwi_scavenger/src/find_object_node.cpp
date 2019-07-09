@@ -185,13 +185,14 @@ public:
     if (!svec->travel_finished) {
       bwi_scavenger_msgs::RobotStop stop;
       pub_stop.publish(stop);
-    } else
+    } else {
       if(!svec->prioritized_finished){
         svec->destination = prioritized_map.get_next_location();
       }
       else{
         svec->destination = map.get_next_location();
       }
+    }
   }
 
   void on_transition_to(SystemStateVector *vec) {
@@ -365,14 +366,38 @@ void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
                TELEM_TAG, TASK_FIND_OBJECT.c_str(), target_object.c_str());
 
       // Query the current robot pose for planning purposes
-      bwi_scavenger_msgs::PoseRequest req;
-      client_pose_request.call(req);
-      geometry_msgs::Pose robot_pose = req.response.pose;
+      bwi_scavenger_msgs::PoseRequest reqPose;
+      client_pose_request.call(reqPose);
+      geometry_msgs::Pose robot_pose = reqPose.response.pose;
       coordinate c;
       c.first = robot_pose.position.x;
       c.second = robot_pose.position.y;
       map.start(c);
-      ssv.destination = map.get_next_location();
+
+      // Creating prioritized location setup
+      bwi_scavenger_msgs::DatabaseInfoSrv reqLoc;
+      reqLoc.request.task_name = "Find Object";
+      reqLoc.request.parameter_name = target_object;
+      reqLoc.request.data = 1;
+      client_database_info_request.call(reqLoc);
+      for(int i = 0; i < reqLoc.response.location_list.size() / 2; i++){
+        ROS_INFO("[find_object_node] Adding to priority location map point (%f, %f)", 
+          reqLoc.response.location_list[i * 2], reqLoc.response.location_list[i * 2 + 1]);
+        coordinate c = {reqLoc.response.location_list[i * 2], reqLoc.response.location_list[i * 2 + 1]};
+        prioritized_map.add_location(c);
+        prioritized_map.set_location_priority(c, reqLoc.response.priority_list[i]);
+      }
+      prioritized_map.prioritize();
+      
+      if(prioritized_map.get_laps() == -1){
+        ROS_INFO("[find_object_node] no locations in priority map");
+        ssv.destination = map.get_next_location();
+        ssv.prioritized_finished = true;
+      }
+      else {
+        ROS_INFO("[find_object_node] starting with priority map");
+        ssv.destination = prioritized_map.get_next_location();
+      }
 
       node_active = true;
     } else
@@ -481,19 +506,6 @@ int main(int argc, char **argv) {
   map.add_location(BWI_LAB_DOOR_SOUTH);
   map.add_location(SOCCER_LAB_DOOR_SOUTH);
   map.add_location(SOCCER_LAB_DOOR_NORTH);
-
-  // Creating prioritized location setup
-  bwi_scavenger_msgs::DatabaseInfoSrv req;
-  req.request.task_name = TASK_FIND_OBJECT;
-  req.request.parameter_name = target_object;
-  req.request.data = 1;
-  client_database_info_request.call(req);
-
-  for(int i = 0; i < req.response.location_list.size() / 2; i++){
-    coordinate c = {req.response.location_list[i * 2], req.response.location_list[i * 2 + 1]};
-    prioritized_map.add_location(c);
-  }
-
 
   // Build state machine
   s_traveling->add_output(s_end);

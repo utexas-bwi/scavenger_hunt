@@ -23,7 +23,7 @@ void move(const bwi_scavenger_msgs::RobotMove::ConstPtr &data){
   if(data -> type == MOVE){
     coordinate goal_coord = {data->location[0], data->location[1]};
   #ifdef VERBOSE
-    ROS_INFO("[move_node] Moving to location %d.", (int)goal);
+    ROS_INFO("[move_node] Moving to location (%f, %f).", goal_coord.first, goal_coord.second);
   #endif
     rm -> move_to_location(goal_coord);
     movePub.publish(result);

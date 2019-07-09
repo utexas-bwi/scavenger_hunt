@@ -126,7 +126,7 @@ void getMapId(const nav_msgs::OccupancyGrid::ConstPtr &grid){
 
 bool is_correct(task curTask, geometry_msgs::Pose obj_pose){
   if(clustererMap->count(curTask)){
-    ObjectClusterer curClusterer = *clustererMap->at(curTask);
+    ObjectClusterer *curClusterer = clustererMap->at(curTask);
 
     bwi_scavenger_msgs::PoseRequest req;
     pose_client.call(req);
@@ -149,9 +149,9 @@ bool is_correct(task curTask, geometry_msgs::Pose obj_pose){
 
     // ROS_INFO("[database_node] Object point: (%f ,%f, %f)", point[0], point[1], point[2]);
 
-    std::vector<int> incorrect_clusters = curClusterer.get_incorrect_clusters();
+    std::vector<int> incorrect_clusters = curClusterer->get_incorrect_clusters();
     for(int i = 0; i < incorrect_clusters.size(); i++){
-      if(curClusterer.in_cluster(point, incorrect_clusters[i])){
+      if(curClusterer->in_cluster(point, incorrect_clusters[i])){
         ROS_INFO("[database_node] Point is in an incorrect cluster! Do not save.");
         return false;
       }
@@ -161,17 +161,8 @@ bool is_correct(task curTask, geometry_msgs::Pose obj_pose){
   return true;
 }
 
-void set_priority_locations(task curTask, bwi_scavenger_msgs::DatabaseInfoSrv::Response &res){
-  ObjectClusterer curClusterer = *clustererMap->at(curTask);
-  std::vector<int> correct_clusters = curClusterer.get_correct_clusters();
-  for(int i = 0; i < correct_clusters.size(); i++){
-    ObjectCluster obj_cluster = curClusterer.get_cluster(correct_clusters[i]);
-    float *robot_location = obj_cluster.get_robot_location();
-    res.location_list.push_back(robot_location[0]);
-    res.location_list.push_back(robot_location[1]);
-    res.priority_list.push_back(obj_cluster.get_correct() / obj_cluster.size());
-  }
-}
+// void set_priority_locations(task curTask, bwi_scavenger_msgs::DatabaseInfoSrv::Response &res){
+// }
 
 
 /**
@@ -180,20 +171,32 @@ void set_priority_locations(task curTask, bwi_scavenger_msgs::DatabaseInfoSrv::R
 bool info(bwi_scavenger_msgs::DatabaseInfoSrv::Request &msg,
           bwi_scavenger_msgs::DatabaseInfoSrv::Response &res)
 {
-  // ROS_INFO("[database_node] Getting info for %s / %s", msg.task_name.c_str(), msg.parameter_name.c_str());
+  ROS_INFO("[database_node] Getting info for %s / %s", msg.task_name.c_str(), msg.parameter_name.c_str());
   bool methodWorking = false;
 
   task curTask = {msg.task_name, msg.parameter_name};
   // Checks if a point is within an incorrect cluster
   if(msg.data == GET_INCORRECT){
-    // ROS_INFO("[database_node] Checking if incorrect");
+    ROS_INFO("[database_node] Checking if incorrect");
     methodWorking = true;
     geometry_msgs::Pose obj_pose = msg.pose;
     res.correct = is_correct(curTask, obj_pose);
   } else if(msg.data == SET_LOCATION){
+    ROS_INFO("[database_node] Setting location");
     methodWorking = true;
-    if(clustererMap->count(curTask))
-      set_priority_locations(curTask, res);
+    if(clustererMap->count(curTask)){
+      // ROS_INFO("[database_node] Setting priority locations");
+      ObjectClusterer *curClusterer = clustererMap->at(curTask);
+      std::vector<int> correct_clusters = curClusterer->get_correct_clusters();
+      for(int i = 0; i < correct_clusters.size(); i++){
+        ObjectCluster obj_cluster = curClusterer->get_cluster(correct_clusters[i]);
+        float *robot_location = obj_cluster.get_robot_location();
+        
+        res.location_list.push_back(robot_location[0]);
+        res.location_list.push_back(robot_location[1]);
+        res.priority_list.push_back(obj_cluster.get_correct() / obj_cluster.size());
+      }
+    }
   }
   return methodWorking; //?
 
@@ -221,6 +224,8 @@ int main(int argc, char **argv){
   clustererMap = &tempMap2;
 
   tfl = new tf::TransformListener();
+
+  ROS_INFO("[database_node] Standing by.");
 
   ros::spin();
 }

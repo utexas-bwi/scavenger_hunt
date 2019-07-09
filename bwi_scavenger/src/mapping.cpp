@@ -17,8 +17,11 @@ void LocationSet::add_location(coordinate c) {
   locations.push_back(c);
 }
 
+// Returns the number of laps done, will -1 if the set does not contain any locations
 int LocationSet::get_laps(){
-  return index / locations.size();
+  if(locations.size())
+    return index / locations.size();
+  return -1;
 }
 
 void LocationSet::start(environment_location l) {
@@ -46,7 +49,6 @@ void LocationSet::start(coordinate c) {
   index = closest_ind;
 }
 
-// TODO rewrite
 coordinate OrderedLocationSet::get_next_location() {
   coordinate c = locations[index % locations.size()];
   index++;
