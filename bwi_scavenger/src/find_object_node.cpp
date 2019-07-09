@@ -5,7 +5,7 @@
 #include <ros/ros.h>
 
 #include <bwi_scavenger_msgs/DatabaseProof.h>
-#include <bwi_scavenger_msgs/DatabaseInfo.h>
+#include <bwi_scavenger_msgs/DatabaseInfoSrv.h>
 #include <bwi_scavenger_msgs/DatabaseLocationList.h>
 #include <bwi_scavenger_msgs/RobotMove.h>
 #include <bwi_scavenger_msgs/RobotStop.h>
@@ -66,6 +66,7 @@ static bwi_scavenger_msgs::PerceptionMoment last_perception_moment;
 static geometry_msgs::Pose target_pose;
 
 static ros::ServiceClient client_pose_request;
+static ros::ServiceClient client_database_info_request;
 
 /*------------------------------------------------------------------------------
 STATE MACHINE DEFINITION
@@ -387,28 +388,36 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
           kinect_fusion::get_position(box, depth_image);
       target_pose.position = target_position;
 
-      bwi_scavenger_msgs::DatabaseInfo get_info;
-      get_info.task_name = TASK_FIND_OBJECT;
-      get_info.parameter_name = target_object;
-      get_info.data = 0;
-      get_info.pose.position = kinect_fusion::get_position(box, depth_image);
-      pub_get_info.publish(get_info);
+      bwi_scavenger_msgs::DatabaseInfoSrv req;
+      req.request.task_name = TASK_FIND_OBJECT;
+      req.request.parameter_name = target_object;
+      req.request.data = 0;
+      req.request.pose.position = kinect_fusion::get_position(box, depth_image);
+      client_database_info_request.call(req);
+      
+      if(req.response.correct){
+        state_id_t state = sm.get_current_state()->get_id();
+        if (state == STATE_SCANNING || state == STATE_TRAVELING)
+          ssv.target_seen = true;
+        else if (state == STATE_INSPECTING && !ssv.inspect_finished)
+          ssv.inspect_confirmations++;
+      }
 
       break;
     }
   }
 }
 
-void incorrect_cb(const std_msgs::Bool::ConstPtr &msg){
-  // if it is NOT in an incorrect cluster, add to count of correct data
-  if(!(msg->data)){
-    state_id_t state = sm.get_current_state()->get_id();
-    if (state == STATE_SCANNING || state == STATE_TRAVELING)
-      ssv.target_seen = true;
-    else if (state == STATE_INSPECTING && !ssv.inspect_finished)
-      ssv.inspect_confirmations++;
-  }
-}
+// void incorrect_cb(const std_msgs::Bool::ConstPtr &msg){
+//   // if it is NOT in an incorrect cluster, add to count of correct data
+//   if(!(msg->data)){
+//     state_id_t state = sm.get_current_state()->get_id();
+//     if (state == STATE_SCANNING || state == STATE_TRAVELING)
+//       ssv.target_seen = true;
+//     else if (state == STATE_INSPECTING && !ssv.inspect_finished)
+//       ssv.inspect_confirmations++;
+//   }
+// }
 
 // void set_locations_cb(const bwi_scavenger_msgs::DatabaseLocationList::ConstPtr &msg){
 //   unsigned int size = msg->size;
@@ -428,6 +437,9 @@ int main(int argc, char **argv) {
   client_pose_request = nh.serviceClient<bwi_scavenger_msgs::PoseRequest>(
       SRV_POSE_REQUEST);
 
+  client_database_info_request = nh.serviceClient<bwi_scavenger_msgs::DatabaseInfoSrv>(
+      SRV_DATABASE_INFO_REQUEST);
+
   // Setup SSV update callbacks
   pub_move = nh.advertise<bwi_scavenger_msgs::RobotMove>(
       TPC_MOVE_NODE_GO, 1);
@@ -435,8 +447,8 @@ int main(int argc, char **argv) {
       TPC_MOVE_NODE_STOP, 1);
   pub_task_complete = nh.advertise<bwi_scavenger_msgs::TaskEnd>(
       TPC_TASK_END, 1);
-  pub_get_info = nh.advertise<bwi_scavenger_msgs::DatabaseInfo>(
-      TPC_DATABASE_NODE_GET_INFO, 1);
+  // pub_get_info = nh.advertise<bwi_scavenger_msgs::DatabaseInfo>(
+  //     TPC_DATABASE_NODE_GET_INFO, 1);
 
   ros::Subscriber sub_move_finished = nh.subscribe(
       TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
@@ -444,8 +456,8 @@ int main(int argc, char **argv) {
       TPC_TASK_START, 1, task_start_cb);
   ros::Subscriber sub_perception = nh.subscribe(
       TPC_PERCEPTION_NODE_MOMENT, 1, perceive);
-  ros::Subscriber sub_db_incorrect = nh.subscribe(
-      TPC_DATABASE_NODE_INCORRECT, 1, incorrect_cb);
+  // ros::Subscriber sub_db_incorrect = nh.subscribe(
+  //     TPC_DATABASE_NODE_INCORRECT, 1, incorrect_cb);
   // ros::Subscriber sub_prioritize_locations = nh.subscribe(
   //     TPC_DATABASE_NODE_LOCATIONS, 1, set_locations_cb);
 

@@ -41,11 +41,13 @@ const char TPC_DATABASE_NODE_UPDATE_PROOF[] = "/bwi_scavenger/database_node/upda
 const char TPC_DATABASE_NODE_DONE_PARSE[] = "/bwi_scavenger/database_node/done_parse";
 const char TPC_DATABASE_NODE_GET_INFO[] = "/bwi_scavenger/database_node/get_info";
 const char TPC_DATABASE_NODE_INCORRECT[] = "/bwi_scavenger/database_node/incorrect";
+const char TPC_DATABASE_NODE_LOCATIONS[] = "/bwi_scavenger/database_node/locations";
 
 /*------------------------------------------------------------------------------
 SERVICES
 ------------------------------------------------------------------------------*/
 
 const char SRV_POSE_REQUEST[] = "/bwi_scavenger/services/pose_request";
+const char SRV_DATABASE_INFO_REQUEST[] = "/bwi_scavenger/services/database_info_request";
 
 #endif

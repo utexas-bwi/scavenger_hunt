@@ -45,7 +45,6 @@ static std::unordered_map<task, std::vector<proof>, task_hash>* proofsMap;
 static std::unordered_map<task, ObjectClusterer*, task_hash>* clustererMap;
 static ros::Publisher pub_incorrect_point;
 static ros::ServiceClient pose_client;
-static ros::ServiceClient database_client;
 
 
 void update_proofs_cb(const bwi_scavenger_msgs::DatabaseProof::ConstPtr &msg){
@@ -192,8 +191,6 @@ bool info(bwi_scavenger_msgs::DatabaseInfoSrv::Request &msg,
 
     if(clustererMap->count(curTask)){
 
-      ROS_INFO("getting incorrect position");
-
       geometry_msgs::Pose obj_pose = msg.pose;
 
       ObjectClusterer curClusterer = *clustererMap->at(curTask);
@@ -201,7 +198,7 @@ bool info(bwi_scavenger_msgs::DatabaseInfoSrv::Request &msg,
       bwi_scavenger_msgs::PoseRequest req;
       pose_client.call(req);
 
-      ROS_INFO("[database_node] Robot point: (%f ,%f, %f)", req.response.pose.position.x, req.response.pose.position.y, req.response.pose.position.z);
+      // ROS_INFO("[database_node] Robot point: (%f ,%f, %f)", req.response.pose.position.x, req.response.pose.position.y, req.response.pose.position.z);
 
       tf::Quaternion rpy(req.response.pose.orientation.x,
                          req.response.pose.orientation.y,
@@ -211,34 +208,33 @@ bool info(bwi_scavenger_msgs::DatabaseInfoSrv::Request &msg,
       double roll, pitch, yaw;
       tf::Matrix3x3(rpy).getRPY(roll, pitch, yaw);
 
-      ROS_INFO("obj relative: (%f, %f)", obj_pose.position.x, obj_pose.position.y);
+      // ROS_INFO("obj relative: (%f, %f)", obj_pose.position.x, obj_pose.position.y);
 
       float point[3];
       point[0] = req.response.pose.position.x + cos(yaw) * obj_pose.position.x - sin(yaw) * obj_pose.position.y;
       point[1] = req.response.pose.position.y + sin(yaw) * obj_pose.position.x + cos(yaw) * obj_pose.position.y;
       point[2] = req.response.pose.position.z + obj_pose.position.z;
 
-      ROS_INFO("[database_node] Object point: (%f ,%f, %f)", point[0], point[1], point[2]);
+      // ROS_INFO("[database_node] Object point: (%f ,%f, %f)", point[0], point[1], point[2]);
 
       std::vector<int> incorrect_clusters = curClusterer.get_incorrect_clusters();
-      std::cout << "hello" << std::endl;
 
       for(int i = 0; i < incorrect_clusters.size(); i++){
         if(curClusterer.in_cluster(point, i)){
           ROS_INFO("[database_node] Point is in an incorrect cluster! Do not save.");
           //std_msgs::Bool msgIncorrect;
           //msgIncorrect.data = true;
-          res.incorrect = true;
+          res.correct = false;
           return methodWorking;
         }
       }
 
     }
 
-    ROS_INFO("[database_node] Point is NOT in an incorrect cluster! Save point.");
+    // ROS_INFO("[database_node] Point is NOT in an incorrect cluster! Save point.");
     //std_msgs::Bool msgIncorrect;
     //msgIncorrect.data = false;
-    res.incorrect = false;
+    res.correct = true;
     //pub_incorrect_point.publish(msgIncorrect);
     return methodWorking;
   }
@@ -259,7 +255,7 @@ int main(int argc, char **argv){
   pub_incorrect_point = n.advertise<std_msgs::Bool>(TPC_DATABASE_NODE_INCORRECT, 1);
 
   pose_client = n.serviceClient<bwi_scavenger_msgs::PoseRequest>("pose_request");
-  database_client = n.serviceClient<bwi_scavenger_msgs::DatabaseInfoSrv>("database_info", info);//?
+  ros::ServiceServer srv_info_request = n.advertiseService(SRV_DATABASE_INFO_REQUEST, info);
 
   std::unordered_map<task, std::vector<proof>, task_hash> tempMap;
   proofsMap = &tempMap;
