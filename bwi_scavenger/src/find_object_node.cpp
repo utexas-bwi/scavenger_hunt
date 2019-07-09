@@ -81,7 +81,6 @@ struct FindObjectSystemStateVector : SystemStateVector {
   bool travel_in_progress = false;
   bool travel_finished = false;
   bool prioritized_finished = false;
-  // bool travel_do_not_disturb = true;
 
   bool inspect_finished = false;
   int inspect_confirmations = 0;
@@ -164,7 +163,6 @@ public:
     // One-time travel command send
     if (!svec->travel_in_progress) {
       svec->travel_in_progress = true;
-      // svec->travel_do_not_disturb = prioritized_map.get_laps() < 1;
       bwi_scavenger_msgs::RobotMove msg;
       msg.type = 0;
       coordinate dest = svec->destination;
@@ -269,7 +267,12 @@ public:
     // Enter INSPECTING when target is seen and current state is not END and currently not travelling to a prioritized location
     if (from->get_id() != STATE_END &&
         svec->target_seen) {
-          //&& !svec->travel_do_not_disturb
+      if(from->get_id() == STATE_TRAVELING && 
+          !svec->prioritized_finished){
+        svec->target_seen = false;
+        ROS_INFO("%s Cannot transition to INSPECTING, currently travelling with priority", TELEM_TAG);
+        return false;
+      }
       ROS_INFO("%s Glimpsed the target. Transitioning to INSPECTING.", TELEM_TAG);
       return true;
     }
@@ -380,6 +383,7 @@ void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
       reqLoc.request.parameter_name = target_object;
       reqLoc.request.data = 1;
       client_database_info_request.call(reqLoc);
+      prioritized_map.clear();
       for(int i = 0; i < reqLoc.response.location_list.size() / 2; i++){
         ROS_INFO("[find_object_node] Adding to priority location map point (%f, %f)", 
           reqLoc.response.location_list[i * 2], reqLoc.response.location_list[i * 2 + 1]);
@@ -390,12 +394,12 @@ void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
       prioritized_map.prioritize();
       
       if(prioritized_map.get_laps() == -1){
-        ROS_INFO("[find_object_node] no locations in priority map");
+        ROS_INFO("[find_object_node] No locations in priority map");
         ssv.destination = map.get_next_location();
         ssv.prioritized_finished = true;
       }
       else {
-        ROS_INFO("[find_object_node] starting with priority map");
+        ROS_INFO("[find_object_node] Starting with priority map");
         ssv.destination = prioritized_map.get_next_location();
       }
 

@@ -90,4 +90,9 @@ public:
            location has been assigned a priority
   */
   void prioritize();
+
+  /**
+    @brief deletes the current map of location sets
+  */
+  void clear();
 };

@@ -81,6 +81,8 @@ void PriorityLocationSet::prioritize() {
     locations.push_back(pl.coor);
 }
 
-// void PriorityLocationSet::add_loation(std::pair<float, float> l){
-
-// }
+void PriorityLocationSet::clear(){
+  priorities.clear();
+  locations.clear();
+  index = 0;
+}
