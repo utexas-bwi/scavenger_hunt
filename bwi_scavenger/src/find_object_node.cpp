@@ -389,7 +389,7 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
       target_pose.position = target_position;
 
       bwi_scavenger_msgs::DatabaseInfoSrv req;
-      req.request.task_name = "Find object";
+      req.request.task_name = TASK_FIND_OBJECT;
       req.request.parameter_name = target_object;
       req.request.data = 0;
       req.request.pose.position = kinect_fusion::get_position(box, depth_image);
@@ -472,16 +472,16 @@ int main(int argc, char **argv) {
   map.add_location(SOCCER_LAB_DOOR_NORTH);
 
   // Creating prioritized location setup
-  // bwi_scavenger_msgs::DatabaseInfoSrv req;
-  // req.request.task_name = TASK_FIND_OBJECT;
-  // req.request.parameter_name = target_object;
-  // req.request.data = 1;
-  // client_database_info_request.call(req);
+  bwi_scavenger_msgs::DatabaseInfoSrv req;
+  req.request.task_name = TASK_FIND_OBJECT;
+  req.request.parameter_name = target_object;
+  req.request.data = 1;
+  client_database_info_request.call(req);
 
-  // for(int i = 0; i < req.response.coordinates.size() / 2; i++){
-  //   coordinate c = {req.response.coordinates[i * 2], req.response.coordinates[i * 2 + 1]};
-  //   prioritized_map.add_location(c);
-  // }
+  for(int i = 0; i < req.response.location_list.size() / 2; i++){
+    coordinate c = {req.response.location_list[i * 2], req.response.location_list[i * 2 + 1]};
+    prioritized_map.add_location(c);
+  }
 
 
   // Build state machine
