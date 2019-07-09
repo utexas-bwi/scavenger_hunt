@@ -77,7 +77,6 @@ void parse_proofs(){
 
   std_msgs::Bool msg;
   pub_done_parse.publish(msg);
-
   ros::Duration(1.0).sleep();
 }
 
