@@ -20,7 +20,6 @@ add_message_files(FILES
   PerceptionMoment.msg
   DatabaseProof.msg
   DatabaseInfo.msg
-  DatabaseLocationList.msg
 )
 
 add_service_files(FILES

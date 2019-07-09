@@ -6,7 +6,6 @@
 
 #include <bwi_scavenger_msgs/DatabaseProof.h>
 #include <bwi_scavenger_msgs/DatabaseInfoSrv.h>
-#include <bwi_scavenger_msgs/DatabaseLocationList.h>
 #include <bwi_scavenger_msgs/RobotMove.h>
 #include <bwi_scavenger_msgs/RobotStop.h>
 #include <bwi_scavenger_msgs/PerceptionMoment.h>
@@ -81,6 +80,7 @@ struct FindObjectSystemStateVector : SystemStateVector {
 
   bool travel_in_progress = false;
   bool travel_finished = false;
+  bool prioritized_finished = false;
   // bool travel_do_not_disturb = true;
 
   bool inspect_finished = false;
@@ -176,11 +176,22 @@ public:
 
   void on_transition_from(SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
+
+    if(!svec->prioritized_finished){ //only call get_laps if needed
+      if(prioritized_map.get_laps() >= 1){
+        svec->prioritized_finished = true;
+      }
+    }
     if (!svec->travel_finished) {
       bwi_scavenger_msgs::RobotStop stop;
       pub_stop.publish(stop);
     } else
-      svec->destination = map.get_next_location();
+      if(!svec->prioritized_finished){
+        svec->destination = prioritized_map.get_next_location();
+      }
+      else{
+        svec->destination = map.get_next_location();
+      }
   }
 
   void on_transition_to(SystemStateVector *vec) {
