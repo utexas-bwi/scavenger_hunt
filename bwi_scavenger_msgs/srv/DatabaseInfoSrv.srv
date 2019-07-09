@@ -4,3 +4,5 @@ uint8 data
 geometry_msgs/Pose pose
 ---
 bool correct
+float64[] location_list
+bool[] priority_list
