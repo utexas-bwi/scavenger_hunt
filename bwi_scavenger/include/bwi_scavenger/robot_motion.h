@@ -1,7 +1,7 @@
 #ifndef BWI_SCAVENGER_ROBOT_MOTION_H
 #define BWI_SCAVENGER_ROBOT_MOTION_H
 
-#define SIMULATION
+#define SIMULATION // Use for simulation points or real world points
 
 #include <actionlib/client/simple_action_client.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -12,9 +12,11 @@
 #include <tf/transform_listener.h>
 #include <nav_msgs/OccupancyGrid.h>
 
+
+typedef std::pair<float, float> coordinate;
+
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>
     MoveBaseClient;
-typedef std::pair<float, float> coordinate;
 
 enum environment_location {
   BWI_LAB_DOOR_NORTH,
@@ -65,12 +67,30 @@ protected:
   tf::TransformListener *tfl;
 
 public:
+
+  /*
+    Creates a RobotMotion object to be used to move the robot.
+
+    @param grid_frame_id frame id of the map the robot is using
+    @param tfl copy of TransformListener that was initialized on startup of the calling node
+  */
   RobotMotion(std::string grid_frame_id, tf::TransformListener &tfl);
 
+  /* 
+    Stops the robot
+  */
   void end_movement();
 
+  /*
+    Moves the robot to the given location
+
+    @param location coordinate point for the robot to travel to
+  */
   void move_to_location(coordinate location);
 
+  /* 
+    Turns the robot by the number of degrees specified
+  */
   void turn(float degrees);
 };
 

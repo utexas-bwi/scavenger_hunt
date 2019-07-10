@@ -67,6 +67,9 @@ void create_clusterers_cb(const std_msgs::Bool::ConstPtr &msg){
   }
 }
 
+/*
+  Returns whether or not the given pose is in an incorrect cluster
+*/
 bool is_correct(task curTask, geometry_msgs::Pose obj_pose){
   if(clustererMap->count(curTask)){
     ObjectClusterer *curClusterer = clustererMap->at(curTask);
@@ -104,6 +107,13 @@ bool is_correct(task curTask, geometry_msgs::Pose obj_pose){
   return true;
 }
 
+/*
+  Generates a list of locations and prioirities
+  location list stores floats so every 2 numbers are a coordinate point
+  priority list stores floats of priorities based on the number of correct points in the cluster
+
+  prioirty_list[i] is associated with the point (location_list[i * 2], location_list[i * 2 + 1])
+*/
 void set_priority_locations(task curTask, bwi_scavenger_msgs::DatabaseInfoSrv::Response &res){
   if(clustererMap->count(curTask)){
 
@@ -138,7 +148,6 @@ bool info(bwi_scavenger_msgs::DatabaseInfoSrv::Request &msg,
   }
 
   return methodWorking; // will note if there is a method associated with the data type sent
-
 }
 
 int main(int argc, char **argv){

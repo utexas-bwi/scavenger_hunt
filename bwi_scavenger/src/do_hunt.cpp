@@ -66,8 +66,7 @@ void parse_proofs(){
   (*write).close();
 
   (*read).delete_file();
-  // will delete invalid proofs (based on proof id)
-  (*write).rename_file(PROOF_DATABASE_PATH);
+  (*write).rename_file(PROOF_DATABASE_PATH); // will delete proofs not uploaded to server
 
   std_msgs::Bool msg;
   pub_done_parse.publish(msg);
