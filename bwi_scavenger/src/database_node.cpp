@@ -1,52 +1,4 @@
-#include <ros/ros.h>
-#include <std_msgs/Bool.h>
-#include <tf/tf.h>
-#include <tf/transform_listener.h>
-#include <unordered_map>
-
-#include <bwi_scavenger_msgs/DatabaseProof.h>
-#include <bwi_scavenger_msgs/DatabaseInfo.h>
-#include <bwi_scavenger_msgs/PoseRequest.h>
-#include <bwi_scavenger_msgs/DatabaseInfoSrv.h>//?
-
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/PoseStamped.h>
-
-#include <nav_msgs/OccupancyGrid.h>
-
-#include "bwi_scavenger/dbscan_object.h"
-#include "bwi_scavenger/globals.h"
-
-enum data_label{
-  GET_INCORRECT,
-  SET_LOCATION
-};
-
-typedef std::pair<std::string, std::string> task;
-
-static tf::TransformListener *tfl;
-static std::string gridFrameId;
-
-struct task_hash
-{
-	template <class T1, class T2>
-	std::size_t operator() (const std::pair<T1, T2> &pair) const
-	{
-		return std::hash<T1>()(pair.first) ^ std::hash<T2>()(pair.second);
-	}
-};
-
-struct proof{
-  geometry_msgs::Pose robot_pose;
-  geometry_msgs::Pose secondary_pose;
-  bool verification;
-};
-
-static std::unordered_map<task, std::vector<proof>, task_hash>* proofsMap;
-static std::unordered_map<task, ObjectClusterer*, task_hash>* clustererMap;
-static ros::Publisher pub_incorrect_point;
-static ros::ServiceClient pose_client;
-
+#include <bwi_scavenger/database_node.h>
 
 void update_proofs_cb(const bwi_scavenger_msgs::DatabaseProof::ConstPtr &msg){
 
@@ -69,7 +21,7 @@ void update_proofs_cb(const bwi_scavenger_msgs::DatabaseProof::ConstPtr &msg){
 }
 
 void create_clusterers_cb(const std_msgs::Bool::ConstPtr &msg){
-  ROS_INFO("[Database_node] Creating Clusterers");
+  ROS_INFO("[database_node] Creating Clusterers");
   for(const auto &taskProof : *proofsMap){
     std::vector<proof> curProofList = taskProof.second;
 
@@ -106,22 +58,13 @@ void create_clusterers_cb(const std_msgs::Bool::ConstPtr &msg){
 
     task curTask = taskProof.first;
 
-    if(curTask.first == "Find Object"){
-      ROS_INFO("[Database_node] Find Object / %s Clusterer", curTask.second.c_str());
+    // generate correct clusterer for the task type
+    if(curTask.first == TASK_FIND_OBJECT){
+      ROS_INFO("[database_node] Find Object / %s Clusterer", curTask.second.c_str());
       ObjectClusterer* c_ptr = new ObjectClusterer(secondary_points, robot_points, verification, curProofList.size());
-
-      std::vector<int> incorrect = c_ptr->get_incorrect_clusters();
-
-      std::cout << "There were " << std::to_string(incorrect.size()) << " 'incorrect' clusters" << std::endl;
-
       clustererMap->insert({curTask, c_ptr});
     }
   }
-}
-
-void getMapId(const nav_msgs::OccupancyGrid::ConstPtr &grid){
-  tfl = new tf::TransformListener();
-  gridFrameId = grid->header.frame_id;
 }
 
 bool is_correct(task curTask, geometry_msgs::Pose obj_pose){
@@ -161,44 +104,40 @@ bool is_correct(task curTask, geometry_msgs::Pose obj_pose){
   return true;
 }
 
-// void set_priority_locations(task curTask, bwi_scavenger_msgs::DatabaseInfoSrv::Response &res){
-// }
+void set_priority_locations(task curTask, bwi_scavenger_msgs::DatabaseInfoSrv::Response &res){
+  if(clustererMap->count(curTask)){
 
+    ObjectClusterer *curClusterer = clustererMap->at(curTask);
+    std::vector<int> correct_clusters = curClusterer->get_correct_clusters();
+    for(int i = 0; i < correct_clusters.size(); i++){
+      ObjectCluster obj_cluster = curClusterer->get_cluster(correct_clusters[i]);
+      float *robot_location = obj_cluster.get_robot_location();
 
-/**
-  ROS service for getting info based on cluster data
-*/
+      res.location_list.push_back(robot_location[0]);
+      res.location_list.push_back(robot_location[1]);
+      res.priority_list.push_back(obj_cluster.get_correct() / obj_cluster.size());
+    }
+  }
+}
+
 bool info(bwi_scavenger_msgs::DatabaseInfoSrv::Request &msg,
-          bwi_scavenger_msgs::DatabaseInfoSrv::Response &res)
-{
-  ROS_INFO("[database_node] Getting info for %s / %s", msg.task_name.c_str(), msg.parameter_name.c_str());
+          bwi_scavenger_msgs::DatabaseInfoSrv::Response &res){
+  // ROS_INFO("[database_node] Getting info for %s / %s", msg.task_name.c_str(), msg.parameter_name.c_str());
   bool methodWorking = false;
 
   task curTask = {msg.task_name, msg.parameter_name};
-  // Checks if a point is within an incorrect cluster
+
   if(msg.data == GET_INCORRECT){
-    ROS_INFO("[database_node] Checking if incorrect");
     methodWorking = true;
     geometry_msgs::Pose obj_pose = msg.pose;
     res.correct = is_correct(curTask, obj_pose);
+  
   } else if(msg.data == SET_LOCATION){
-    ROS_INFO("[database_node] Setting location");
     methodWorking = true;
-    if(clustererMap->count(curTask)){
-      // ROS_INFO("[database_node] Setting priority locations");
-      ObjectClusterer *curClusterer = clustererMap->at(curTask);
-      std::vector<int> correct_clusters = curClusterer->get_correct_clusters();
-      for(int i = 0; i < correct_clusters.size(); i++){
-        ObjectCluster obj_cluster = curClusterer->get_cluster(correct_clusters[i]);
-        float *robot_location = obj_cluster.get_robot_location();
-        
-        res.location_list.push_back(robot_location[0]);
-        res.location_list.push_back(robot_location[1]);
-        res.priority_list.push_back(obj_cluster.get_correct() / obj_cluster.size());
-      }
-    }
+    set_priority_locations(curTask, res);
   }
-  return methodWorking; //?
+
+  return methodWorking; // will note if there is a method associated with the data type sent
 
 }
 
@@ -206,15 +145,10 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "database_node");
   ros::NodeHandle n;
 
-  ros::Subscriber mapSub = n.subscribe("/level_mux/map", 1, getMapId);
-
   ros::Subscriber sub0 = n.subscribe(TPC_DATABASE_NODE_UPDATE_PROOF, 1, update_proofs_cb);
   ros::Subscriber sub1 = n.subscribe(TPC_DATABASE_NODE_DONE_PARSE, 1, create_clusterers_cb);
-  // ros::Subscriber sub2 = n.subscribe(TPC_DATABASE_NODE_GET_INFO, 1, get_info_cb); //don't need?
 
-  pub_incorrect_point = n.advertise<std_msgs::Bool>(TPC_DATABASE_NODE_INCORRECT, 1);
-
-  pose_client = n.serviceClient<bwi_scavenger_msgs::PoseRequest>("pose_request");
+  pose_client = n.serviceClient<bwi_scavenger_msgs::PoseRequest>(SRV_POSE_REQUEST);
   ros::ServiceServer srv_info_request = n.advertiseService(SRV_DATABASE_INFO_REQUEST, info);
 
   std::unordered_map<task, std::vector<proof>, task_hash> tempMap;
@@ -222,8 +156,6 @@ int main(int argc, char **argv){
 
   std::unordered_map<task, ObjectClusterer*, task_hash> tempMap2;
   clustererMap = &tempMap2;
-
-  tfl = new tf::TransformListener();
 
   ROS_INFO("[database_node] Standing by.");
 

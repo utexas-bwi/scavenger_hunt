@@ -26,6 +26,7 @@
 
 #include "bwi_scavenger/globals.h"
 #include "bwi_scavenger/mapping.h"
+#include "bwi_scavenger/database_node.h"
 #include "bwi_scavenger/robot_motion.h"
 #include "bwi_scavenger/state_machine.h"
 
@@ -379,9 +380,9 @@ void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
 
       // Creating prioritized location setup
       bwi_scavenger_msgs::DatabaseInfoSrv reqLoc;
-      reqLoc.request.task_name = "Find Object";
+      reqLoc.request.task_name = TASK_FIND_OBJECT;
       reqLoc.request.parameter_name = target_object;
-      reqLoc.request.data = 1;
+      reqLoc.request.data = SET_LOCATION;
       client_database_info_request.call(reqLoc);
       prioritized_map.clear();
       for(int i = 0; i < reqLoc.response.location_list.size() / 2; i++){
@@ -431,10 +432,10 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
       bwi_scavenger_msgs::DatabaseInfoSrv req;
       req.request.task_name = TASK_FIND_OBJECT;
       req.request.parameter_name = target_object;
-      req.request.data = 0;
+      req.request.data = GET_INCORRECT;
       req.request.pose.position = kinect_fusion::get_position(box, depth_image);
       client_database_info_request.call(req);
-      // ROS_INFO("[find_object_node] made call");
+
       if(req.response.correct){
         state_id_t state = sm.get_current_state()->get_id();
         if (state == STATE_SCANNING || state == STATE_TRAVELING)
@@ -448,22 +449,6 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
   }
 }
 
-// void incorrect_cb(const std_msgs::Bool::ConstPtr &msg){
-//   // if it is NOT in an incorrect cluster, add to count of correct data
-//   if(!(msg->data)){
-//     state_id_t state = sm.get_current_state()->get_id();
-//     if (state == STATE_SCANNING || state == STATE_TRAVELING)
-//       ssv.target_seen = true;
-//     else if (state == STATE_INSPECTING && !ssv.inspect_finished)
-//       ssv.inspect_confirmations++;
-//   }
-// }
-
-// void set_locations_cb(const bwi_scavenger_msgs::DatabaseLocationList::ConstPtr &msg){
-//   unsigned int size = msg->size;
-//   for(int i = 0; i < size / 2; i++){}
-// }
-
 /*------------------------------------------------------------------------------
 NODE ENTRYPOINT
 ------------------------------------------------------------------------------*/
@@ -476,7 +461,6 @@ int main(int argc, char **argv) {
   // Create clients
   client_pose_request = nh.serviceClient<bwi_scavenger_msgs::PoseRequest>(
       SRV_POSE_REQUEST);
-
   client_database_info_request = nh.serviceClient<bwi_scavenger_msgs::DatabaseInfoSrv>(
       SRV_DATABASE_INFO_REQUEST);
 
@@ -487,8 +471,6 @@ int main(int argc, char **argv) {
       TPC_MOVE_NODE_STOP, 1);
   pub_task_complete = nh.advertise<bwi_scavenger_msgs::TaskEnd>(
       TPC_TASK_END, 1);
-  // pub_get_info = nh.advertise<bwi_scavenger_msgs::DatabaseInfo>(
-  //     TPC_DATABASE_NODE_GET_INFO, 1);
 
   ros::Subscriber sub_move_finished = nh.subscribe(
       TPC_MOVE_NODE_FINISHED, 1, move_finished_cb);
@@ -496,10 +478,6 @@ int main(int argc, char **argv) {
       TPC_TASK_START, 1, task_start_cb);
   ros::Subscriber sub_perception = nh.subscribe(
       TPC_PERCEPTION_NODE_MOMENT, 1, perceive);
-  // ros::Subscriber sub_db_incorrect = nh.subscribe(
-  //     TPC_DATABASE_NODE_INCORRECT, 1, incorrect_cb);
-  // ros::Subscriber sub_prioritize_locations = nh.subscribe(
-  //     TPC_DATABASE_NODE_LOCATIONS, 1, set_locations_cb);
 
   // Build default search circuit
   map.add_location(BWI_LAB_DOOR_NORTH);

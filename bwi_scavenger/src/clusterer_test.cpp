@@ -1,4 +1,3 @@
-// #include <bwi_scavenger/dbscan.h>
 #include <bwi_scavenger/dbscan_object.h>
 
 void generateCluster(float** points, int numPoints, int start){

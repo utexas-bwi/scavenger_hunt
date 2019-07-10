@@ -26,12 +26,6 @@ static bool conclude = false;
 
 static proof_item proof;
 
-
-enum writing{
-  READ,
-  WRITE
-};
-
 /**
   Updates verification of the proof (incorrect or correct)
 */

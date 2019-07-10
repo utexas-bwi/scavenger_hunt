@@ -1,19 +1,5 @@
-#include <bwi_scavenger/globals.h>
-#include <bwi_scavenger/move_node.h>
-
-#include <bwi_scavenger_msgs/PoseRequest.h>
-
-#include <geometry_msgs/Pose.h>
-#include <math.h>
-#include <limits.h>
-#include <std_msgs/Bool.h>
-#include <std_msgs/String.h>
-#include <std_msgs/Int32.h>
-
 // #define VERBOSE
-
-tf::TransformListener *listener;
-std::string gridFrameId;
+#include <bwi_scavenger/move_node.h>
 
 void stop(const bwi_scavenger_msgs::RobotStop::ConstPtr &data){
     rm->end_movement();
@@ -77,7 +63,7 @@ int main(int argc, char **argv){
   movePub = moveNode.advertise<std_msgs::Bool>(TPC_MOVE_NODE_FINISHED, 1);
 
   ros::ServiceServer srv_pose_request =
-      moveNode.advertiseService("pose_request", serveRobotPose);
+      moveNode.advertiseService(SRV_POSE_REQUEST, serveRobotPose);
 
   ROS_INFO("[move_node] Standing by.");
 

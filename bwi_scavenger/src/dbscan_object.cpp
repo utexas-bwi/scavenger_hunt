@@ -2,6 +2,7 @@
 
 typedef std::vector<point*> Neighbors;
 
+
 /**
   Calculates the distance between the two 3D points
 */
@@ -31,13 +32,11 @@ Neighbors get_neighbors(point* db, point &p, float eps, int size_of_database){
   Expands the cluster for each of the original point's neighbors
 */
 void expand_cluster(point* db, ObjectCluster &current_cluster, Neighbors n, float eps, int minPoints, int size_of_database){
-  // std::cout << " expand_cluster " << std::endl;
   for(int j = 0; j < n.size(); j++){
     point &secondary_point = *(n[j]);
 
     // if already labelled "noise" it cannot be a main cluster point, thus is set to edge point
     if(secondary_point.label == NOISE){
-      // std::cout << "noise" << std::endl;
       secondary_point.label = IN_CLUSTER;
       current_cluster.add_to_list(secondary_point);
     }
@@ -100,57 +99,12 @@ int ObjectClusterer::generate_clusters(float eps, int minPoints){
     cluster.add_to_list(current_point);
     count++;
     // expand cluster with the current point's neighbors
-    // std::cout << std::to_string(current_point.num);
     expand_cluster(database, cluster, n, EPS, minPoints, size_of_database);
-    // std::cout << "adding to cluster list" << std::endl;
     cluster_list.push_back(cluster);
   }
   return count;
 }
 
-
-/**
-  Returns a the cluster associated with the cluster number
-*/
-ObjectCluster ObjectClusterer::get_cluster(int cluster_num){
-  return cluster_list[cluster_num];
-}
-/**
-  Returns the cluster number of the largest cluster in the data set
-*/
-ObjectCluster ObjectClusterer::get_largest_cluster(){
-  int max = 0;
-  ObjectCluster *maxCluster;
-  for(int i = 0; i < cluster_list.size(); i++){
-    int size = cluster_list[i].size();
-    if(size > max){
-      max = size;
-      maxCluster = &cluster_list[i];
-    }
-  }
-  return *maxCluster;
-}
-
-/** 
-  Returns whether or not a point is contained in a specific cluster
-
-  @param point Point that is being checked
-  @param cluster cluster  that the point is being checked against
-*/
-bool ObjectClusterer::in_cluster(float* point, int cluster_num){
-  ObjectCluster &cluster = cluster_list[cluster_num];
-  float dimen[OBJECT_DIMEN];
-  for(int i = 0; i < cluster.size(); i++){
-    for(int j = 0; j < OBJECT_DIMEN; j++)
-      dimen[j] += cluster.get_point(i).coordinate[j];
-  }
-  
-  for(int i = 0; i < OBJECT_DIMEN; i++)
-    dimen[i] /= cluster.size();
-
-  float distance = calculate_distance(dimen, point);
-  return distance < EPS;
-}
 
 /**
   Returns whether or not the point is contained in the cluster or not (not by guess)
@@ -167,7 +121,9 @@ bool contains_point(float* point, ObjectCluster cluster){
   return false;
 }
 
-// sets the verification and robot positions for the cluster
+/*
+  Sets the verification and robot positions for the cluster
+*/
 void set_variables(int size_of_database, float** object_points, ObjectCluster &objc, bool* verification, float** robot_points){
   // for verification
   int correct = 0;
@@ -202,21 +158,16 @@ void set_variables(int size_of_database, float** object_points, ObjectCluster &o
     robot_location[k] /= objc.size();
   objc.set_robot_location(robot_location);
 
-  std::cout << "size: " << objc.size() << ", correct: " << std::to_string(correct) << ", incorrect: " 
-    << std::to_string(objc.get_incorrect()) << ", robot location: (" << std::to_string(robot_location[0])
-    << ", " << std::to_string(objc.get_robot_location()[1]) << ") ";
-  if(objc.get_verification())
-    std::cout << "CORRECT";
-  else 
-    std::cout << "INCORRECT";
-
-  std::cout << std::endl;
+  // std::cout << "size: " << objc.size() << ", correct: " << std::to_string(correct) << ", incorrect: " 
+  //   << std::to_string(objc.get_incorrect()) << ", robot location: (" << std::to_string(robot_location[0])
+  //   << ", " << std::to_string(objc.get_robot_location()[1]) << ") ";
+  // if(objc.get_verification())
+  //   std::cout << "CORRECT";
+  // else 
+  //   std::cout << "INCORRECT";
+  // std::cout << std::endl;
 }
 
-/**
-  Creates an ObjectClusterer by clustering points from the "Find Object" task. Sets the number of incorrect and correct points 
-  in each set based on the verification array sent and the clusters generated.
-*/
 ObjectClusterer::ObjectClusterer(float** object_points, float** robot_points, bool* verification, int size_of_database){
   
   this->size_of_database = size_of_database;
@@ -233,44 +184,19 @@ ObjectClusterer::ObjectClusterer(float** object_points, float** robot_points, bo
 
   int num_clusters = generate_clusters(EPS, MIN_POINTS);
 
-  // std::cout << cluster_list[1].num << std::endl;
-
   for(int i = 0; i < num_clusters; i++){
     ObjectCluster &objc = cluster_list[i];
 
     set_variables(size_of_database, object_points, objc, verification, robot_points);
   }
 
-  this->robot_points = robot_points;
 }
 
 ObjectClusterer::~ObjectClusterer(){
   delete database;
   delete &cluster_list;
-  // delete c;
-  // delete obj_cluster_list;
-  delete object_points;
-  delete robot_points;
 }
 
-/**
-  Obtains all of the clusters above a certain threshold of "correctness"
-  Returns a vector of cluster numbers that are considered "correct"
-*/
-std::vector<int> ObjectClusterer::get_correct_clusters(){
-  std::vector<int> result;
-  for(int i = 0; i < cluster_list.size(); i++){
-    ObjectCluster objc = cluster_list[i];
-    if(objc.get_correct() / (float) objc.size() > CORRECT_THRESHOLD)
-      result.push_back(objc.cluster_num());
-  }
-  return result;
-}
-
-/**
-  Obtains all of the clusters above a certain threshold of "incorrectness"
-  Returns a vector of cluster numbers that are considered "incorrect"
-*/
 std::vector<int> ObjectClusterer::get_incorrect_clusters(){
   std::vector<int> result;
   for(int i = 0; i < cluster_list.size(); i++){
@@ -281,11 +207,16 @@ std::vector<int> ObjectClusterer::get_incorrect_clusters(){
   return result;
 }
 
-/**
-  Calculates the closest location to the current position of the robot that 
-  contains a "correct" cluster. Returns a point of the correct position
-  @param robot_pose pose of robot
-*/
+std::vector<int> ObjectClusterer::get_correct_clusters(){
+  std::vector<int> result;
+  for(int i = 0; i < cluster_list.size(); i++){
+    ObjectCluster objc = cluster_list[i];
+    if(objc.get_correct() / (float) objc.size() > CORRECT_THRESHOLD)
+      result.push_back(objc.cluster_num());
+  }
+  return result;
+}
+
 float* ObjectClusterer::closest_correct(float* robot_position){
 
   float min_distance = FLT_MAX; 
@@ -306,3 +237,34 @@ float* ObjectClusterer::closest_correct(float* robot_position){
   return min_distance_position;
 }
 
+ObjectCluster ObjectClusterer::get_cluster(int cluster_num){
+  return cluster_list[cluster_num];
+}
+
+ObjectCluster ObjectClusterer::get_largest_cluster(){
+  int max = 0;
+  ObjectCluster *maxCluster;
+  for(int i = 0; i < cluster_list.size(); i++){
+    int size = cluster_list[i].size();
+    if(size > max){
+      max = size;
+      maxCluster = &cluster_list[i];
+    }
+  }
+  return *maxCluster;
+}
+
+bool ObjectClusterer::in_cluster(float* point, int cluster_num){
+  ObjectCluster &cluster = cluster_list[cluster_num];
+  float dimen[OBJECT_DIMEN];
+  for(int i = 0; i < cluster.size(); i++){
+    for(int j = 0; j < OBJECT_DIMEN; j++)
+      dimen[j] += cluster.get_point(i).coordinate[j];
+  }
+  
+  for(int i = 0; i < OBJECT_DIMEN; i++)
+    dimen[i] /= cluster.size();
+
+  float distance = calculate_distance(dimen, point);
+  return distance < EPS;
+}

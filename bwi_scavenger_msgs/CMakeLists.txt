@@ -19,7 +19,6 @@ add_message_files(FILES
   RobotStop.msg
   PerceptionMoment.msg
   DatabaseProof.msg
-  DatabaseInfo.msg
 )
 
 add_service_files(FILES

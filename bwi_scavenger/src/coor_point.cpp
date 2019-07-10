@@ -1,3 +1,8 @@
+/* 
+  Prints out the real world coordinates of the robot 
+  Can be used to determine default circuit to travel when completing tasks
+*/
+
 #include <ros/ros.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
 

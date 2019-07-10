@@ -1,4 +1,0 @@
-string task_name
-string parameter_name
-uint8 data
-geometry_msgs/Pose pose
