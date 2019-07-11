@@ -196,6 +196,13 @@ add_executable(do_hunt
   src/object_cluster.cpp
   src/dbscan_object.cpp)
 
+add_executable(convert_bag
+  src/bagTomp4.cpp)
+
+target_link_libraries(database_node
+ ${OpenCV_LIBS}
+ ${catkin_LIBRARIES})
+
 target_link_libraries(do_hunt
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES}
