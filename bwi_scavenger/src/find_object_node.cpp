@@ -427,16 +427,37 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
     if (box.Class == target_object) {
       geometry_msgs::Point target_position =
           kinect_fusion::get_position(box, depth_image);
-      target_pose.position = target_position;
 
       bwi_scavenger_msgs::DatabaseInfoSrv req;
       req.request.task_name = TASK_FIND_OBJECT;
       req.request.parameter_name = target_object;
       req.request.data = GET_INCORRECT;
-      req.request.pose.position = kinect_fusion::get_position(box, depth_image);
+
+      // Get the real coordinate of the object
+      bwi_scavenger_msgs::PoseRequest reqPose;
+      client_pose_request.call(reqPose);
+
+      // ROS_INFO("[database_node] Robot point: (%f ,%f, %f)", reqPose.response.pose.position.x, reqPose.response.pose.position.y, reqPose.response.pose.position.z);
+
+      tf::Quaternion rpy(reqPose.response.pose.orientation.x,
+                         reqPose.response.pose.orientation.y,
+                         reqPose.response.pose.orientation.z,
+                         reqPose.response.pose.orientation.w);
+      double roll, pitch, yaw;
+      tf::Matrix3x3(rpy).getRPY(roll, pitch, yaw);
+
+      // ROS_INFO("obj relative: (%f, %f)", target_position.x, target_position.y);
+
+      req.request.pose.position.x = reqPose.response.pose.position.x + cos(yaw) * target_position.x - sin(yaw) * target_position.y;
+      req.request.pose.position.y = reqPose.response.pose.position.y + sin(yaw) * target_position.x + cos(yaw) * target_position.y;
+      req.request.pose.position.z = reqPose.response.pose.position.z + target_position.z;
+      
+      // ROS_INFO("[database_node] object point: (%f ,%f, %f)", target_pose.position.x, target_pose.position.y, target_pose.position.z);
+
       client_database_info_request.call(req);
 
       if(req.response.correct){
+        target_pose.position = req.request.pose.position; // saving object location to save to text file
         state_id_t state = sm.get_current_state()->get_id();
         if (state == STATE_SCANNING || state == STATE_TRAVELING)
           ssv.target_seen = true;
