@@ -427,6 +427,8 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
     if (box.Class == target_object) {
       geometry_msgs::Point target_position =
           kinect_fusion::get_position(box, depth_image);
+      if(target_position.x == 0 && target_position.y == 0 && target_position.z == 0)
+        continue;
 
       bwi_scavenger_msgs::DatabaseInfoSrv req;
       req.request.task_name = TASK_FIND_OBJECT;
