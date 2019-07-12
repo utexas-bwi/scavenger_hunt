@@ -71,7 +71,10 @@ if ($_POST['save_hunt']) {
             }
 
             // update name of hunt
-            $sql = "UPDATE hunt_table SET hunt_name='" . $_POST["hunt_name"] . "', release_date='" . $release_date . "', end_date='" . $end_date . "' WHERE hunt_id=" . $_POST["hunt_id"];
+            if($end_date == "NULL")
+              $sql = "UPDATE hunt_table SET hunt_name='" . $_POST["hunt_name"] . "', release_date='" . $release_date . "', end_date=" . $end_date . " WHERE hunt_id=" . $_POST["hunt_id"];
+            else 
+              $sql = "UPDATE hunt_table SET hunt_name='" . $_POST["hunt_name"] . "', release_date='" . $release_date . "', end_date='" . $end_date . "' WHERE hunt_id=" . $_POST["hunt_id"];
             error_log($sql);
             // $name_array = [$_POST['hunt_name'], $release_date, $end_date, $_POST['hunt_id']];
             // $dbh->prepare($sql)->execute($name_array);
