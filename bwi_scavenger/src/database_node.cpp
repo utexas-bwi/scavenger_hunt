@@ -130,7 +130,7 @@ void set_priority_locations(task curTask, bwi_scavenger_msgs::DatabaseInfoSrv::R
 
       res.location_list.push_back(robot_location[0]);
       res.location_list.push_back(robot_location[1]);
-      res.priority_list.push_back(obj_cluster.get_correct() / obj_cluster.size());
+      res.priority_list.push_back(obj_cluster.get_correct() / (float) obj_cluster.size());
     }
   }
 }

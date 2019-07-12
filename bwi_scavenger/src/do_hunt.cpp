@@ -160,7 +160,7 @@ int main(int argc, char **argv) {
     ROS_ERROR("Usage: do_hunt <hunt name>");
     exit(0);
   }
-
+  
   client.get_hunt(argv[1], tasks);
   next_task(nullptr);
   ros::spin();

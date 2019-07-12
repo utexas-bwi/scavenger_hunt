@@ -179,18 +179,24 @@ public:
     if(!svec->prioritized_finished){ //only call get_laps if needed
       if(prioritized_map.get_laps() >= 1){
         svec->prioritized_finished = true;
+        
+        // Query the current robot pose for planning purposes
+        bwi_scavenger_msgs::PoseRequest reqPose;
+        client_pose_request.call(reqPose);
+        coordinate c;
+        c.first = reqPose.response.pose.position.x;
+        c.second = reqPose.response.pose.position.y;
+        map.start(c);
       }
     }
     if (!svec->travel_finished) {
       bwi_scavenger_msgs::RobotStop stop;
       pub_stop.publish(stop);
     } else {
-      if(!svec->prioritized_finished){
+      if(!svec->prioritized_finished)
         svec->destination = prioritized_map.get_next_location();
-      }
-      else{
+      else
         svec->destination = map.get_next_location();
-      }
     }
   }
 
@@ -319,6 +325,7 @@ void wipe_ssv() {
 
   ssv.travel_in_progress = false;
   ssv.travel_finished = false;
+  ssv.prioritized_finished = false;
 
   ssv.inspect_finished = false;
   ssv.inspect_confirmations = 0;
@@ -369,15 +376,6 @@ void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
       ROS_INFO("%s Beginning %s protocol with parameter \"%s\".",
                TELEM_TAG, TASK_FIND_OBJECT.c_str(), target_object.c_str());
 
-      // Query the current robot pose for planning purposes
-      bwi_scavenger_msgs::PoseRequest reqPose;
-      client_pose_request.call(reqPose);
-      geometry_msgs::Pose robot_pose = reqPose.response.pose;
-      coordinate c;
-      c.first = robot_pose.position.x;
-      c.second = robot_pose.position.y;
-      map.start(c);
-
       // Creating prioritized location setup
       bwi_scavenger_msgs::DatabaseInfoSrv reqLoc;
       reqLoc.request.task_name = TASK_FIND_OBJECT;
@@ -396,11 +394,32 @@ void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
       
       if(prioritized_map.get_laps() == -1){
         ROS_INFO("[find_object_node] No locations in priority map");
+
+        // Query the current robot pose for planning purposes
+        bwi_scavenger_msgs::PoseRequest reqPose;
+        client_pose_request.call(reqPose);
+        geometry_msgs::Pose robot_pose = reqPose.response.pose;
+        coordinate c;
+        c.first = robot_pose.position.x;
+        c.second = robot_pose.position.y;
+        map.start(c);
+
+
         ssv.destination = map.get_next_location();
         ssv.prioritized_finished = true;
       }
       else {
         ROS_INFO("[find_object_node] Starting with priority map");
+
+        // Query the current robot pose for planning purposes
+        bwi_scavenger_msgs::PoseRequest reqPose;
+        client_pose_request.call(reqPose);
+        geometry_msgs::Pose robot_pose = reqPose.response.pose;
+        coordinate c;
+        c.first = robot_pose.position.x;
+        c.second = robot_pose.position.y;
+        prioritized_map.start(c);
+
         ssv.destination = prioritized_map.get_next_location();
       }
 

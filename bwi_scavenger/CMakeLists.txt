@@ -197,7 +197,7 @@ add_executable(do_hunt
   src/dbscan_object.cpp)
 
 add_executable(convert_bag
-  src/bagTomp4.cpp)
+  src/bag_to_mp4_test.cpp)
 
 target_link_libraries(database_node
  ${OpenCV_LIBS}
