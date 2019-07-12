@@ -136,9 +136,9 @@ void set_variables(int size_of_database, float** object_points, ObjectCluster &o
     if(contains_point(object_points[j], objc)){
       // for verification
       if(verification[j])
-        correct++;
-      else
         incorrect++;
+      else
+        correct++;
 
       // for robot location
       float* cur_robot_point = robot_points[j];
