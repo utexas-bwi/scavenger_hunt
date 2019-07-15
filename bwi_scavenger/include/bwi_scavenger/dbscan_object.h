@@ -60,7 +60,7 @@ class ObjectClusterer{
     /*
       Returns the largest cluster generated with this data set
     */
-    ObjectCluster get_largest_cluster();
+    ObjectCluster* get_largest_cluster();
       
     /*
       Returns whether or not the point given can be considered a part of this cluster

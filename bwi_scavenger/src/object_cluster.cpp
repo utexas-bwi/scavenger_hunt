@@ -8,7 +8,12 @@ ObjectCluster::ObjectCluster(int num){
   robot_location = new float[ROBOT_DIMEN];
 }
 
-ObjectCluster::~ObjectCluster(){}
+ObjectCluster::~ObjectCluster(){
+  delete[] robot_location;
+  unsigned int size = list.size();
+  for(int i = 0; i < size; i++)
+    free(list[i].coordinate);
+}
 
 /**
   Returns the number of correct values in this cluster

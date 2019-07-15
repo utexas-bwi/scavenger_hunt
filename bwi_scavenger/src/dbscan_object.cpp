@@ -193,8 +193,7 @@ ObjectClusterer::ObjectClusterer(float** object_points, float** robot_points, bo
 }
 
 ObjectClusterer::~ObjectClusterer(){
-  delete database;
-  delete &cluster_list;
+  delete[] database;
 }
 
 std::vector<int> ObjectClusterer::get_incorrect_clusters(){
@@ -241,7 +240,7 @@ ObjectCluster ObjectClusterer::get_cluster(int cluster_num){
   return cluster_list[cluster_num];
 }
 
-ObjectCluster ObjectClusterer::get_largest_cluster(){
+ObjectCluster* ObjectClusterer::get_largest_cluster(){
   int max = 0;
   ObjectCluster *maxCluster;
   for(int i = 0; i < cluster_list.size(); i++){
@@ -251,7 +250,7 @@ ObjectCluster ObjectClusterer::get_largest_cluster(){
       maxCluster = &cluster_list[i];
     }
   }
-  return *maxCluster;
+  return maxCluster;
 }
 
 bool ObjectClusterer::in_cluster(float* point, int cluster_num){
