@@ -141,6 +141,16 @@ add_library(scavenger_hunt
   src/scavenger_hunt_client.cpp
   src/scavenger_hunt_structure.cpp)
 
+add_executable(convert_bag
+  src/bag_to_mp4_test.cpp
+  src/scavenger_hunt_client.cpp
+  src/scavenger_hunt_structure.cpp)
+
+target_link_libraries(convert_bag
+    ${OpenCV_LIBS}
+    ${catkin_LIBRARIES}
+    curl)
+
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
