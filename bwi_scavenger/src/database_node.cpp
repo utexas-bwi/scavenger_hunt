@@ -74,31 +74,10 @@ bool is_correct(task curTask, geometry_msgs::Pose obj_pose){
   if(clustererMap->count(curTask)){
     ObjectClusterer *curClusterer = clustererMap->at(curTask);
 
-    // bwi_scavenger_msgs::PoseRequest req;
-    // pose_client.call(req);
-
-    // // ROS_INFO("[database_node] Robot point: (%f ,%f, %f)", req.response.pose.position.x, req.response.pose.position.y, req.response.pose.position.z);
-
-    // tf::Quaternion rpy(req.response.pose.orientation.x,
-    //                    req.response.pose.orientation.y,
-    //                    req.response.pose.orientation.z,
-    //                    req.response.pose.orientation.w);
-    // double roll, pitch, yaw;
-    // tf::Matrix3x3(rpy).getRPY(roll, pitch, yaw);
-
-    // // ROS_INFO("obj relative: (%f, %f)", obj_pose.position.x, obj_pose.position.y);
-
-    // float point[3];
-    // point[0] = req.response.pose.position.x + cos(yaw) * obj_pose.position.x - sin(yaw) * obj_pose.position.y;
-    // point[1] = req.response.pose.position.y + sin(yaw) * obj_pose.position.x + cos(yaw) * obj_pose.position.y;
-    // point[2] = req.response.pose.position.z + obj_pose.position.z;
-
     float point[3];
     point[0] = obj_pose.position.x;
     point[1] = obj_pose.position.y;
     point[2] = obj_pose.position.z;
-
-    // ROS_INFO("[database_node] Object point: (%f ,%f, %f)", point[0], point[1], point[2]);
 
     std::vector<int> incorrect_clusters = curClusterer->get_incorrect_clusters();
     for(int i = 0; i < incorrect_clusters.size(); i++){
@@ -128,9 +107,15 @@ void set_priority_locations(task curTask, bwi_scavenger_msgs::DatabaseInfoSrv::R
       ObjectCluster* obj_cluster = curClusterer->get_cluster(correct_clusters[i]);
       float *robot_location = obj_cluster->get_robot_location();
 
-      res.location_list.push_back(robot_location[0]);
-      res.location_list.push_back(robot_location[1]);
-      res.priority_list.push_back(obj_cluster->get_correct() / (float) obj_cluster->size());
+      float priority = obj_cluster->get_correct() - (obj_cluster->get_incorrect() * FEAR_CONSTANT);
+      priority /= obj_cluster->size();
+
+      if(priority > PRIORITY_THRESHOLD){
+        res.location_list.push_back(robot_location[0]);
+        res.location_list.push_back(robot_location[1]);
+      
+        res.priority_list.push_back(priority);
+      }
     }
   }
 }
