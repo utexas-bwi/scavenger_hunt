@@ -95,12 +95,12 @@ int ObjectClusterer::generate_clusters(float eps, int minPoints){
     }
 
     current_point.label = IN_CLUSTER;
-    ObjectCluster cluster(count);
-    cluster.add_to_list(current_point);
+    ObjectCluster* cluster = new ObjectCluster(count);
+    cluster->add_to_list(current_point);
     count++;
     // expand cluster with the current point's neighbors
-    expand_cluster(database, cluster, n, EPS, minPoints, size_of_database);
-    cluster_list.push_back(cluster);
+    expand_cluster(database, *cluster, n, EPS, minPoints, size_of_database);
+    cluster_list.push_back(*cluster);
   }
   return count;
 }
@@ -236,8 +236,8 @@ float* ObjectClusterer::closest_correct(float* robot_position){
   return min_distance_position;
 }
 
-ObjectCluster ObjectClusterer::get_cluster(int cluster_num){
-  return cluster_list[cluster_num];
+ObjectCluster* ObjectClusterer::get_cluster(int cluster_num){
+  return &cluster_list[cluster_num];
 }
 
 ObjectCluster* ObjectClusterer::get_largest_cluster(){

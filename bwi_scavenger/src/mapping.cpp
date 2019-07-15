@@ -77,8 +77,10 @@ void PriorityLocationSet::prioritize() {
   std::sort(p_locations.begin(), p_locations.end());
   locations.clear();
 
-  for (PriorityLocation pl : p_locations)
+  for (PriorityLocation pl : p_locations){
     locations.push_back(pl.coor);
+    std::cout << "Priority List adding (" << pl.coor.first << ", " << pl.coor.second << ")" << std::endl;
+  }
 }
 
 void PriorityLocationSet::clear(){

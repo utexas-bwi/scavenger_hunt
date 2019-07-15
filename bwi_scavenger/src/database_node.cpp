@@ -125,12 +125,12 @@ void set_priority_locations(task curTask, bwi_scavenger_msgs::DatabaseInfoSrv::R
     ObjectClusterer *curClusterer = clustererMap->at(curTask);
     std::vector<int> correct_clusters = curClusterer->get_correct_clusters();
     for(int i = 0; i < correct_clusters.size(); i++){
-      ObjectCluster obj_cluster = curClusterer->get_cluster(correct_clusters[i]);
-      float *robot_location = obj_cluster.get_robot_location();
+      ObjectCluster* obj_cluster = curClusterer->get_cluster(correct_clusters[i]);
+      float *robot_location = obj_cluster->get_robot_location();
 
       res.location_list.push_back(robot_location[0]);
       res.location_list.push_back(robot_location[1]);
-      res.priority_list.push_back(obj_cluster.get_correct() / (float) obj_cluster.size());
+      res.priority_list.push_back(obj_cluster->get_correct() / (float) obj_cluster->size());
     }
   }
 }

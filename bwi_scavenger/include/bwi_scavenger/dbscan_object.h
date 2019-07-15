@@ -55,7 +55,7 @@ class ObjectClusterer{
     /*
       Returns an ObjectCluster associated with the cluster number
     */
-    ObjectCluster get_cluster(int cluster_num);
+    ObjectCluster* get_cluster(int cluster_num);
   
     /*
       Returns the largest cluster generated with this data set

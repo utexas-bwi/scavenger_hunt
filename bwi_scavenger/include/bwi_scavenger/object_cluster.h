@@ -36,6 +36,8 @@ class ObjectCluster{
   public:
     ObjectCluster(int num);
 
+    ObjectCluster(const ObjectCluster& old_cluster); // copy constructor 
+
     ~ObjectCluster();
 
     void add_to_list(point p);
