@@ -4,7 +4,7 @@
 
 static sensor_msgs::Image depth;
 static bool depth_stale = true;
-static std::string target = "person"; // The YOLO label we're looking for
+static std::string target = "bottle"; // The YOLO label we're looking for
 
 /**
   @brief buffers a depth map to be used on the next YOLO broadcast

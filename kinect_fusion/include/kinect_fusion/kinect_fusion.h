@@ -32,6 +32,12 @@ extern unsigned int extrema_search_thoroughness;
   Layers of erode/dilate applied after extrema filtering.
 */
 extern unsigned int erode_dilate_strength;
+/**
+  The minimum bounding box area in pixels for which the primary estimator is
+  used. If a bounding box's area falls under this threshold, a simpler estimator
+  is used.
+*/
+extern unsigned int simplicity_threshold;
 
 /**
   Estimates the absolute distance between the viewer and the object located in

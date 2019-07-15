@@ -1,3 +1,7 @@
+#include <algorithm>
+#include <iostream>
+#include <math.h>
+
 #include "kinect_fusion/kinect_fusion.h"
 
 /**
@@ -8,9 +12,8 @@
   labeled unlikely to belong to the target object, and vice versa for white
   pixels.
 */
-// #define VISUALIZE
-
-static const float RADIANS_PER_DEGREE = 3.14159 / 180;
+#define VISUALIZE
+#define RADIANS_PER_DEGREE 3.14159 / 180;
 
 // Kinect sensor parameters
 static const float KINECT_HORIZ_FOV = 62 * RADIANS_PER_DEGREE;
@@ -39,6 +42,7 @@ namespace kinect_fusion {
 unsigned int extrema_search_partitions        = 16;   // 16 partitions per iteration
 unsigned int extrema_search_thoroughness      = 3;    // 3 iterations per search
 unsigned int erode_dilate_strength            = 10;   // 10 layers of erode/dilate
+unsigned int simplicity_threshold             = 3000; // 3000px size threshold
 float        extrema_search_minimum_magnitude = 0.15; // 0.15 m between partition ends
 float        interquartile_trim_width         = 0.85; // Avg inner 85%
 
@@ -144,6 +148,45 @@ namespace {
     box.ymin = c_d;
     box.ymax = d_d;
   }
+
+  /**
+    @brief a simpler method of estimating proximity used only for very small
+           bounding boxes; averages non-NaN points within a circle centered in
+           the bounding box with radius argmin(box width, box height)
+  */
+  float simple_estimate(const darknet_ros_msgs::BoundingBox &box,
+                        cv::Mat &depth_map)
+  {
+    double depth_total = 0;
+    unsigned int depth_points_processed = 0;
+    unsigned int radius = std::min(box.xmax - box.xmin, box.ymax - box.ymin)
+                          / 2;
+    unsigned int rc = (box.ymin + box.ymax) / 2;
+    unsigned int cc = (box.xmin + box.xmax) / 2;
+
+    for (int r = box.ymin; r < box.ymax; r++)
+      for (int c = box.xmin; c < box.xmax; c++) {
+        int dist = sqrt(pow(r - rc, 2) + pow(c - cc, 2));
+        float depth = safe_depth_sample(depth_map, r, c);
+        if (dist <= radius && !std::isnan(depth)) {
+          depth_total += depth;
+          depth_points_processed++;
+        #ifdef VISUALIZE
+          safe_depth_override(depth_map, r, c, VISUALIZE_DEPTH);
+        #endif
+        }
+      }
+
+  #ifdef VISUALIZE
+    cv_bridge::CvImage bridge;
+    bridge.encoding = sensor_msgs::image_encodings::TYPE_32FC1;
+    bridge.image = depth_map;
+    sensor_msgs::Image img_vis = *bridge.toImageMsg();
+    pub_vis.publish(img_vis);
+  #endif
+
+    return depth_total / depth_points_processed;
+  }
 }
 
 double estimate_distance(const darknet_ros_msgs::BoundingBox &box,
@@ -169,6 +212,12 @@ double estimate_distance(const darknet_ros_msgs::BoundingBox &box,
 
   int box_width = focus_box.xmax - focus_box.xmin;
   int box_height = focus_box.ymax - focus_box.ymin;
+  int box_area = box_width * box_height;
+
+  std::cout << box_area << std::endl;
+
+  if (box_area < simplicity_threshold)
+    return simple_estimate(box, depth_map);
 
   // To be populated with "extreme" depth points that will be removed
   std::vector<float> x_fdext, y_fdext;
