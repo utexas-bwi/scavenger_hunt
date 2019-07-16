@@ -25,13 +25,16 @@ class Darknetwork:
         # Directories
         self.data_path = os.path.join(DARKNET_BIN_LOCATION, 'data', name)
         self.train_path = os.path.join(self.data_path, 'train')
+        self.test_path = os.path.join(self.data_path, 'test')
 
         self.populate()
 
         # Metadata files
         self.cfg_path = os.path.join(DARKNET_BIN_LOCATION, 'cfg', name + '.cfg')
+        self.dat_path = os.path.join(DARKNET_BIN_LOCATION, 'cfg', name + ".dat")
         self.labels_path = os.path.join(self.data_path, 'labels.txt')
         self.train_list_path = os.path.join(self.data_path, 'train.list')
+        self.test_list_path = os.path.join(self.data_path, 'test.list')
 
         self.labels = []
 
@@ -41,6 +44,21 @@ class Darknetwork:
         src.close()
 
         self.load_labels()
+        self.make_dat()
+
+    def make_dat(self):
+        src = open(self.dat_path, 'w')
+        contents = [
+            'classes=' + str(len(self.labels)),
+            'train=' + self.train_list_path,
+            'valid=' + self.test_list_path,
+            'labels=' + self.labels_path,
+            'backup=backup/',
+            'top=2'
+        ]
+
+        for line in contents:
+            src.write(line + '\n')
 
     def populate(self):
         """Creates directories for storing network files if not already in
@@ -48,7 +66,8 @@ class Darknetwork:
         """
         dirs = [
             self.data_path,
-            self.train_path
+            self.train_path,
+            self.test_path
         ]
 
         for dir in dirs:

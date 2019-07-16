@@ -42,7 +42,6 @@ def load_metadata():
 
     src.close()
 
-
 def update_metadata():
     """Updates the metadata file with network names, etc.
     """
@@ -58,14 +57,12 @@ def update_metadata():
 
     src.close()
 
-
 def add_network(name):
     """Adds a new network to the database.
     """
     net = Darknetwork(name)
     nets[name] = net
     update_metadata()
-
 
 def add_training_file(net_name, src_path, label):
     """Adds a training file to a network of some name. The network is created
@@ -76,12 +73,10 @@ def add_training_file(net_name, src_path, label):
 
     nets[net_name].add_training_file(src_path, label)
 
-
 def add_training_file_cb(msg):
     """Callback for adding a new traiing file.
     """
     add_training_file(msg.network_name, msg.file_path, msg.label)
-
 
 def start_training_cb(msg):
     """Callback for kicking off training for some network.
@@ -90,6 +85,15 @@ def start_training_cb(msg):
         log.err("Client tried to train nonexistent network: " +                \
                 msg.network_name)
         return
+    else:
+        log.info("Training \"" + msg.network_name + "\"...")
+
+    net = nets[msg.network_name]
+    cmd = '%s classifier train %s %s' %                                        \
+          (os.path.join(DARKNET_BIN_LOCATION, 'darknet'),
+           net.dat_path,
+           net.cfg_path)
+    os.system(cmd)
 
 
 if __name__ == '__main__':
@@ -105,5 +109,9 @@ if __name__ == '__main__':
     rospy.Subscriber(TPC_DARKNET_NODE_START_TRAINING,
                      DarknetStartTraining,
                      start_training_cb)
+
+    a = DarknetStartTraining()
+    a.network_name = 'cifar'
+    start_training_cb(a)
 
     rospy.spin()
