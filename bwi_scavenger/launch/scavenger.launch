@@ -1,5 +1,6 @@
 <launch>
 	<node name="database_node"    pkg="bwi_scavenger" type="database_node"    output="screen"/>
+	<node name="darknet_node"     pkg="bwi_scavenger" type="darknet_node.py"  output="screen"/>
 	<node name="perception_node"  pkg="bwi_scavenger" type="perception_node"  output="screen"/>
   <node name="move_node"        pkg="bwi_scavenger" type="move_node"        output="screen"/>
   <node name="find_object_node" pkg="bwi_scavenger" type="find_object_node" output="screen"/>
