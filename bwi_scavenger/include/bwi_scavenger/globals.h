@@ -43,6 +43,9 @@ const char TPC_DATABASE_NODE_GET_INFO[] = "/bwi_scavenger/database_node/get_info
 const char TPC_DATABASE_NODE_INCORRECT[] = "/bwi_scavenger/database_node/incorrect";
 const char TPC_DATABASE_NODE_LOCATIONS[] = "/bwi_scavenger/database_node/locations";
 
+const char TPC_DARKNET_NODE_ADD_TRAINING_FILE[] = "/bwi_scavenger/darknet_node/add_training_file";
+const char TPC_DARKNET_NODE_START_TRAINING[] = "/bwi_scavenger/darknet_node/start_training";
+
 /*------------------------------------------------------------------------------
 SERVICES
 ------------------------------------------------------------------------------*/

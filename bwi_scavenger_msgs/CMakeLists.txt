@@ -19,6 +19,8 @@ add_message_files(FILES
   RobotStop.msg
   PerceptionMoment.msg
   DatabaseProof.msg
+  DarknetAddTrainingFile.msg
+  DarknetStartTraining.msg
 )
 
 add_service_files(FILES
