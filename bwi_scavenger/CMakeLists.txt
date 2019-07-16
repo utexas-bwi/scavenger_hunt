@@ -232,6 +232,17 @@ target_link_libraries(perception_node
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
+add_executable(training_node
+  src/training_node.cpp
+  src/file_editor.cpp)
+
+add_dependencies(training_node
+  bwi_scavenger_generate_messages_cpp)
+
+target_link_libraries(training_node
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
+
 # add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable

@@ -1,4 +1,5 @@
 #include <bwi_scavenger/globals.h>
+
 #include <bwi_scavenger_msgs/TaskEnd.h>
 #include <bwi_scavenger_msgs/TaskStart.h>
 #include <bwi_scavenger_msgs/DatabaseProof.h>
@@ -14,7 +15,7 @@
 #define FAILED_PROOF_UPLOAD -1
 #define CURRENT_TASK tasks[task_index]
 
-static ScavengerHuntClient client("stefandebruyn@utexas.edu", "sick robots");
+static ScavengerHuntClient client("jsuriadinata@utexas.edu", "Tr3asure");
 static std::vector<Task> tasks;
 static int task_index = 0;
 static double t_task_start;
@@ -33,11 +34,11 @@ void parse_proofs(){
   FileEditor *read = new FileEditor(PROOF_DATABASE_PATH, READ);
   FileEditor *write = new FileEditor(PROOF_DATABASE_PATH + ".tmp", WRITE);
 
-  std::string str;
   while((*read).read_line()){
     proof.proof_id = (*read).get_proof_id();
     // updates proof if proof id is not 0 (thus it has been sent to the server)
     if(proof.proof_id != FAILED_PROOF_UPLOAD){
+
       proof.task_name = (*read).get_task_name();
       proof.parameter_name = (*read).get_parameter();
       proof.robot_pose = (*read).get_robot_pose();
@@ -93,9 +94,29 @@ void next_task(const bwi_scavenger_msgs::TaskEnd::ConstPtr &msg) {
       proof.robot_pose = msg->robot_pose;
       proof.secondary_pose = msg->secondary_pose;
 
+      // save extra copy of image to separate folder
+    
+      // std::stringstream ss; 
+      // std::string temp; 
+      // ss << proof.task_name; 
+      // std::string task_name_no_spaces = ""; 
+      // // create a string with no spaces for the task name
+      // while (!ss.eof()) 
+      // { 
+      //     ss >> temp; 
+      //     task_name_no_spaces += temp; 
+      // } 
+
+      // std::string proof_copy = std::to_string(proof.proof_id) + "_" + task_name_no_spaces + "_" + proof.parameter_name;
+
+      std::string proof_copy = PROOF_COPY_MATERIAL_PATH + std::to_string(proof.proof_id);
+      std::string command = "cp " + PROOF_MATERIAL_PATH + " " + proof_copy;
+      system(command.c_str());  
+
       FileEditor *fe = new FileEditor(PROOF_DATABASE_PATH, WRITE);
       fe->write_to_file(proof);
       fe->close();
+
     }
 
     task_index++;
