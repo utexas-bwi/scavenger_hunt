@@ -126,7 +126,13 @@ public:
       cv_bridge::CvImagePtr cv_ptr;
       cv_ptr = cv_bridge::toCvCopy(last_perception_moment.color_image,
                                    sensor_msgs::image_encodings::BGR8);
-      cv::imwrite(PROOF_MATERIAL_PATH, cv_ptr -> image);
+
+      cv::Mat org_image = cv_ptr -> image;
+      cv::Rect crop_boundaries(proofBox.xmin, proofBox.ymin, proofBox.xmax - proofBox.xmin, proofBox.ymax - proofBox.ymin);
+      cv::Mat croppedImage = org_image(crop_boundaries);
+
+      cv::imwrite(PROOF_MATERIAL_PATH, croppedImage);
+
     }
 
     // Fetch most recent robot pose
@@ -454,10 +460,6 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
       if(target_position.x == 0 && target_position.y == 0 && target_position.z == 0)
         continue;
 
-      proofBox.xmin = box.xmin;
-      proofBox.xmax = box.xmax;
-      proofBox.ymin = box.ymin;
-      proofBox.ymax = box.ymax;
 
       bwi_scavenger_msgs::DatabaseInfoSrv req;
       req.request.task_name = TASK_FIND_OBJECT;
@@ -488,6 +490,10 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
       client_database_info_request.call(req);
 
       if(req.response.correct){
+        proofBox.xmin = box.xmin;
+        proofBox.xmax = box.xmax;
+        proofBox.ymin = box.ymin;
+        proofBox.ymax = box.ymax;
         target_pose.position = req.request.pose.position; // saving object location to save to text file
         state_id_t state = sm.get_current_state()->get_id();
         if (state == STATE_SCANNING || state == STATE_TRAVELING)
