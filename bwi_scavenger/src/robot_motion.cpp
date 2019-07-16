@@ -20,6 +20,7 @@ void RobotMotion::end_movement(){
 }
 
 void RobotMotion::move_to_location(coordinate coordinates) {
+  ROS_INFO("[RobotMotion] Travelling to location (%f, %f)", coordinates.first, coordinates.second);
   double start = ros::Time::now().toSec();
 
   move_base_msgs::MoveBaseGoal goal;

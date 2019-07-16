@@ -19,6 +19,9 @@
 #include "bwi_scavenger/dbscan_object.h"
 #include "bwi_scavenger/globals.h"
 
+#define FEAR_CONSTANT 5
+#define PRIORITY_THRESHOLD 0.50
+
 /*
   Labels to be used for getting information from the database
 */

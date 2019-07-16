@@ -65,6 +65,8 @@ static bwi_scavenger_msgs::PerceptionMoment last_perception_moment;
 
 static geometry_msgs::Pose target_pose;
 
+static darknet_ros_msgs::BoundingBox proofBox;
+
 static ros::ServiceClient client_pose_request;
 static ros::ServiceClient client_database_info_request;
 
@@ -137,6 +139,10 @@ public:
     end_msg.robot_pose = robot_pose;
     end_msg.secondary_pose = target_pose;
     end_msg.success = svec->target_confirmed;
+    end_msg.secondary_pose.orientation.x = proofBox.xmin;
+    end_msg.secondary_pose.orientation.y = proofBox.xmax;
+    end_msg.secondary_pose.orientation.z = proofBox.ymin;
+    end_msg.secondary_pose.orientation.w = proofBox.ymax;
     pub_task_complete.publish(end_msg);
     node_active = false;
   }
@@ -384,8 +390,8 @@ void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
       client_database_info_request.call(reqLoc);
       prioritized_map.clear();
       for(int i = 0; i < reqLoc.response.location_list.size() / 2; i++){
-        ROS_INFO("[find_object_node] Adding to priority location map point (%f, %f)", 
-          reqLoc.response.location_list[i * 2], reqLoc.response.location_list[i * 2 + 1]);
+        ROS_INFO("[find_object_node] Adding to priority location map point (%f, %f) with priority %f", 
+          reqLoc.response.location_list[i * 2], reqLoc.response.location_list[i * 2 + 1], reqLoc.response.priority_list[i]);
         coordinate c = {reqLoc.response.location_list[i * 2], reqLoc.response.location_list[i * 2 + 1]};
         prioritized_map.add_location(c);
         prioritized_map.set_location_priority(c, reqLoc.response.priority_list[i]);
@@ -403,7 +409,6 @@ void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
         c.first = robot_pose.position.x;
         c.second = robot_pose.position.y;
         map.start(c);
-
 
         ssv.destination = map.get_next_location();
         ssv.prioritized_finished = true;
@@ -448,6 +453,11 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
           kinect_fusion::get_position(box, depth_image);
       if(target_position.x == 0 && target_position.y == 0 && target_position.z == 0)
         continue;
+
+      proofBox.xmin = box.xmin;
+      proofBox.xmax = box.xmax;
+      proofBox.ymin = box.ymin;
+      proofBox.ymax = box.ymax;
 
       bwi_scavenger_msgs::DatabaseInfoSrv req;
       req.request.task_name = TASK_FIND_OBJECT;

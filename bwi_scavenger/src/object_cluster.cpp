@@ -5,9 +5,39 @@ ObjectCluster::ObjectCluster(int num){
   std::vector<point> newList;
   this->list = newList;
 
-  robot_location = new float[ROBOT_DIMEN];
+  this->robot_location = new float[ROBOT_DIMEN];
 }
 
+ObjectCluster::ObjectCluster(const ObjectCluster& old_cluster){
+  num = old_cluster.num;
+  num_correct = old_cluster.num_correct;
+  num_incorrect = old_cluster.num_incorrect;
+  
+  float* location = new float[ROBOT_DIMEN];
+  for(int i = 0; i < ROBOT_DIMEN; i++)
+    location[i] = old_cluster.robot_location[i];
+  
+  robot_location = location;
+
+  int size = old_cluster.list.size();
+  for(int i = 0; i < size; i++){
+    point cur_point = old_cluster.list[i];
+
+    point temp_point;
+    temp_point.label = cur_point.label;
+    temp_point.num = cur_point.num;
+
+    float* temp_coor = new float[OBJECT_DIMEN];
+    for(int j = 0; j < OBJECT_DIMEN; j++)
+      temp_coor[j] = cur_point.coordinate[j];
+    temp_point.coordinate = temp_coor;
+    
+    list.push_back(temp_point);
+  }
+
+  correct = old_cluster.correct;
+} 
+  
 ObjectCluster::~ObjectCluster(){
   delete[] robot_location;
   unsigned int size = list.size();
@@ -33,7 +63,10 @@ int ObjectCluster::get_incorrect(){
   Returns the average robot location associated with this cluster of object points
 */
 float* ObjectCluster::get_robot_location(){
-  return robot_location;
+  float* location = new float[ROBOT_DIMEN];
+  for(int i = 0; i < ROBOT_DIMEN; i++)
+    location[i] = robot_location[i];
+  return location;
 }
 
 /**
