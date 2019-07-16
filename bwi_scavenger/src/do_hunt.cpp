@@ -3,6 +3,8 @@
 #include <bwi_scavenger_msgs/TaskEnd.h>
 #include <bwi_scavenger_msgs/TaskStart.h>
 #include <bwi_scavenger_msgs/DatabaseProof.h>
+#include <bwi_scavenger_msgs/DarknetAddTrainingFile.h>
+#include <bwi_scavenger_msgs/DarknetStartTraining.h>
 
 #include <map>
 #include <ros/ros.h>
@@ -20,7 +22,7 @@ static std::vector<Task> tasks;
 static int task_index = 0;
 static double t_task_start;
 
-static ros::Publisher pub_task_start, pub_done_parse, pub_proof;
+static ros::Publisher pub_task_start, pub_done_parse, pub_proof, pub_training_file;
 
 static bool hunt_started = false;
 static bool conclude = false;
@@ -45,8 +47,17 @@ void parse_proofs(){
       proof.secondary_pose = (*read).get_secondary_pose();
       proof.verification = (*read).get_verification();
       // updates verification if it has been recently verified
-      if(proof.verification == UNVERIFIED)
+      if(proof.verification == UNVERIFIED){
         proof.verification = client.get_proof_status(proof.proof_id);
+        if(proof.verification == PROOF_CORRECT){
+          bwi_scavenger_msgs::DarknetAddTrainingFile training_file_msg;
+          training_file_msg.network_name = proof.task_name;
+          training_file_msg.file_path = PROOF_COPY_MATERIAL_PATH + std::to_string(proof.proof_id);
+          training_file_msg.label = proof.parameter_name;
+          pub_training_file.publish(training_file_msg);
+          std::cout << "publishing training file" << std::endl;
+        }
+      }
 
       // sends message of proof to database node
       if(proof.verification != UNVERIFIED){
@@ -174,6 +185,8 @@ int main(int argc, char **argv) {
       TPC_DATABASE_NODE_DONE_PARSE, 1);
   pub_proof = nh.advertise<bwi_scavenger_msgs::DatabaseProof>(
       TPC_DATABASE_NODE_UPDATE_PROOF, 1);
+  pub_training_file = nh.advertise<bwi_scavenger_msgs::DarknetAddTrainingFile>(
+      TPC_DARKNET_NODE_ADD_TRAINING_FILE, 1);
 
   ros::Subscriber sub_task_complete = nh.subscribe(TPC_TASK_END, 1, next_task);
 
