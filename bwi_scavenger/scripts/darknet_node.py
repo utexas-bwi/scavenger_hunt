@@ -3,11 +3,12 @@
 """
 import os
 import rospy
+import shutil
 from bwi_scavenger_msgs.msg import DarknetAddTrainingFile
 from bwi_scavenger_msgs.msg import DarknetStartTraining
 from darknet_paths import *
 from darknet_structure import *
-from topics import *
+from globals import *
 from util import Logger
 
 
@@ -88,12 +89,40 @@ def start_training_cb(msg):
     else:
         log.info("Training \"" + msg.network_name + "\"...")
 
+    # Send system command
     net = nets[msg.network_name]
-    cmd = '%s classifier train %s %s' %                                        \
+    cmd = '%s classifier train \"%s\" \"%s\"' %                                \
           (os.path.join(DARKNET_BIN_LOCATION, 'darknet'),
            net.dat_path,
            net.cfg_path)
     os.system(cmd)
+
+    # Training ended for one reason or another; try to move the weights
+    ship_weights(net)
+
+def ship_weights(net):
+    """Copies the .cfg and .weights files of a network into the appropriate
+    folders within darknet_ros.
+    """
+    darknet_ros_location = os.path.join(os.getcwd(), 'src', 'darknet_ros',
+                                        'darknet_ros')
+    weights_repository = os.path.join(darknet_ros_location,
+                                      'yolo_network_config', 'weights')
+    cfg_repository = os.path.join(darknet_ros_location,
+                                  'yolo_network_config', 'cfg')
+    weights_location = os.path.join(DARKNET_BIN_LOCATION, 'backup',
+                                    net.name + '.weights')
+
+    try:
+        shutil.copyfile(weights_location,
+                        os.path.join(weights_repository, net.name + '.weights'))
+        shutil.copyfile(net.cfg_path,
+                        os.path.join(cfg_repository, net.name + '.cfg'))
+    except IOError:
+        log.warn("Failed to ship weights. Possible training abort?")
+        return
+
+    log.info("Weights shipped to darknet_ros!")
 
 
 if __name__ == '__main__':
@@ -109,9 +138,5 @@ if __name__ == '__main__':
     rospy.Subscriber(TPC_DARKNET_NODE_START_TRAINING,
                      DarknetStartTraining,
                      start_training_cb)
-
-    a = DarknetStartTraining()
-    a.network_name = 'cifar'
-    start_training_cb(a)
 
     rospy.spin()
