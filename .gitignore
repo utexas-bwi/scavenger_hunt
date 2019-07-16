@@ -11,3 +11,6 @@ build/
 .catkin_tools/
 devel/
 logs/
+
+# Binary
+*.pyc
