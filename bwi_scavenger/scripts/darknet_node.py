@@ -73,6 +73,22 @@ def update_metadata():
     src.close()
 
 
+def clean_name(name):
+    """Purges a network name of illegal characters.
+
+    Parameters
+    ----------
+    name : str
+        name to clean
+
+    Return
+    ------
+    str
+        clean name
+    """
+    return name.replace(" ", "_")
+
+
 def add_network(name):
     """Adds a new network to the database.
 
@@ -82,13 +98,13 @@ def add_network(name):
         network name
     """
     # Replace spaces to avoid path problems
-    name_clean = name.replace(" ", "_")
-    net = Darknetwork(name_clean)
-    nets[name_clean] = net
+    name = clean_name(name)
+    net = Darknetwork(name)
+    nets[name] = net
     update_metadata()
 
 
-def add_training_file(net_name, src_path, label):
+def add_training_file(net_name, src_path, label, bbox, image_size):
     """Adds a training file to a network of some name. The network is created
     if it doesn't exist.
 
@@ -100,11 +116,17 @@ def add_training_file(net_name, src_path, label):
         file path to training file
     label : str
         training file label
+    bbox : 4-tuple
+        bounding box corners (xmin, xmax, ymin, ymax)
+    image_size : 2-tuple
+        image dimensions (width, height)
     """
+    net_name = clean_name(net_name)
+
     if net_name not in nets:
         add_network(net_name)
 
-    nets[net_name].add_training_file(src_path, label)
+    nets[net_name].add_training_file(src_path, label, bbox, image_size)
 
 
 def add_training_file_cb(msg):
@@ -115,7 +137,13 @@ def add_training_file_cb(msg):
     msg : DarknetAddTrainingFile
         training file metadata
     """
-    add_training_file(msg.network_name, msg.file_path, msg.label)
+    add_training_file(
+        msg.network_name,
+        msg.file_path,
+        msg.label,
+        (msg.xmin, msg.xmax, msg.ymin, msg.ymax),
+        (msg.image_width, msg.image_height)
+    )
 
 
 def start_training_cb(msg):
@@ -285,8 +313,6 @@ if __name__ == "__main__":
         start_training_cb,
     )
 
-    # a = DarknetStartTraining()
-    # a.network_name = 'cifar'
-    # start_training_cb(a)
+    add_training_file_cb(a)
 
     rospy.spin()

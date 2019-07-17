@@ -114,7 +114,7 @@ class Darknetwork:
             src.write(label + "\n")
             src.close()
 
-    def add_training_file(self, src_path, label):
+    def add_training_file(self, src_path, label, bbox, image_size):
         """Adds a new training file to the network. New labels are handled.
 
         Parameters
@@ -123,11 +123,17 @@ class Darknetwork:
             path to training file
         label : str
             correct label for training file
+        bbox : 4-tuple
+            bounding box corners (xmin, xmax, ymin, ymax)
+        image_size : 2-tuple
+            image dimensions (width, height)
         """
+        fname_stem = str(self.training_file_count) + "_" + label
+
         # Copy file to train directory
         self.add_label(label)
         root, ext = os.path.splitext(src_path)
-        fname = str(self.training_file_count) + "_" + label + ext
+        fname = fname_stem + ext
         fname_qual = os.path.join(self.train_path, fname)
         shutil.copyfile(src_path, fname_qual)
         self.training_file_count += 1
@@ -136,3 +142,28 @@ class Darknetwork:
         src = open(self.train_list_path, 'a')
         src.write(fname_qual  + '\n')
         src.close()
+
+        # Generate annotation file
+        annotation = open(
+            os.path.join(self.train_path, fname_stem + ".txt"), "w"
+        )
+
+        xmin, xmax, ymin, ymax = bbox
+        image_width, image_height = image_size
+        x = xmin
+        y = ymin
+        width = xmax - xmin
+        height = ymax - ymin
+        class_index = self.labels.index(label)
+
+        annotation.write(
+            "%s %s %s %s %s\n" % (
+                class_index,
+                x * 1.0 / image_width,
+                y * 1.0 / image_height,
+                width * 1.0 / image_width,
+                height * 1.0 / image_height
+            )
+        )
+
+        annotation.close()

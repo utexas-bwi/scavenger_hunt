@@ -1,3 +1,9 @@
 string network_name
 string file_path
 string label
+uint32 xmin
+uint32 xmax
+uint32 ymin
+uint32 ymax
+uint32 image_width
+uint32 image_height
