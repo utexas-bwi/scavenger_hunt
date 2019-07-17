@@ -128,10 +128,10 @@ public:
                                    sensor_msgs::image_encodings::BGR8);
 
       cv::Mat org_image = cv_ptr -> image;
-      cv::Rect crop_boundaries(proofBox.xmin, proofBox.ymin, proofBox.xmax - proofBox.xmin, proofBox.ymax - proofBox.ymin);
-      cv::Mat croppedImage = org_image(crop_boundaries);
+      // cv::Rect crop_boundaries(proofBox.xmin, proofBox.ymin, proofBox.xmax - proofBox.xmin, proofBox.ymax - proofBox.ymin);
+      // cv::Mat croppedImage = org_image(crop_boundaries);
 
-      cv::imwrite(PROOF_MATERIAL_PATH, croppedImage);
+      cv::imwrite(PROOF_MATERIAL_PATH, org_image);
 
     }
 

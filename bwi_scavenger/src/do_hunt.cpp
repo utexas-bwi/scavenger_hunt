@@ -21,7 +21,11 @@
 #define FAILED_PROOF_UPLOAD -1
 #define CURRENT_TASK tasks[task_index]
 
-static ScavengerHuntClient client("jsuriadinata@utexas.edu", "Tr3asure");
+// Image width and height for kinect. 
+#define IMAGE_WIDTH 640
+#define IMAGE_HEIGHT 480
+
+static ScavengerHuntClient client("stefandebruyn@utexas.edu", "sick robots");
 static std::vector<Task> tasks;
 static int task_index = 0;
 static double t_task_start;
@@ -54,13 +58,25 @@ void parse_proofs(){
       // updates verification if it has been recently verified
       if(proof.verification == UNVERIFIED){
         proof.verification = client.get_proof_status(proof.proof_id);
+
+        // sends the training file to darknet
         if(proof.verification == PROOF_CORRECT){
           bwi_scavenger_msgs::DarknetAddTrainingFile training_file_msg;
           training_file_msg.network_name = proof.task_name;
           training_file_msg.file_path = PROOF_COPY_MATERIAL_PATH + std::to_string(proof.proof_id);
           training_file_msg.label = proof.parameter_name;
+          
+          // bounding box coordinates are stored in the the "orientation" of the secondary pose
+          // training_file_msg.xmin = proof.secondary_pose.orientation.x;
+          // training_file_msg.xmax = proof.secondary_pose.orientation.y;
+          // training_file_msg.ymin = proof.secondary_pose.orientation.z;
+          // training_file_msg.ymax = proof.secondary_pose.orientation.w;
+
+          // training_file_msg.image_width = IMAGE_WIDTH;
+          // training_file_msg.image_height = IMAGE_HEIGHT;
           pub_training_file.publish(training_file_msg);
-          ROS_INFO("[main_node] Publishing training file.");
+
+          // ROS_INFO("[main_node] Publishing training file.");
         }
       }
 
