@@ -142,7 +142,7 @@ def start_training_cb(msg):
         net.dat_path,
         net.cfg_path,
     )
-    os.system(cmd)
+    # os.system(cmd)
 
     # Training ended for one reason or another; try to ship it off
     ship_network(net)
@@ -150,7 +150,7 @@ def start_training_cb(msg):
 
 def ship_network(net):
     """Ships a network to darknet_ros by copying over the .cfg and .weights
-    files as well as autogenerating the model YAML file.
+    files as well as autogenerating the YAML files needed by darknet_ros.
 
     Parameters
     ----------
@@ -183,9 +183,13 @@ def ship_network(net):
         )
         return
 
+    NETWORK_PARAMS_FNAME = net.name + ".yaml"
+    ROS_PARAMS_FNAME = net.name + "-ros.yaml"
+    LAUNCH_FNAME = "darknet_ros_" + net.name + ".launch"
+
     # Generate model YAML file
-    yaml_location = osp.join(dnros_path, "config", net.name + ".yaml")
-    yaml = open(yaml_location, "w")
+    yaml_path = osp.join(dnros_path, "config", ROS_PARAMS_FNAME)
+    yaml = open(yaml_path, "w")
 
     yaml.write(net.name + "_model:\n")
     yaml.write("  config_file:\n    name: " + net.name + ".cfg\n")
@@ -198,9 +202,71 @@ def ship_network(net):
 
     yaml.close()
 
-    log.info(
-        'Network "' + net.name + '" shipped to darknet_ros!'
+    # Generate ROS YAML file
+    ros_yaml_path = osp.join(dnros_path, "config", "ros.yaml")
+    yaml_path = osp.join(dnros_path, "config", ROS_PARAMS_FNAME)
+
+    shutil.copyfile(ros_yaml_path, yaml_path)
+
+    try:
+        yaml = open(yaml_path, 'r')
+        yaml_temp = open(yaml_path + ".tmp", 'w')
+    except IOError:
+        log.err("Couldn't find ros.yaml! Aborting network ship.")
+        return
+    pass
+
+    for line in yaml.readlines():
+        yaml_temp.write(line.replace("darknet_ros", "darknet_ros_" + net.name))
+
+    yaml.close()
+    yaml_temp.close()
+
+    os.remove(yaml_path)
+    os.rename(yaml_path + '.tmp', yaml_path)
+
+    # Generate launch file
+    launch_template =                                                          \
+"""<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+  <arg name="launch_prefix" default=""/>
+
+  <arg name="yolo_weights_path"          default="$(find darknet_ros)/yolo_network_config/weights"/>
+  <arg name="yolo_config_path"           default="$(find darknet_ros)/yolo_network_config/cfg"/>
+
+  <arg name="ros_param_file"             default="$(find darknet_ros)/config/{ROS_PARAMS_FNAME}"/>
+  <arg name="network_param_file"         default="$(find darknet_ros)/config/{NETWORK_PARAMS_FNAME}"/>
+
+  <rosparam command="load" ns="darknet_ros" file="$(arg ros_param_file)"/>
+  <rosparam command="load" ns="darknet_ros" file="$(arg network_param_file)"/>
+
+  <node pkg="darknet_ros" type="darknet_ros" name="{NODE_NAME}" output="screen" launch-prefix="$(arg launch_prefix)">
+    <param name="weights_path"          value="$(arg yolo_weights_path)" />
+    <param name="config_path"           value="$(arg yolo_config_path)" />
+    <param name="yolo_model/weight_file/name" value="{WEIGHTS_FNAME}" />
+    <param name="yolo_model/config_file/name" value="{MODEL_FNAME}" />
+  </node>
+</launch>"""
+
+    launch_path = osp.join(dnros_path, "launch", LAUNCH_FNAME)
+    launch = open(launch_path, "w")
+    template_filled = launch_template.replace(
+        "{ROS_PARAMS_FNAME}", ROS_PARAMS_FNAME
+    ).replace(
+        "{NETWORK_PARAMS_FNAME}", NETWORK_PARAMS_FNAME
+    ).replace(
+        "{NODE_NAME}", "darknet_ros_" + net.name
+    ).replace(
+        "{WEIGHTS_FNAME}", net.name + ".weights"
+    ).replace(
+        "{MODEL_FNAME}", net.name + ".cfg"
     )
+
+    launch.write(template_filled)
+    launch.close()
+
+    log.info('Network "' + net.name + '" shipped to darknet_ros!')
 
 
 if __name__ == "__main__":
@@ -218,4 +284,9 @@ if __name__ == "__main__":
         DarknetStartTraining,
         start_training_cb,
     )
+
+    a = DarknetStartTraining()
+    a.network_name = 'cifar'
+    start_training_cb(a)
+
     rospy.spin()
