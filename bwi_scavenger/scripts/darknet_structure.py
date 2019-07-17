@@ -1,3 +1,5 @@
+"""Wrappers for conveniently editing Darknet network configurations.
+"""
 import os
 import shutil
 from darknet_paths import *
@@ -5,6 +7,11 @@ from darknet_paths import *
 
 def force_open_read(fname):
     """Creates a file if not already in existence and opens it for reading.
+
+    Parameters
+    ----------
+    fname : str
+        file path
     """
     try:
         src = open(fname, 'r')
@@ -20,6 +27,14 @@ class Darknetwork:
     """Wrapper for an on-disk Darknet network configuration.
     """
     def __init__(self, name):
+        """Creates a new network and populates it with metadata found on disk if
+        it could be found.
+
+        Parameters
+        ----------
+        name : str
+            unique identifying name
+        """
         self.name = name
 
         # Directories
@@ -47,6 +62,8 @@ class Darknetwork:
         self.make_dat()
 
     def make_dat(self):
+        """Generates the .dat file used to convey network metadata to Darknet.
+        """
         src = open(self.dat_path, 'w')
         contents = [
             'classes=' + str(len(self.labels)),
@@ -61,8 +78,8 @@ class Darknetwork:
             src.write(line + '\n')
 
     def populate(self):
-        """Creates directories for storing network files if not already in
-        existence.
+        """Creates the directories required in the main Darknet directory
+        used to store files for this network.
         """
         dirs = [
             self.data_path,
@@ -77,7 +94,7 @@ class Darknetwork:
                 pass
 
     def load_labels(self):
-        """Loads labels from labels.txt into local storage.
+        """Loads labels from this network's labels.txt into local structures.
         """
         src = force_open_read(self.labels_path)
         self.labels = [line.strip() for line in src.readlines()]
@@ -85,6 +102,11 @@ class Darknetwork:
 
     def add_label(self, label):
         """Adds a new label to the network if not already in existence.
+
+        Parameters
+        ----------
+        label : str
+            label
         """
         if label not in self.labels:
             self.labels.append(label)
@@ -94,6 +116,13 @@ class Darknetwork:
 
     def add_training_file(self, src_path, label):
         """Adds a new training file to the network. New labels are handled.
+
+        Parameters
+        ----------
+        src_path : str
+            path to training file
+        label : str
+            correct label for training file
         """
         # Copy file to train directory
         self.add_label(label)
