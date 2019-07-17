@@ -142,7 +142,7 @@ def start_training_cb(msg):
         net.dat_path,
         net.cfg_path,
     )
-    # os.system(cmd)
+    os.system(cmd)
 
     # Training ended for one reason or another; try to ship it off
     ship_network(net)
@@ -285,8 +285,8 @@ if __name__ == "__main__":
         start_training_cb,
     )
 
-    a = DarknetStartTraining()
-    a.network_name = 'cifar'
-    start_training_cb(a)
+    # a = DarknetStartTraining()
+    # a.network_name = 'cifar'
+    # start_training_cb(a)
 
     rospy.spin()
