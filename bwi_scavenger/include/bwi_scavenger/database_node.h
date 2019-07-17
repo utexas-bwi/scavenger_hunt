@@ -27,7 +27,9 @@
 */
 enum data_label{
   GET_INCORRECT,
-  SET_LOCATION
+  SET_LOCATION,
+  ADD_PROOF,
+  CREATE_CLUSTERS
 };
 
 typedef std::pair<std::string, std::string> task;

@@ -1,7 +1,9 @@
 string task_name
 string parameter_name
 uint8 data
+bool verification
 geometry_msgs/Pose pose
+geometry_msgs/Pose secondary_pose
 ---
 bool correct
 float32[] location_list

@@ -1,28 +1,37 @@
 #include <bwi_scavenger/globals.h>
-
+#include <bwi_scavenger_msgs/PoseRequest.h>
 #include <bwi_scavenger_msgs/TaskEnd.h>
 #include <bwi_scavenger_msgs/TaskStart.h>
-#include <bwi_scavenger_msgs/DatabaseProof.h>
 #include <bwi_scavenger_msgs/DarknetAddTrainingFile.h>
 #include <bwi_scavenger_msgs/DarknetStartTraining.h>
 
-#include <map>
-#include <ros/ros.h>
-#include <scavenger_hunt/scavenger_hunt.h>
 #include <bwi_scavenger/file_editor.h>
-#include <std_msgs/String.h>
-#include <vector>
+#include <bwi_scavenger/database_node.h>
+
+#include <ros/ros.h>
+
+#include <scavenger_hunt/scavenger_hunt.h>
+
 #include <std_msgs/Bool.h>
+#include <std_msgs/String.h>
+
+#include <map>
+#include <vector>
 
 #define FAILED_PROOF_UPLOAD -1
 #define CURRENT_TASK tasks[task_index]
 
-static ScavengerHuntClient client("jsuriadinata@utexas.edu", "Tr3asure");
+// Image width and height for kinect. 
+#define IMAGE_WIDTH 640
+#define IMAGE_HEIGHT 480
+
+static ScavengerHuntClient client("stefandebruyn@utexas.edu", "sick robots");
 static std::vector<Task> tasks;
 static int task_index = 0;
 static double t_task_start;
 
 static ros::Publisher pub_task_start, pub_done_parse, pub_proof, pub_training_file;
+static ros::ServiceClient client_database_info_request;
 
 static bool hunt_started = false;
 static bool conclude = false;
@@ -49,26 +58,39 @@ void parse_proofs(){
       // updates verification if it has been recently verified
       if(proof.verification == UNVERIFIED){
         proof.verification = client.get_proof_status(proof.proof_id);
+
+        // sends the training file to darknet
         if(proof.verification == PROOF_CORRECT){
           bwi_scavenger_msgs::DarknetAddTrainingFile training_file_msg;
           training_file_msg.network_name = proof.task_name;
           training_file_msg.file_path = PROOF_COPY_MATERIAL_PATH + std::to_string(proof.proof_id);
           training_file_msg.label = proof.parameter_name;
+          
+          // bounding box coordinates are stored in the the "orientation" of the secondary pose
+          // training_file_msg.xmin = proof.secondary_pose.orientation.x;
+          // training_file_msg.xmax = proof.secondary_pose.orientation.y;
+          // training_file_msg.ymin = proof.secondary_pose.orientation.z;
+          // training_file_msg.ymax = proof.secondary_pose.orientation.w;
+
+          // training_file_msg.image_width = IMAGE_WIDTH;
+          // training_file_msg.image_height = IMAGE_HEIGHT;
           pub_training_file.publish(training_file_msg);
-          std::cout << "publishing training file" << std::endl;
+
+          // ROS_INFO("[main_node] Publishing training file.");
         }
       }
 
       // sends message of proof to database node
       if(proof.verification != UNVERIFIED){
-        bwi_scavenger_msgs::DatabaseProof proofMsg;
-        proofMsg.task = proof.task_name;
-        proofMsg.param = proof.parameter_name;
-        proofMsg.robot_pose = proof.robot_pose;
-        proofMsg.secondary_pose = proof.secondary_pose;
-        proofMsg.verification = proof.verification;
-        pub_proof.publish(proofMsg);
-        ros::Duration(0.25).sleep();
+        bwi_scavenger_msgs::DatabaseInfoSrv add_proof;
+        add_proof.request.task_name = proof.task_name;
+        add_proof.request.parameter_name = proof.parameter_name;
+        add_proof.request.data = ADD_PROOF;
+        add_proof.request.verification = proof.verification;
+        add_proof.request.pose = proof.robot_pose;
+        add_proof.request.secondary_pose = proof.secondary_pose;
+        // ROS_INFO("[main_node] Adding proof to clusterer");
+        client_database_info_request.call(add_proof);
       }
 
       (*write).write_to_file(proof);
@@ -80,8 +102,9 @@ void parse_proofs(){
   (*read).delete_file();
   (*write).rename_file(PROOF_DATABASE_PATH); // will delete proofs not uploaded to server
 
-  std_msgs::Bool msg;
-  pub_done_parse.publish(msg);
+  bwi_scavenger_msgs::DatabaseInfoSrv done;
+  done.request.data = CREATE_CLUSTERS;
+  client_database_info_request.call(done);
   ros::Duration(1.0).sleep();
 }
 
@@ -186,15 +209,20 @@ int main(int argc, char **argv) {
   pub_proof = nh.advertise<bwi_scavenger_msgs::DatabaseProof>(
       TPC_DATABASE_NODE_UPDATE_PROOF, 1);
   pub_training_file = nh.advertise<bwi_scavenger_msgs::DarknetAddTrainingFile>(
-      TPC_DARKNET_NODE_ADD_TRAINING_FILE, 1);
+      TPC_DARKNET_NODE_ADD_TRAINING_FILE, 1000);
 
   ros::Subscriber sub_task_complete = nh.subscribe(TPC_TASK_END, 1, next_task);
+
+  client_database_info_request = nh.serviceClient<bwi_scavenger_msgs::DatabaseInfoSrv>(
+      SRV_DATABASE_INFO_REQUEST);
 
   if (argc < 2) {
     ROS_ERROR("Usage: do_hunt <hunt name>");
     exit(0);
   }
-  
+
+  ros::Duration(2.0).sleep();
+
   client.get_hunt(argv[1], tasks);
   next_task(nullptr);
   ros::spin();
