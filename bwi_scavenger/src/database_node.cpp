@@ -1,26 +1,20 @@
 #include <bwi_scavenger/database_node.h>
 
-void update_proofs_cb(const bwi_scavenger_msgs::DatabaseProof::ConstPtr &msg){
-
-  // ROS_INFO("[Database_node] Updating proofs map for %s / %s", msg->task.c_str(), msg->param.c_str());
-  task curTask = {msg->task, msg->param};
-
-  proof curProof;
-  curProof.robot_pose = msg->robot_pose;
-  curProof.secondary_pose = msg->secondary_pose;
-  curProof.verification = msg->verification;
-
+void update_proofs(task curTask, proof curProof){
+  // ROS_INFO("[database_node] adding location: (%f, %f)", curProof.robot_pose.position.x, curProof.robot_pose.position.y);
   if(proofsMap->count(curTask)){ // map contains this task, add onto the proofs vector
     std::vector<proof> &mapProof = (*proofsMap)[curTask];
     mapProof.push_back(curProof);
+  
   } else { // map does not contain this task yet, simply add in
     std::vector<proof> newList;
     newList.push_back(curProof);
     proofsMap->insert({curTask, newList});
   }
+
 }
 
-void create_clusterers_cb(const std_msgs::Bool::ConstPtr &msg){
+void create_clusterers(){
   ROS_INFO("[database_node] Creating Clusterers");
   for(const auto &taskProof : *proofsMap){
     std::vector<proof> curProofList = taskProof.second;
@@ -123,19 +117,28 @@ void set_priority_locations(task curTask, bwi_scavenger_msgs::DatabaseInfoSrv::R
 bool info(bwi_scavenger_msgs::DatabaseInfoSrv::Request &msg,
           bwi_scavenger_msgs::DatabaseInfoSrv::Response &res){
   // ROS_INFO("[database_node] Getting info for %s / %s", msg.task_name.c_str(), msg.parameter_name.c_str());
-  bool methodWorking = false;
+  bool methodWorking = true;
 
   task curTask = {msg.task_name, msg.parameter_name};
 
   if(msg.data == GET_INCORRECT){
-    methodWorking = true;
     geometry_msgs::Pose obj_pose = msg.pose;
     res.correct = is_correct(curTask, obj_pose);
   
   } else if(msg.data == SET_LOCATION){
-    methodWorking = true;
     set_priority_locations(curTask, res);
-  }
+  
+  } else if(msg.data == ADD_PROOF){
+    // ROS_INFO("[database_node] Adding proof to clusterers");
+    proof curProof;
+    curProof.robot_pose = msg.pose;
+    curProof.secondary_pose = msg.secondary_pose;
+    curProof.verification = msg.verification;
+    update_proofs(curTask, curProof);
+  } else if(msg.data == CREATE_CLUSTERS){
+    create_clusterers();
+  } else 
+    methodWorking = false;
 
   return methodWorking; // will note if there is a method associated with the data type sent
 }
@@ -144,8 +147,8 @@ int main(int argc, char **argv){
   ros::init(argc, argv, "database_node");
   ros::NodeHandle n;
 
-  ros::Subscriber sub0 = n.subscribe(TPC_DATABASE_NODE_UPDATE_PROOF, 1, update_proofs_cb);
-  ros::Subscriber sub1 = n.subscribe(TPC_DATABASE_NODE_DONE_PARSE, 1, create_clusterers_cb);
+  // ros::Subscriber sub0 = n.subscribe(TPC_DATABASE_NODE_UPDATE_PROOF, 1, update_proofs_cb);
+  // ros::Subscriber sub1 = n.subscribe(TPC_DATABASE_NODE_DONE_PARSE, 1, create_clusterers_cb);
 
   pose_client = n.serviceClient<bwi_scavenger_msgs::PoseRequest>(SRV_POSE_REQUEST);
   ros::ServiceServer srv_info_request = n.advertiseService(SRV_DATABASE_INFO_REQUEST, info);

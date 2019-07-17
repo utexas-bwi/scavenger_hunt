@@ -131,6 +131,10 @@ void set_variables(int size_of_database, float** object_points, ObjectCluster &o
 
   // for robot location
   float* robot_location = new float[ROBOT_DIMEN];
+  
+  for(int k = 0; k < ROBOT_DIMEN; k++){
+    robot_location[k] = 0;
+  }
 
   for(int j = 0; j < size_of_database; j++){
     if(contains_point(object_points[j], objc)){
@@ -142,8 +146,12 @@ void set_variables(int size_of_database, float** object_points, ObjectCluster &o
 
       // for robot location
       float* cur_robot_point = robot_points[j];
-      for(int k = 0; k < ROBOT_DIMEN; k++)
+      // std::cout << "adding point: ("; 
+      for(int k = 0; k < ROBOT_DIMEN; k++){
+        // std::cout << cur_robot_point[k] << " ";
         robot_location[k] += cur_robot_point[k];
+      }
+      // std::cout << ")" << std::endl;
       
     }
   }
@@ -158,14 +166,14 @@ void set_variables(int size_of_database, float** object_points, ObjectCluster &o
     robot_location[k] /= objc.size();
   objc.set_robot_location(robot_location);
 
-  // std::cout << "size: " << objc.size() << ", correct: " << std::to_string(correct) << ", incorrect: " 
-  //   << std::to_string(objc.get_incorrect()) << ", robot location: (" << std::to_string(robot_location[0])
-  //   << ", " << std::to_string(objc.get_robot_location()[1]) << ") ";
-  // if(objc.get_verification())
-  //   std::cout << "CORRECT";
-  // else 
-  //   std::cout << "INCORRECT";
-  // std::cout << std::endl;
+  std::cout << "size: " << objc.size() << ", correct: " << std::to_string(correct) << ", incorrect: " 
+    << std::to_string(objc.get_incorrect()) << ", robot location: (" << std::to_string(robot_location[0])
+    << ", " << std::to_string(objc.get_robot_location()[1]) << ") ";
+  if(objc.get_verification())
+    std::cout << "CORRECT";
+  else 
+    std::cout << "INCORRECT";
+  std::cout << std::endl;
 }
 
 ObjectClusterer::ObjectClusterer(float** object_points, float** robot_points, bool* verification, int size_of_database){

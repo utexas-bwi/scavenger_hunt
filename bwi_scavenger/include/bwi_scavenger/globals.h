@@ -9,6 +9,8 @@ GENERAL
 
 const std::string PROOF_DATABASE_PATH = "/home/bwilab/scavenger_hunt/BWI_SCAVENGER_PROOF_DB.dat";
 const std::string PROOF_MATERIAL_PATH = "/home/bwilab/scavenger_hunt/BWI_SCAVENGER_IMAGE_PROOF.jpeg";
+const std::string PROOF_COPY_MATERIAL_PATH = "/home/bwilab/scavenger_hunt/proofs/";
+
 
 /*------------------------------------------------------------------------------
 NODES
@@ -45,6 +47,7 @@ const char TPC_DATABASE_NODE_LOCATIONS[] = "/bwi_scavenger/database_node/locatio
 
 const char TPC_DARKNET_NODE_ADD_TRAINING_FILE[] = "/bwi_scavenger/darknet_node/add_training_file";
 const char TPC_DARKNET_NODE_START_TRAINING[] = "/bwi_scavenger/darknet_node/start_training";
+
 
 /*------------------------------------------------------------------------------
 SERVICES

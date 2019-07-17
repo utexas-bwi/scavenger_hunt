@@ -377,6 +377,7 @@ void move_finished_cb(const std_msgs::Bool::ConstPtr &msg) {
   @brief called when the main node begins a new task
 */
 void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
+  // ros::Duration(5.0).sleep();
   if (msg->name == TASK_FIND_OBJECT) {
     wipe_ssv();
     ros::Duration(2.0).sleep();
