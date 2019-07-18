@@ -153,8 +153,8 @@ class Darknetwork:
 
         xmin, xmax, ymin, ymax = bbox
         image_width, image_height = image_size
-        x = xmin
-        y = ymin
+        x = (xmin + xmax) / 2
+        y = (ymin + ymax) / 2
         width = xmax - xmin
         height = ymax - ymin
         class_index = self.labels.index(label)
