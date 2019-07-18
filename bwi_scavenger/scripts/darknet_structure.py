@@ -47,6 +47,7 @@ class Darknetwork:
         # Metadata files
         self.cfg_path = os.path.join(DARKNET_BIN_LOCATION, 'cfg', name + '.cfg')
         self.dat_path = os.path.join(DARKNET_BIN_LOCATION, 'cfg', name + ".dat")
+        self.backup_path = os.path.join(DARKNET_BIN_LOCATION, 'backup')
         self.labels_path = os.path.join(self.data_path, 'labels.txt')
         self.train_list_path = os.path.join(self.data_path, 'train.list')
         self.test_list_path = os.path.join(self.data_path, 'test.list')
@@ -70,7 +71,7 @@ class Darknetwork:
             'train=' + self.train_list_path,
             'valid=' + self.test_list_path,
             'labels=' + self.labels_path,
-            'backup=backup/',
+            'backup=' + self.backup_path,
             'top=2'
         ]
 

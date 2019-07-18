@@ -16,10 +16,6 @@ from globals import *
 from util import Logger
 
 
-METADATA_FILE_PATH = osp.join(
-    DARKNET_METADATA_LOCATION, DARKNET_METADATA_FILENAME
-)
-
 METADATA_PAIRING_DELIMITER = "="
 METADATA_VALUES_DELIMITER = ","
 
@@ -154,6 +150,8 @@ def start_training_cb(msg):
     msg : DarknetStartTraining
         start command
     """
+    msg.network_name = clean_name(msg.network_name)
+
     if msg.network_name not in nets:
         log.err(
             "Client tried to train nonexistent network: %s"
@@ -178,7 +176,8 @@ def start_training_cb(msg):
 
 def ship_network(net):
     """Ships a network to darknet_ros by copying over the .cfg and .weights
-    files as well as autogenerating the YAML files needed by darknet_ros.
+    files as well as autogenerating the YAML and launch files needed by
+    darknet_ros.
 
     Parameters
     ----------
@@ -206,7 +205,8 @@ def ship_network(net):
         )
     except IOError:
         log.warn(
-            'Failed to ship network "%s". Possible training abort?'
+            'Could not find network files for "%s". '
+            "Possible training abort?"
             % net.name
         )
         return
@@ -216,83 +216,63 @@ def ship_network(net):
     LAUNCH_FNAME = "darknet_ros_" + net.name + ".launch"
 
     # Generate model YAML file
-    yaml_path = osp.join(dnros_path, "config", ROS_PARAMS_FNAME)
-    yaml = open(yaml_path, "w")
+    model_yaml_path = osp.join(dnros_path, "config", NETWORK_PARAMS_FNAME)
 
-    yaml.write(net.name + "_model:\n")
-    yaml.write("  config_file:\n    name: " + net.name + ".cfg\n")
-    yaml.write("  weight_file:\n    name: " + net.name + ".weights\n")
-    yaml.write("  threshold:\n    value: 0.3\n")
-    yaml.write("  detection_classes:\n    names:\n")
+    with open(model_yaml_path, "w") as f:
+        f.write(net.name + "_model:\n")
+        f.write("  config_file:\n    name: " + net.name + ".cfg\n")
+        f.write("  weight_file:\n    name: " + net.name + ".weights\n")
+        f.write("  threshold:\n    value: 0.3\n")
+        f.write("  detection_classes:\n    names:\n")
 
-    for label in net.labels:
-        yaml.write("      - " + label + "\n")
-
-    yaml.close()
+        for label in net.labels:
+            f.write("      - " + label + "\n")
 
     # Generate ROS YAML file
-    ros_yaml_path = osp.join(dnros_path, "config", "ros.yaml")
-    yaml_path = osp.join(dnros_path, "config", ROS_PARAMS_FNAME)
-
-    shutil.copyfile(ros_yaml_path, yaml_path)
+    template_path = osp.join(
+        TEMPLATES_LOCATION, "darknet_ros_yaml_template.yaml"
+    )
+    ros_yaml_path = osp.join(dnros_path, "config", ROS_PARAMS_FNAME)
 
     try:
-        yaml = open(yaml_path, 'r')
-        yaml_temp = open(yaml_path + ".tmp", 'w')
+        with open(template_path, "r") as fin:
+            with open(ros_yaml_path, "w") as fout:
+                for line in fin.readlines():
+                    fout.write(
+                        line.replace("darknet_ros", "darknet_ros_" + net.name)
+                    )
     except IOError:
-        log.err("Couldn't find ros.yaml! Aborting network ship.")
+        log.err("Failed to generate ROS YAML file. Aborting network ship.")
         return
     pass
 
-    for line in yaml.readlines():
-        yaml_temp.write(line.replace("darknet_ros", "darknet_ros_" + net.name))
-
-    yaml.close()
-    yaml_temp.close()
-
-    os.remove(yaml_path)
-    os.rename(yaml_path + '.tmp', yaml_path)
-
     # Generate launch file
-    launch_template =                                                          \
-"""<?xml version="1.0" encoding="utf-8"?>
-
-<launch>
-  <arg name="launch_prefix" default=""/>
-
-  <arg name="yolo_weights_path"          default="$(find darknet_ros)/yolo_network_config/weights"/>
-  <arg name="yolo_config_path"           default="$(find darknet_ros)/yolo_network_config/cfg"/>
-
-  <arg name="ros_param_file"             default="$(find darknet_ros)/config/{ROS_PARAMS_FNAME}"/>
-  <arg name="network_param_file"         default="$(find darknet_ros)/config/{NETWORK_PARAMS_FNAME}"/>
-
-  <rosparam command="load" ns="darknet_ros" file="$(arg ros_param_file)"/>
-  <rosparam command="load" ns="darknet_ros" file="$(arg network_param_file)"/>
-
-  <node pkg="darknet_ros" type="darknet_ros" name="{NODE_NAME}" output="screen" launch-prefix="$(arg launch_prefix)">
-    <param name="weights_path"          value="$(arg yolo_weights_path)" />
-    <param name="config_path"           value="$(arg yolo_config_path)" />
-    <param name="yolo_model/weight_file/name" value="{WEIGHTS_FNAME}" />
-    <param name="yolo_model/config_file/name" value="{MODEL_FNAME}" />
-  </node>
-</launch>"""
-
-    launch_path = osp.join(dnros_path, "launch", LAUNCH_FNAME)
-    launch = open(launch_path, "w")
-    template_filled = launch_template.replace(
-        "{ROS_PARAMS_FNAME}", ROS_PARAMS_FNAME
-    ).replace(
-        "{NETWORK_PARAMS_FNAME}", NETWORK_PARAMS_FNAME
-    ).replace(
-        "{NODE_NAME}", "darknet_ros_" + net.name
-    ).replace(
-        "{WEIGHTS_FNAME}", net.name + ".weights"
-    ).replace(
-        "{MODEL_FNAME}", net.name + ".cfg"
+    template_blanks = {
+        "{ROS_PARAMS_FNAME}" : ROS_PARAMS_FNAME,
+        "{NETWORK_PARAMS_FNAME}" : NETWORK_PARAMS_FNAME,
+        "{NODE_NAME}" : "darknet_ros_" + net.name,
+        "{WEIGHTS_FNAME}" : net.name + ".weights",
+        "{MODEL_FNAME}" : net.name + ".cfg"
+    }
+    template_path = osp.join(
+        TEMPLATES_LOCATION, "darknet_launch_template.launch"
     )
 
-    launch.write(template_filled)
-    launch.close()
+    try:
+        with open(template_path, "r") as f:
+            template_data = f.read()
+
+            for key in template_blanks:
+                template_data = template_data.replace(key, template_blanks[key])
+
+            launch_path = osp.join(dnros_path, "launch", LAUNCH_FNAME)
+
+            f = open(launch_path, "w")
+            f.write(template_data)
+            f.close()
+    except IOError:
+        log.err("Failed to generate launch file. Aborting network ship.")
+        return
 
     log.info('Network "' + net.name + '" shipped to darknet_ros!')
 
@@ -313,6 +293,8 @@ if __name__ == "__main__":
         start_training_cb,
     )
 
-    add_training_file_cb(a)
+    # a = DarknetStartTraining()
+    # a.network_name = "Find Object"
+    # start_training_cb(a)
 
     rospy.spin()
