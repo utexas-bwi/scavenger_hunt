@@ -222,7 +222,7 @@ def ship_network(net):
         f.write(net.name + "_model:\n")
         f.write("  config_file:\n    name: " + net.name + ".cfg\n")
         f.write("  weight_file:\n    name: " + net.name + ".weights\n")
-        f.write("  threshold:\n    value: 0.3\n")
+        f.write("  threshold:\n    value: " + net.detection_threshold + "\n")
         f.write("  detection_classes:\n    names:\n")
 
         for label in net.labels:

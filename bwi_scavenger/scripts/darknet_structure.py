@@ -14,11 +14,11 @@ def force_open_read(fname):
         file path
     """
     try:
-        src = open(fname, 'r')
+        src = open(fname, "r")
     except IOError:
-        src = open(fname, 'w')
+        src = open(fname, "w")
         src.close()
-        src = open(fname, 'r')
+        src = open(fname, "r")
 
     return src
 
@@ -38,21 +38,23 @@ class Darknetwork:
         self.name = name
 
         # Directories
-        self.data_path = os.path.join(DARKNET_BIN_LOCATION, 'data', name)
-        self.train_path = os.path.join(self.data_path, 'train')
-        self.test_path = os.path.join(self.data_path, 'test')
+        self.data_path = os.path.join(DARKNET_BIN_LOCATION, "data", name)
+        self.train_path = os.path.join(self.data_path, "train")
+        self.test_path = os.path.join(self.data_path, "test")
 
         self.populate()
 
         # Metadata files
-        self.cfg_path = os.path.join(DARKNET_BIN_LOCATION, 'cfg', name + '.cfg')
-        self.dat_path = os.path.join(DARKNET_BIN_LOCATION, 'cfg', name + ".dat")
-        self.backup_path = os.path.join(DARKNET_BIN_LOCATION, 'backup')
-        self.labels_path = os.path.join(self.data_path, 'labels.txt')
-        self.train_list_path = os.path.join(self.data_path, 'train.list')
-        self.test_list_path = os.path.join(self.data_path, 'test.list')
+        self.cfg_path = os.path.join(DARKNET_BIN_LOCATION, "cfg", name + ".cfg")
+        self.dat_path = os.path.join(DARKNET_BIN_LOCATION, "cfg", name + ".dat")
+        self.backup_path = os.path.join(DARKNET_BIN_LOCATION, "backup")
+        self.labels_path = os.path.join(self.data_path, "labels.txt")
+        self.train_list_path = os.path.join(self.data_path, "train.list")
+        self.test_list_path = os.path.join(self.data_path, "test.list")
 
         self.labels = []
+        self.detection_threshold = 0.3
+        self.top_accuracy = 2
 
         # Get the number of training files already logged for numbering purposes
         src = force_open_read(self.train_list_path)
@@ -67,12 +69,12 @@ class Darknetwork:
         """
         src = open(self.dat_path, 'w')
         contents = [
-            'classes=' + str(len(self.labels)),
-            'train=' + self.train_list_path,
-            'valid=' + self.test_list_path,
-            'labels=' + self.labels_path,
-            'backup=' + self.backup_path,
-            'top=2'
+            "classes=" + str(len(self.labels)),
+            "train=" + self.train_list_path,
+            "valid=" + self.test_list_path,
+            "labels=" + self.labels_path,
+            "backup=" + self.backup_path,
+            "top=" + self.top_accuracy
         ]
 
         for line in contents:
