@@ -3,7 +3,9 @@
 import os
 import shutil
 from darknet_paths import *
-
+from cv_bridge import CvBridge, CvBridgeError
+import cv2
+from sensor_msgs.msg import Image
 
 def force_open_read(fname):
     """Creates a file if not already in existence and opens it for reading.
@@ -56,6 +58,9 @@ class Darknetwork:
         self.detection_threshold = 0.3
         self.top_accuracy = 2
 
+        # Image
+        self.bridge = CvBridge()
+
         # Get the number of training files already logged for numbering purposes
         src = force_open_read(self.train_list_path)
         self.training_file_count = len(src.readlines())
@@ -74,7 +79,7 @@ class Darknetwork:
             "valid=" + self.test_list_path,
             "labels=" + self.labels_path,
             "backup=" + self.backup_path,
-            "top=" + self.top_accuracy
+            "top=" + str(self.top_accuracy)
         ]
 
         for line in contents:
@@ -117,7 +122,7 @@ class Darknetwork:
             src.write(label + "\n")
             src.close()
 
-    def add_training_file(self, src_path, label, bbox, image_size):
+    def add_training_file(self, image, label, bbox, image_size):
         """Adds a new training file to the network. New labels are handled.
 
         Parameters
@@ -135,10 +140,15 @@ class Darknetwork:
 
         # Copy file to train directory
         self.add_label(label)
-        root, ext = os.path.splitext(src_path)
-        fname = fname_stem + ext
+        # root, ext = os.path.splitext(src_path)
+        # fname = fname_stem + ext
+        
+        fname = fname_stem + '.png'
         fname_qual = os.path.join(self.train_path, fname)
-        shutil.copyfile(src_path, fname_qual)
+        # shutil.copyfile(src_path, fname_qual)
+        cv_image = self.bridge.imgmsg_to_cv2(image, "bgr8")
+        cv2.imwrite(fname_qual, cv_image)
+
         self.training_file_count += 1
 
         # Log in train list

@@ -1,3 +1,8 @@
+
+#include <image_transport/image_transport.h>
+#include <opencv2/highgui/highgui.hpp>
+#include <cv_bridge/cv_bridge.h>
+
 #include <bwi_scavenger/globals.h>
 #include <bwi_scavenger_msgs/PoseRequest.h>
 #include <bwi_scavenger_msgs/TaskEnd.h>
@@ -38,6 +43,31 @@ static bool conclude = false;
 
 static proof_item proof;
 
+void send_training_file(){
+
+  // gets image and encodes it to be sent to the training node
+  
+  cv::Mat image = cv::imread(PROOF_COPY_MATERIAL_PATH + std::to_string(proof.proof_id));
+  cv::waitKey(30);
+  sensor_msgs::ImagePtr imagePtr = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image).toImageMsg();
+
+  bwi_scavenger_msgs::DarknetAddTrainingFile training_file_msg;
+  training_file_msg.image = *imagePtr;
+  training_file_msg.network_name = "Test";
+   
+  training_file_msg.label = proof.parameter_name;
+   
+  // bounding box coordinates are stored in the the "orientation" of the secondary pose
+  training_file_msg.xmin = proof.secondary_pose.orientation.x;
+  training_file_msg.xmax = proof.secondary_pose.orientation.y;
+  training_file_msg.ymin = proof.secondary_pose.orientation.z;
+  training_file_msg.ymax = proof.secondary_pose.orientation.w;
+   
+  training_file_msg.image_width = IMAGE_WIDTH;
+  training_file_msg.image_height = IMAGE_HEIGHT;
+  pub_training_file.publish(training_file_msg);
+}
+
 /**
   Updates verification of the proof (incorrect or correct)
 */
@@ -61,20 +91,7 @@ void parse_proofs(){
 
         // sends the training file to darknet
         if(proof.verification == PROOF_CORRECT){
-          bwi_scavenger_msgs::DarknetAddTrainingFile training_file_msg;
-          training_file_msg.network_name = proof.task_name;
-          training_file_msg.file_path = PROOF_COPY_MATERIAL_PATH + std::to_string(proof.proof_id);
-          training_file_msg.label = proof.parameter_name;
-          
-          // bounding box coordinates are stored in the the "orientation" of the secondary pose
-          // training_file_msg.xmin = proof.secondary_pose.orientation.x;
-          // training_file_msg.xmax = proof.secondary_pose.orientation.y;
-          // training_file_msg.ymin = proof.secondary_pose.orientation.z;
-          // training_file_msg.ymax = proof.secondary_pose.orientation.w;
-
-          // training_file_msg.image_width = IMAGE_WIDTH;
-          // training_file_msg.image_height = IMAGE_HEIGHT;
-          pub_training_file.publish(training_file_msg);
+          send_training_file();
 
           // ROS_INFO("[main_node] Publishing training file.");
         }

@@ -14,7 +14,7 @@ from darknet_paths import *
 from darknet_structure import *
 from globals import *
 from util import Logger
-
+from sensor_msgs.msg import Image
 
 METADATA_PAIRING_DELIMITER = "="
 METADATA_VALUES_DELIMITER = ","
@@ -100,7 +100,7 @@ def add_network(name):
     update_metadata()
 
 
-def add_training_file(net_name, src_path, label, bbox, image_size):
+def add_training_file(net_name, image, label, bbox, image_size):
     """Adds a training file to a network of some name. The network is created
     if it doesn't exist.
 
@@ -122,7 +122,7 @@ def add_training_file(net_name, src_path, label, bbox, image_size):
     if net_name not in nets:
         add_network(net_name)
 
-    nets[net_name].add_training_file(src_path, label, bbox, image_size)
+    nets[net_name].add_training_file(image, label, bbox, image_size)
 
 
 def add_training_file_cb(msg):
@@ -135,7 +135,7 @@ def add_training_file_cb(msg):
     """
     add_training_file(
         msg.network_name,
-        msg.file_path,
+        msg.image,
         msg.label,
         (msg.xmin, msg.xmax, msg.ymin, msg.ymax),
         (msg.image_width, msg.image_height)

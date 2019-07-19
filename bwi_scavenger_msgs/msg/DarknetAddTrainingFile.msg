@@ -1,5 +1,5 @@
+sensor_msgs/Image image
 string network_name
-string file_path
 string label
 uint32 xmin
 uint32 xmax
