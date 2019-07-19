@@ -33,6 +33,9 @@ int main(int argc, char** argv) {
   // and the time taken to complete the task in seconds.
   proof_id_t id = client.send_proof("bottle.jpeg", tasks[0], 60.0);
 
+  // A proof ID can be used to download the original uploaded file.
+  client.download_proof_material(id, "/home/my_downloaded_proofs/proof.jpeg");
+
   // The upload process generates a unique ID for the proof that can be used to
   // get feedback on it.
   proof_status_t status = client.get_proof_status(id);

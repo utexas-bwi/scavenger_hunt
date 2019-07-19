@@ -7,15 +7,15 @@ $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 try {
   $proof_id = $_POST["id"];
-  $stmt = $dbh->query("SELECT * FROM proof_table WHERE (proof_id=" . $proof_id . " and verified=1)");
+  $stmt = $dbh->query("SELECT * FROM proof_table WHERE proof_id=" . $proof_id);
   $stmt->setFetchMode(PDO::FETCH_ASSOC);
 
   if ($proof = $stmt->fetch())
-    echo $proof["correct"];
+    echo $proof["filename"];
   else
-    echo "-1";
+    die("FATAL: NO FILENAME ON RECORD FOR PROOF " . $proof_id);
 
-} catch (PDOException $e) {
+} catch (PDOException $e)
   die($e->getMessage());
 }
 

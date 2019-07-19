@@ -143,6 +143,8 @@ in question, and the time taken to complete the task in seconds.
 <pre>
   <code class="language-cpp">
 proof_id_t id = client.send_proof("bottle.png", tasks[0], 60.0);
+// A proof ID can be used to download the original uploaded file.
+client.download_proof_material(id, "/home/my_downloaded_proofs/proof.jpeg");
   </code>
 </pre>
 

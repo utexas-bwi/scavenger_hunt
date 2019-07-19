@@ -58,6 +58,14 @@ public:
   void download_proof_material(Proof &proof, std::string filepath);
 
   /**
+    Downloads the file that was submitted for a particular proof.
+
+    @param id ID of proof to retrieve material for
+    @param filepath path to save file to (including desired name and extension)
+  */
+  void download_proof_material(proof_id_t id, std::string filepath);
+
+  /**
     Uploads an image proof to Scavenger Hunt.
 
     @param file_path path to proof file (either an image or a video)

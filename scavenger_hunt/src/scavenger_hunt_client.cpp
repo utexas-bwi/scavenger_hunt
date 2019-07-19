@@ -4,133 +4,178 @@
 #include <memory>
 #include <scavenger_hunt/rapidxml.hpp>
 #include <scavenger_hunt/scavenger_hunt_client.h>
+#include <stdio.h>
 #include <string>
 #include <string.h>
 
 using namespace rapidxml;
 
-static const std::string DOWNLOAD_URL = "localhost/script/get_tasks.php";
-static const std::string UPLOAD_URL = "localhost/script/upload_proof.php";
-static const std::string PROOFS_URL = "localhost/script/get_proofs.php";
+static const std::string DOMAIN = "localhost/script";
+static const std::string DOWNLOAD_URL = DOMAIN + "/get_tasks.php";
+static const std::string UPLOAD_URL = DOMAIN + "/upload_proof.php";
+static const std::string PROOFS_URL = DOMAIN + "/get_proofs.php";
 static const std::string PROOF_MATERIALS_URL = "localhost/proof";
-static const std::string PROOF_STATUS_URL = "localhost/script/get_proof_status.php";
+static const std::string GET_PROOF_MATERIAL_URL = DOMAIN + "/get_proof_material_url.php";
+static const std::string PROOF_STATUS_URL = DOMAIN + "/get_proof_status.php";
 
 static std::string user_email;
 static int user_password_hash;
 
-/**
-  @brief callback function used by cURL to offload buffered POST data
-*/
-std::size_t curl_write_cb(const char *in, std::size_t size,
-    std::size_t num, std::string *out) {
-  const std::size_t total_bytes(size * num);
-  out->append(in, total_bytes);
-  return total_bytes;
-}
+namespace {
 
-/**
-  Java's 32-bit string hash algorithm. The website uses the same algorithm
-  to hash passwords and user IDs.
+  /**
+    @brief callback function used by cURL to offload buffered POST data
+  */
+  std::size_t curl_write_cb(const char *in, std::size_t size,
+      std::size_t num, std::string *out) {
+    const std::size_t total_bytes(size * num);
+    out->append(in, total_bytes);
+    return total_bytes;
+  }
 
-  @param str string to hash
-  @return hash
-*/
-int strhash32(std::string str) {
-	int hash = 0;
-	if (str.length() == 0)
-		return hash;
-	const char *str_arr = str.c_str();
-	for (int i = 0; i < str.length(); i++) {
-		char c = str_arr[i];
-		hash = ((hash << 5) - hash) + c;
-	}
-	return hash;
-}
+  /**
+    @brief cb for cURL to write POST data into a file
+  */
+  std::size_t curl_write_file_cb(void *ptr, std::size_t size, std::size_t num,
+      FILE *stream) {
+    std::size_t written = fwrite(ptr, size, num, stream);
+    return written;
+  }
 
-/**
-  @brief gets if the file at path fname exists
-*/
-bool file_exists(std::string fname) {
-  std::ifstream f(fname.c_str());
-  return f.good();
-}
+  /**
+    Java's 32-bit string hash algorithm. The website uses the same algorithm
+    to hash passwords and user IDs.
 
-/**
-  @brief parses task info from website XML
-*/
-void parse_hunt_xml(std::string *xml, std::vector<Task> &tasks) {
-  xml_document<> doc;
-  xml_node<> *root_node;
+    @param str string to hash
+    @return hash
+  */
+  int strhash32(std::string str) {
+  	int hash = 0;
+  	if (str.length() == 0)
+  		return hash;
+  	const char *str_arr = str.c_str();
+  	for (int i = 0; i < str.length(); i++) {
+  		char c = str_arr[i];
+  		hash = ((hash << 5) - hash) + c;
+  	}
+  	return hash;
+  }
 
-  char *buffer = new char[xml->size() + 1];
-  strcpy(buffer, xml->c_str());
+  /**
+    @brief gets if the file at path fname exists
+  */
+  bool file_exists(std::string fname) {
+    std::ifstream f(fname.c_str());
+    return f.good();
+  }
 
-  doc.parse<0>(buffer);
-  root_node = doc.first_node("hunt");
-  std::string hunt_name = root_node->first_attribute("name")->value();
+  /**
+    @brief parses task info from website XML
+  */
+  void parse_hunt_xml(std::string *xml, std::vector<Task> &tasks) {
+    xml_document<> doc;
+    xml_node<> *root_node;
 
-  if (root_node == nullptr)
-    return;
+    char *buffer = new char[xml->size() + 1];
+    strcpy(buffer, xml->c_str());
 
-  for (xml_node<> *task_node = root_node->first_node("task");
-       task_node;
-       task_node = task_node->next_sibling()) {
-    // Parse task fields
-    std::string name = std::string(task_node->first_attribute("name")->value());
-    std::string description = std::string(task_node->first_attribute("description")->value());
-    std::string proof_format = std::string(task_node->first_attribute("proof_format")->value());
-    std::string proof_description = std::string(task_node->first_attribute("proof_description")->value());
-    int points = std::stoi(std::string(task_node->first_attribute("points")->value()));
-    int id = std::stoi(std::string(task_node->first_attribute("id")->value()));
+    doc.parse<0>(buffer);
+    root_node = doc.first_node("hunt");
+    std::string hunt_name = root_node->first_attribute("name")->value();
 
-    Task task(name, hunt_name, description, proof_format, proof_description,
-        points, id);
+    if (root_node == nullptr)
+      return;
 
-    // Parse task parameters
-    for (xml_node<> *param_node = task_node->first_node("parameter");
-         param_node;
-         param_node = param_node->next_sibling()) {
-      std::string param_name = std::string(param_node->first_attribute("name")->value());
-      std::string param_value = std::string(param_node->first_attribute("value")->value());
-      task.add_parameter(param_name, param_value);
+    for (xml_node<> *task_node = root_node->first_node("task");
+         task_node;
+         task_node = task_node->next_sibling()) {
+      // Parse task fields
+      std::string name = std::string(task_node->first_attribute("name")->value());
+      std::string description = std::string(task_node->first_attribute("description")->value());
+      std::string proof_format = std::string(task_node->first_attribute("proof_format")->value());
+      std::string proof_description = std::string(task_node->first_attribute("proof_description")->value());
+      int points = std::stoi(std::string(task_node->first_attribute("points")->value()));
+      int id = std::stoi(std::string(task_node->first_attribute("id")->value()));
+
+      Task task(name, hunt_name, description, proof_format, proof_description,
+          points, id);
+
+      // Parse task parameters
+      for (xml_node<> *param_node = task_node->first_node("parameter");
+           param_node;
+           param_node = param_node->next_sibling()) {
+        std::string param_name = std::string(param_node->first_attribute("name")->value());
+        std::string param_value = std::string(param_node->first_attribute("value")->value());
+        task.add_parameter(param_name, param_value);
+      }
+
+      tasks.push_back(task);
     }
 
-    tasks.push_back(task);
+    delete buffer;
   }
 
-  delete buffer;
-}
+  /**
+    @brief parses proof info from website XML
+  */
+  void parse_proof_xml(std::string *xml, std::vector<Proof> &proofs) {
+    xml_document<> doc;
+    xml_node<> *root_node;
 
-/**
-  @brief parses proof info from website XML
-*/
-void parse_proof_xml(std::string *xml, std::vector<Proof> &proofs) {
-  xml_document<> doc;
-  xml_node<> *root_node;
+    char *buffer = new char[xml->size() + 1];
+    strcpy(buffer, xml->c_str());
 
-  char *buffer = new char[xml->size() + 1];
-  strcpy(buffer, xml->c_str());
+    doc.parse<0>(buffer);
+    root_node = doc.first_node("task");
 
-  doc.parse<0>(buffer);
-  root_node = doc.first_node("task");
+    if (root_node == nullptr)
+      return;
 
-  if (root_node == nullptr)
-    return;
+    for (xml_node<> *task_node = root_node->first_node("proof");
+         task_node;
+         task_node = task_node->next_sibling()) {
+      bool correct = std::string(task_node->first_attribute("correct")->value()) == "0" ? false : true;
+      std::string url = std::string(task_node->first_attribute("filename")->value());
+      int time_to_complete = std::stoi(std::string(task_node->first_attribute("time")->value()));
+      proof_id_t id = std::stoi(std::string(task_node->first_attribute("id")->value()));
 
-  for (xml_node<> *task_node = root_node->first_node("proof");
-       task_node;
-       task_node = task_node->next_sibling()) {
-    bool correct = std::string(task_node->first_attribute("correct")->value()) == "0" ? false : true;
-    std::string url = std::string(task_node->first_attribute("filename")->value());
-    int time_to_complete = std::stoi(std::string(task_node->first_attribute("time")->value()));
-    proof_id_t id = std::stoi(std::string(task_node->first_attribute("id")->value()));
+      Proof proof(correct, time_to_complete, url, id);
+      proofs.push_back(proof);
+    }
 
-    Proof proof(correct, time_to_complete, url, id);
-    proofs.push_back(proof);
+    delete buffer;
   }
 
-  delete buffer;
-}
+  /**
+    @brief download a file from a URL and put it somewhere on disk
+  */
+  bool curl_download_file(std::string url, std::string destination) {
+    CURL *curl = curl_easy_init();
+
+    FILE *fout = fopen(destination.c_str(), "wb");
+
+    // Do cURL request
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10); // Time out after 10 seconds
+    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); // Allow 1 redirect
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_file_cb);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fout);
+
+    curl_easy_perform(curl);
+
+    int http_response_code;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
+
+    if (http_response_code != 200)
+      return false;
+
+    curl_easy_cleanup(curl);
+    fclose(fout);
+
+    return true;
+  }
+
+} // private namespace
 
 ScavengerHuntClient::ScavengerHuntClient(std::string email,
     std::string password) {
@@ -225,10 +270,10 @@ void ScavengerHuntClient::get_proofs(Task &task, std::vector<Proof> &proofs) {
              	 CURLFORM_COPYCONTENTS, hunt_name.c_str(),
              	 CURLFORM_END);
   curl_formadd(&post_begin,
-              &post_end,
-              CURLFORM_COPYNAME, "task_name",
-              CURLFORM_COPYCONTENTS, task_name.c_str(),
-              CURLFORM_END);
+               &post_end,
+               CURLFORM_COPYNAME, "task_name",
+               CURLFORM_COPYCONTENTS, task_name.c_str(),
+               CURLFORM_END);
   curl_formadd(&post_begin,
                &post_end,
                CURLFORM_COPYNAME, "param",
@@ -282,37 +327,66 @@ void ScavengerHuntClient::download_proof_material(Proof &proof,
     return;
   }
 
-  CURL *curl = curl_easy_init();
   std::string http_received_data;
-
   std::string url = PROOF_MATERIALS_URL + "/" + proof.get_filename();
+  std::string dest = filepath + "/" + proof.get_filename();
 
-  // Do cURL request
-  curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-  curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10); // Time out after 10 seconds
-  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); // Allow 1 redirect
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_cb);
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &http_received_data);
+  bool success = curl_download_file(url, dest);
 
-  curl_easy_perform(curl);
-
-  int http_response_code;
-  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
-
-  // Dump retrieved data into file
-  std::ofstream out;
-  out.open(filepath + "/" + proof.get_filename());
-  out << http_received_data;
-  out.close();
-
-  if (http_response_code == 200)
+  if (success)
     std::cout << get_telemetry_tag(user_email, "download_proof_material") <<
         "Download successful." << std::endl;
   else
     std::cout << get_telemetry_tag(user_email, "download_proof_material") <<
         "Failed to contact Scavenger Hunt." << std::endl;
+}
 
+void ScavengerHuntClient::download_proof_material(proof_id_t id,
+    std::string filepath) {
+  std::cout << get_telemetry_tag(user_email, "download_proof_material") <<
+      "Preparing to download proof material..." << std::endl;
+
+  CURL *curl = curl_easy_init();
+  std::string http_received_data;
+
+  // Do cURL request
+  struct curl_httppost *post_begin = NULL;
+	struct curl_httppost *post_end = NULL;
+
+  std::string id_str = std::to_string(id);
+
+  curl_formadd(&post_begin,
+               &post_end,
+             	 CURLFORM_COPYNAME, "id",
+             	 CURLFORM_COPYCONTENTS, id_str.c_str(),
+             	 CURLFORM_END);
+  curl_easy_setopt(curl, CURLOPT_URL, GET_PROOF_MATERIAL_URL.c_str());
+  curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10); // Time out after 10 seconds
+  curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L); // Allow 1 redirect
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_write_cb);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &http_received_data);
+  curl_easy_setopt(curl, CURLOPT_POST, true);
+  curl_easy_setopt(curl, CURLOPT_HTTPPOST, post_begin);
+
+  curl_easy_perform(curl);
+
+  int http_response_code;
+  curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
   curl_easy_cleanup(curl);
+
+  if (http_response_code == 200) {
+    std::string url = PROOF_MATERIALS_URL + "/" + http_received_data;
+    bool success = curl_download_file(url, filepath);
+
+    if (success)
+      std::cout << get_telemetry_tag(user_email, "download_proof_material") <<
+          "Download successful." << std::endl;
+    else
+      std::cout << get_telemetry_tag(user_email, "download_proof_material") <<
+          "Failed to contact Scavenger Hunt." << std::endl;
+  } else
+    std::cout << get_telemetry_tag(user_email, "download_proof_material") <<
+        "Failed to contact Scavenger Hunt." << std::endl;
 }
 
 proof_status_t ScavengerHuntClient::get_proof_status(proof_id_t id) {
