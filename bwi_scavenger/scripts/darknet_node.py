@@ -219,7 +219,7 @@ def ship_network(net):
     model_yaml_path = osp.join(dnros_path, "config", NETWORK_PARAMS_FNAME)
 
     with open(model_yaml_path, "w") as f:
-        f.write(net.name + "_model:\n")
+        f.write("yolo_model:\n")
         f.write("  config_file:\n    name: " + net.name + ".cfg\n")
         f.write("  weight_file:\n    name: " + net.name + ".weights\n")
         f.write("  threshold:\n    value: " + net.detection_threshold + "\n")
