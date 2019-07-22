@@ -299,7 +299,7 @@ def ship_network(net):
             f.write(template_data)
             f.close()
 
-            send_file(launch_path, "dnros_ros_yaml")
+            send_file(launch_path, "dnros_launch")
     except IOError:
         log.err("Failed to generate launch file. Aborting network ship.")
         return
