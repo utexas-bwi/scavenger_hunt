@@ -21,6 +21,7 @@ add_message_files(FILES
   DatabaseProof.msg
   DarknetAddTrainingFile.msg
   DarknetStartTraining.msg
+  DatabaseFile.msg
 )
 
 add_service_files(FILES

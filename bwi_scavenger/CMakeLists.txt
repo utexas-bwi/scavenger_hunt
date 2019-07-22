@@ -232,14 +232,33 @@ target_link_libraries(perception_node
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
-add_executable(training_node
-  src/training_node.cpp
-  src/file_editor.cpp)
+add_executable(generate_training_file
+  src/generate_training_files.cpp)
 
-add_dependencies(training_node
+add_dependencies(generate_training_file
   bwi_scavenger_generate_messages_cpp)
 
-target_link_libraries(training_node
+target_link_libraries(generate_training_file
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
+
+add_executable(file_send
+  src/scripts/file_send.cpp)
+
+add_dependencies(file_send
+  bwi_scavenger_generate_messages_cpp)
+
+target_link_libraries(file_send
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
+
+add_executable(file_receive
+  src/scripts/file_receive.cpp)
+
+add_dependencies(file_receive
+  bwi_scavenger_generate_messages_cpp)
+
+target_link_libraries(file_receive
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
