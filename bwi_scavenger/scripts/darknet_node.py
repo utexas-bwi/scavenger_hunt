@@ -10,6 +10,7 @@ import rospy
 import shutil
 from bwi_scavenger_msgs.msg import DarknetAddTrainingFile
 from bwi_scavenger_msgs.msg import DarknetStartTraining
+from bwi_scavenger_msgs.msg import DatabaseFile
 from darknet_paths import *
 from darknet_structure import *
 from globals import *
@@ -22,6 +23,7 @@ METADATA_VALUES_DELIMITER = ","
 METADATA_KEY_NETS = "nets"
 
 log = Logger("darknet_node")
+pub_send_file = None
 nets = {}
 
 
@@ -174,6 +176,26 @@ def start_training_cb(msg):
     ship_network(net)
 
 
+def send_file(path, tag):
+    """Sends a file via the transfer node.
+
+    Parameters
+    ----------
+    path : str
+        path to file
+    tag : str
+        file metadata tag (see file_receive.cpp)
+    """
+    fname = os.path.basename(path)
+    f = DatabaseFile()
+    f.name = fname
+    f.tag = tag
+    with open(path, "r") as fin:
+        f.data = fin.read()
+    pub_send_file.publish(f)
+
+
+
 def ship_network(net):
     """Ships a network to darknet_ros by copying over the .cfg and .weights
     files as well as autogenerating the YAML and launch files needed by
@@ -195,14 +217,16 @@ def ship_network(net):
     )
 
     try:
-        shutil.copyfile(
-            weight_file_path,
-            osp.join(weights_path, net.name + ".weights"),
-        )
-        shutil.copyfile(
-            net.cfg_path,
-            osp.join(cfg_path, net.name + ".cfg"),
-        )
+        # shutil.copyfile(
+        #     weight_file_path,
+        #     osp.join(weights_path, net.name + ".weights"),
+        # )
+        # shutil.copyfile(
+        #     net.cfg_path,
+        #     osp.join(cfg_path, net.name + ".cfg"),
+        # )
+        send_file(weight_file_path, "dnros_weights")
+        send_file(net.cfg_path, "dnros_cfg")
     except IOError:
         log.warn(
             'Could not find network files for "%s". '
@@ -228,6 +252,8 @@ def ship_network(net):
         for label in net.labels:
             f.write("      - " + label + "\n")
 
+    send_file(model_yaml_path, "dnros_model_yaml")
+
     # Generate ROS YAML file
     template_path = osp.join(
         TEMPLATES_LOCATION, "darknet_ros_yaml_template.yaml"
@@ -241,6 +267,8 @@ def ship_network(net):
                     fout.write(
                         line.replace("darknet_ros", "darknet_ros_" + net.name)
                     )
+
+        send_file(ros_yaml_path, "dnros_ros_yaml")
     except IOError:
         log.err("Failed to generate ROS YAML file. Aborting network ship.")
         return
@@ -270,6 +298,8 @@ def ship_network(net):
             f = open(launch_path, "w")
             f.write(template_data)
             f.close()
+
+            send_file(launch_path, "dnros_ros_yaml")
     except IOError:
         log.err("Failed to generate launch file. Aborting network ship.")
         return
@@ -281,6 +311,12 @@ if __name__ == "__main__":
     rospy.init_node(log.tag_name)
     load_metadata()
     log.info("Standing by.")
+
+    pub_send_file = rospy.Publisher(
+        TPC_TRANSFER_NODE_SEND_FILE,
+        DatabaseFile,
+        queue_size=1
+    )
 
     rospy.Subscriber(
         TPC_DARKNET_NODE_ADD_TRAINING_FILE,
