@@ -7,10 +7,9 @@
 GENERAL
 ------------------------------------------------------------------------------*/
 
-const std::string PROOF_DATABASE_PATH = "/home/bwilab/scavenger_hunt/BWI_SCAVENGER_PROOF_DB.dat";
-const std::string PROOF_MATERIAL_PATH = "/home/bwilab/scavenger_hunt/BWI_SCAVENGER_IMAGE_PROOF.jpeg";
-const std::string PROOF_COPY_MATERIAL_PATH = "/home/bwilab/scavenger_hunt/proofs/";
-
+const std::string PROOF_DATABASE_FNAME = "BWI_SCAVENGER_PROOF_DB.dat";
+const std::string PROOF_MATERIAL_FNAME = "BWI_SCAVENGER_IMAGE_PROOF.jpeg";
+const std::string PROOF_MATERIALS_REPO_DNAME = "proofs";
 
 /*------------------------------------------------------------------------------
 NODES

@@ -1,8 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <launch>
-	<node name="database_node"    pkg="bwi_scavenger" type="database_node"    output="screen"/>
-	<!-- <node name="darknet_node"     pkg="bwi_scavenger" type="darknet_node.py"  output="screen"/> -->
+	<!-- Load config parameters -->
+	<arg name="config_path" default="$(find bwi_scavenger)/config"/>
+	<rosparam command="load" file="$(arg config_path)/bwi_scavenger.yaml"/>
+
+	<!-- Hardware and sensory IO -->
 	<node name="perception_node"  pkg="bwi_scavenger" type="perception_node"  output="screen"/>
   <node name="move_node"        pkg="bwi_scavenger" type="move_node"        output="screen"/>
+
+	<!-- File and information processing -->
+	<node name="database_node"    pkg="bwi_scavenger" type="database_node"    output="screen"/>
+	<node name="darknet_node"     pkg="bwi_scavenger" type="darknet_node.py"  output="screen"/>
+
+	<!-- Tasks -->
   <node name="find_object_node" pkg="bwi_scavenger" type="find_object_node" output="screen"/>
   <node name="conclude_node"    pkg="bwi_scavenger" type="conclude_node"    output="screen"/>
 </launch>

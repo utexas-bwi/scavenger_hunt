@@ -4,6 +4,8 @@
 #include <cv_bridge/cv_bridge.h>
 
 #include <bwi_scavenger/globals.h>
+#include <bwi_scavenger/paths.h>
+
 #include <bwi_scavenger_msgs/PoseRequest.h>
 #include <bwi_scavenger_msgs/TaskEnd.h>
 #include <bwi_scavenger_msgs/TaskStart.h>
@@ -26,11 +28,11 @@
 #define FAILED_PROOF_UPLOAD -1
 #define CURRENT_TASK tasks[task_index]
 
-// Image width and height for kinect. 
+// Image width and height for kinect.
 #define IMAGE_WIDTH 640
 #define IMAGE_HEIGHT 480
 
-static ScavengerHuntClient client("stefandebruyn@utexas.edu", "sick robots");
+static ScavengerHuntClient *client;
 static std::vector<Task> tasks;
 static int task_index = 0;
 static double t_task_start;
@@ -46,23 +48,23 @@ static proof_item proof;
 void send_training_file(){
 
   // gets image and encodes it to be sent to the training node
-  
-  cv::Mat image = cv::imread(PROOF_COPY_MATERIAL_PATH + std::to_string(proof.proof_id));
+
+  cv::Mat image = cv::imread(paths::proof_materials_repo() + "/" + std::to_string(proof.proof_id));
   cv::waitKey(30);
   sensor_msgs::ImagePtr imagePtr = cv_bridge::CvImage(std_msgs::Header(), "bgr8", image).toImageMsg();
 
   bwi_scavenger_msgs::DarknetAddTrainingFile training_file_msg;
   training_file_msg.image = *imagePtr;
   training_file_msg.network_name = "Test";
-   
+
   training_file_msg.label = proof.parameter_name;
-   
+
   // bounding box coordinates are stored in the the "orientation" of the secondary pose
   training_file_msg.xmin = proof.secondary_pose.orientation.x;
   training_file_msg.xmax = proof.secondary_pose.orientation.y;
   training_file_msg.ymin = proof.secondary_pose.orientation.z;
   training_file_msg.ymax = proof.secondary_pose.orientation.w;
-   
+
   training_file_msg.image_width = IMAGE_WIDTH;
   training_file_msg.image_height = IMAGE_HEIGHT;
   pub_training_file.publish(training_file_msg);
@@ -72,8 +74,8 @@ void send_training_file(){
   Updates verification of the proof (incorrect or correct)
 */
 void parse_proofs(){
-  FileEditor *read = new FileEditor(PROOF_DATABASE_PATH, READ);
-  FileEditor *write = new FileEditor(PROOF_DATABASE_PATH + ".tmp", WRITE);
+  FileEditor *read = new FileEditor(paths::proof_db(), READ);
+  FileEditor *write = new FileEditor(paths::proof_db() + ".tmp", WRITE);
 
   while((*read).read_line()){
     proof.proof_id = (*read).get_proof_id();
@@ -87,7 +89,7 @@ void parse_proofs(){
       proof.verification = (*read).get_verification();
       // updates verification if it has been recently verified
       if(proof.verification == UNVERIFIED){
-        proof.verification = client.get_proof_status(proof.proof_id);
+        proof.verification = client->get_proof_status(proof.proof_id);
 
         // sends the training file to darknet
         if(proof.verification == PROOF_CORRECT){
@@ -117,7 +119,7 @@ void parse_proofs(){
   (*write).close();
 
   (*read).delete_file();
-  (*write).rename_file(PROOF_DATABASE_PATH); // will delete proofs not uploaded to server
+  (*write).rename_file(paths::proof_db()); // will delete proofs not uploaded to server
 
   bwi_scavenger_msgs::DatabaseInfoSrv done;
   done.request.data = CREATE_CLUSTERS;
@@ -138,7 +140,7 @@ void next_task(const bwi_scavenger_msgs::TaskEnd::ConstPtr &msg) {
 
       proof.task_name = CURRENT_TASK.get_name();
       proof.parameter_name = CURRENT_TASK.get_parameter_value("object");
-      proof.proof_id = client.send_proof(PROOF_MATERIAL_PATH,
+      proof.proof_id = client->send_proof(paths::proof_material(),
                                          CURRENT_TASK,
                                          task_duration);
       proof.verification = UNVERIFIED;
@@ -146,25 +148,25 @@ void next_task(const bwi_scavenger_msgs::TaskEnd::ConstPtr &msg) {
       proof.secondary_pose = msg->secondary_pose;
 
       // save extra copy of image to separate folder
-    
-      // std::stringstream ss; 
-      // std::string temp; 
-      // ss << proof.task_name; 
-      // std::string task_name_no_spaces = ""; 
+
+      // std::stringstream ss;
+      // std::string temp;
+      // ss << proof.task_name;
+      // std::string task_name_no_spaces = "";
       // // create a string with no spaces for the task name
-      // while (!ss.eof()) 
-      // { 
-      //     ss >> temp; 
-      //     task_name_no_spaces += temp; 
-      // } 
+      // while (!ss.eof())
+      // {
+      //     ss >> temp;
+      //     task_name_no_spaces += temp;
+      // }
 
       // std::string proof_copy = std::to_string(proof.proof_id) + "_" + task_name_no_spaces + "_" + proof.parameter_name;
 
-      std::string proof_copy = PROOF_COPY_MATERIAL_PATH + std::to_string(proof.proof_id);
-      std::string command = "cp " + PROOF_MATERIAL_PATH + " " + proof_copy;
-      system(command.c_str());  
+      std::string proof_copy = paths::proof_materials_repo() + "/" + std::to_string(proof.proof_id);
+      std::string command = "cp " + paths::proof_material() + " " + proof_copy;
+      system(command.c_str());
 
-      FileEditor *fe = new FileEditor(PROOF_DATABASE_PATH, WRITE);
+      FileEditor *fe = new FileEditor(paths::proof_db(), WRITE);
       fe->write_to_file(proof);
       fe->close();
 
@@ -219,6 +221,12 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "hunt_node");
   ros::NodeHandle nh;
 
+  std::string scav_email, scav_pass;
+  nh.param("bwi_scavenger/scav_hunt_login/email", scav_email, std::string(""));
+  nh.param("bwi_scavenger/scav_hunt_login/password", scav_pass, std::string(""));
+
+  client = new ScavengerHuntClient(scav_email, scav_pass);
+
   pub_task_start = nh.advertise<bwi_scavenger_msgs::TaskStart>(
       TPC_TASK_START, 1);
   pub_done_parse = nh.advertise<std_msgs::Bool>(
@@ -240,7 +248,7 @@ int main(int argc, char **argv) {
 
   ros::Duration(2.0).sleep();
 
-  client.get_hunt(argv[1], tasks);
+  client->get_hunt(argv[1], tasks);
   next_task(nullptr);
   ros::spin();
 }

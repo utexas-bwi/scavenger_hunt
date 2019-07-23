@@ -26,6 +26,7 @@
 
 #include "bwi_scavenger/globals.h"
 #include "bwi_scavenger/mapping.h"
+#include "bwi_scavenger/paths.h"
 #include "bwi_scavenger/database_node.h"
 #include "bwi_scavenger/robot_motion.h"
 #include "bwi_scavenger/state_machine.h"
@@ -131,7 +132,7 @@ public:
       // cv::Rect crop_boundaries(proofBox.xmin, proofBox.ymin, proofBox.xmax - proofBox.xmin, proofBox.ymax - proofBox.ymin);
       // cv::Mat croppedImage = org_image(crop_boundaries);
 
-      cv::imwrite(PROOF_MATERIAL_PATH, org_image);
+      cv::imwrite(paths::proof_material(), org_image);
 
     }
 
@@ -191,7 +192,7 @@ public:
     if(!svec->prioritized_finished){ //only call get_laps if needed
       if(prioritized_map.get_laps() >= 1){
         svec->prioritized_finished = true;
-        
+
         // Query the current robot pose for planning purposes
         bwi_scavenger_msgs::PoseRequest reqPose;
         client_pose_request.call(reqPose);
@@ -286,7 +287,7 @@ public:
     // Enter INSPECTING when target is seen and current state is not END and currently not travelling to a prioritized location
     if (from->get_id() != STATE_END &&
         svec->target_seen) {
-      if(from->get_id() == STATE_TRAVELING && 
+      if(from->get_id() == STATE_TRAVELING &&
           !svec->prioritized_finished){
         svec->target_seen = false;
         ROS_INFO("%s Cannot transition to INSPECTING, currently travelling with priority", TELEM_TAG);
@@ -397,14 +398,14 @@ void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
       client_database_info_request.call(reqLoc);
       prioritized_map.clear();
       for(int i = 0; i < reqLoc.response.location_list.size() / 2; i++){
-        ROS_INFO("[find_object_node] Adding to priority location map point (%f, %f) with priority %f", 
+        ROS_INFO("[find_object_node] Adding to priority location map point (%f, %f) with priority %f",
           reqLoc.response.location_list[i * 2], reqLoc.response.location_list[i * 2 + 1], reqLoc.response.priority_list[i]);
         coordinate c = {reqLoc.response.location_list[i * 2], reqLoc.response.location_list[i * 2 + 1]};
         prioritized_map.add_location(c);
         prioritized_map.set_location_priority(c, reqLoc.response.priority_list[i]);
       }
       prioritized_map.prioritize();
-      
+
       if(prioritized_map.get_laps() == -1){
         ROS_INFO("[find_object_node] No locations in priority map");
 
@@ -485,7 +486,7 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
       req.request.pose.position.x = reqPose.response.pose.position.x + cos(yaw) * target_position.x - sin(yaw) * target_position.y;
       req.request.pose.position.y = reqPose.response.pose.position.y + sin(yaw) * target_position.x + cos(yaw) * target_position.y;
       req.request.pose.position.z = reqPose.response.pose.position.z + target_position.z;
-      
+
       // ROS_INFO("[database_node] object point: (%f ,%f, %f)", target_pose.position.x, target_pose.position.y, target_pose.position.z);
 
       client_database_info_request.call(req);
@@ -515,7 +516,6 @@ NODE ENTRYPOINT
 int main(int argc, char **argv) {
   ros::init(argc, argv, "find_object_node");
   ros::NodeHandle nh;
-
 
   // Create clients
   client_pose_request = nh.serviceClient<bwi_scavenger_msgs::PoseRequest>(

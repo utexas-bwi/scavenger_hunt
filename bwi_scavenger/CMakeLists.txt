@@ -253,17 +253,6 @@ target_link_libraries(file_receive
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
-add_executable(generate_training_files
-  src/generate_training_files.cpp
-  src/file_editor.cpp)
-
-add_dependencies(generate_training_files
-  bwi_scavenger_generate_messages_cpp)
-
-target_link_libraries(generate_training_files
-  ${OpenCV_LIBS}
-  ${catkin_LIBRARIES})
-
 # add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
