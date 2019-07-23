@@ -1,8 +1,8 @@
 """Wrappers for conveniently editing Darknet network configurations.
 """
 import os
+import paths
 import shutil
-from darknet_paths import *
 from cv_bridge import CvBridge, CvBridgeError
 import cv2
 from sensor_msgs.msg import Image
@@ -40,19 +40,19 @@ class Darknetwork:
         self.name = name
 
         # Directories
-        self.data_path = os.path.join(DARKNET_BIN_LOCATION, "data", name)
-        self.train_path = os.path.join(self.data_path, "train")
-        self.test_path = os.path.join(self.data_path, "test")
+        self.data_path = paths.dn + "/data/" + name
+        self.train_path = self.data_path + "/train"
+        self.test_path = self.data_path + "/test"
 
         self.populate()
 
         # Metadata files
-        self.cfg_path = os.path.join(DARKNET_BIN_LOCATION, "cfg", name + ".cfg")
-        self.dat_path = os.path.join(DARKNET_BIN_LOCATION, "cfg", name + ".dat")
-        self.backup_path = os.path.join(DARKNET_BIN_LOCATION, "backup")
-        self.labels_path = os.path.join(self.data_path, "labels.txt")
-        self.train_list_path = os.path.join(self.data_path, "train.list")
-        self.test_list_path = os.path.join(self.data_path, "test.list")
+        self.cfg_path = paths.dn + "/cfg/" + name + ".cfg"
+        self.dat_path = paths.dn + "/cfg/" + name + ".dat"
+        self.backup_path = paths.dn + "/backup"
+        self.labels_path = self.data_path + "/labels.txt"
+        self.train_list_path = self.data_path + "/train.list"
+        self.test_list_path = self.data_path + "/test.list"
 
         self.labels = []
         self.detection_threshold = 0.3
@@ -142,7 +142,7 @@ class Darknetwork:
         self.add_label(label)
         # root, ext = os.path.splitext(src_path)
         # fname = fname_stem + ext
-        
+
         fname = fname_stem + '.png'
         fname_qual = os.path.join(self.train_path, fname)
         # shutil.copyfile(src_path, fname_qual)

@@ -6,12 +6,12 @@ FQPNs for important files are in darknet_paths.py.
 """
 import os
 import os.path as osp
+import paths
 import rospy
 import shutil
 from bwi_scavenger_msgs.msg import DarknetAddTrainingFile
 from bwi_scavenger_msgs.msg import DarknetStartTraining
 from bwi_scavenger_msgs.msg import DatabaseFile
-from darknet_paths import *
 from darknet_structure import *
 from globals import *
 from util import Logger
@@ -30,7 +30,7 @@ nets = {}
 def load_metadata():
     """Parses darknet.dat and rebuilds the Darknetwork containers from disk.
     """
-    src = force_open_read(METADATA_FILE_PATH)
+    src = force_open_read(paths.dnnode_meta)
 
     for line in src.readlines():
         tokens = line.strip().split(METADATA_PAIRING_DELIMITER)
@@ -58,7 +58,7 @@ def load_metadata():
 def update_metadata():
     """Updates the metadata file with network names, etc.
     """
-    src = open(METADATA_FILE_PATH, "w")
+    src = open(paths.dnnode_meta, "w")
 
     # Update list of network names
     src.write(METADATA_KEY_NETS + METADATA_PAIRING_DELIMITER)
@@ -165,12 +165,12 @@ def start_training_cb(msg):
 
     # Send system command
     net = nets[msg.network_name]
-    cmd = '%s classifier train "%s" "%s"' % (
-        osp.join(DARKNET_BIN_LOCATION, "darknet"),
+    cmd = '%s detector train "%s" "%s"' % (
+        paths.dn + "/darknet",
         net.dat_path,
         net.cfg_path,
     )
-    os.system(cmd)
+    # os.system(cmd)
 
     # Training ended for one reason or another; try to ship it off
     ship_network(net)
@@ -207,14 +207,7 @@ def ship_network(net):
         network to ship
     """
     # Copy network config and weights
-    dnros_path = osp.join(os.getcwd(), "src", "darknet_ros", "darknet_ros")
-    weights_path = osp.join(dnros_path, "yolo_network_config", "weights")
-    cfg_path = osp.join(dnros_path, "yolo_network_config", "cfg")
-    weight_file_path = osp.join(
-        DARKNET_BIN_LOCATION,
-        "backup",
-        net.name + ".weights",
-    )
+    weight_file_path = paths.dn + "/backup/" + net.name + ".weights"
 
     try:
         # shutil.copyfile(
@@ -240,13 +233,13 @@ def ship_network(net):
     LAUNCH_FNAME = "darknet_ros_" + net.name + ".launch"
 
     # Generate model YAML file
-    model_yaml_path = osp.join(dnros_path, "config", NETWORK_PARAMS_FNAME)
+    model_yaml_path = paths.dnros + "/config/" + NETWORK_PARAMS_FNAME
 
     with open(model_yaml_path, "w") as f:
         f.write("yolo_model:\n")
         f.write("  config_file:\n    name: " + net.name + ".cfg\n")
         f.write("  weight_file:\n    name: " + net.name + ".weights\n")
-        f.write("  threshold:\n    value: " + net.detection_threshold + "\n")
+        f.write("  threshold:\n    value: " + str(net.detection_threshold) + "\n")
         f.write("  detection_classes:\n    names:\n")
 
         for label in net.labels:
@@ -255,10 +248,8 @@ def ship_network(net):
     send_file(model_yaml_path, "dnros_model_yaml")
 
     # Generate ROS YAML file
-    template_path = osp.join(
-        TEMPLATES_LOCATION, "darknet_ros_yaml_template.yaml"
-    )
-    ros_yaml_path = osp.join(dnros_path, "config", ROS_PARAMS_FNAME)
+    template_path = paths.templates + "/darknet_ros_yaml_template.yaml"
+    ros_yaml_path = paths.dnros + "/config/" + ROS_PARAMS_FNAME
 
     try:
         with open(template_path, "r") as fin:
@@ -282,9 +273,7 @@ def ship_network(net):
         "{WEIGHTS_FNAME}" : net.name + ".weights",
         "{MODEL_FNAME}" : net.name + ".cfg"
     }
-    template_path = osp.join(
-        TEMPLATES_LOCATION, "darknet_launch_template.launch"
-    )
+    template_path = paths.templates + "/darknet_launch_template.launch"
 
     try:
         with open(template_path, "r") as f:
@@ -293,7 +282,7 @@ def ship_network(net):
             for key in template_blanks:
                 template_data = template_data.replace(key, template_blanks[key])
 
-            launch_path = osp.join(dnros_path, "launch", LAUNCH_FNAME)
+            launch_path = paths.dnros + "/launch/" + LAUNCH_FNAME
 
             f = open(launch_path, "w")
             f.write(template_data)
@@ -332,5 +321,23 @@ if __name__ == "__main__":
     # a = DarknetStartTraining()
     # a.network_name = "Find Object"
     # start_training_cb(a)
+
+    a = DarknetAddTrainingFile()
+    b = Image()
+    b.encoding = "bgr8"
+    a.image = b
+    a.network_name = "Find Object"
+    a.label = "can"
+    a.xmin = 0
+    a.xmax = 10
+    a.ymin = 0
+    a.ymax = 10
+    a.image_width = 100
+    a.image_height = 100
+    add_training_file_cb(a)
+
+    a = DarknetStartTraining()
+    a.network_name = "Find Object"
+    start_training_cb(a)
 
     rospy.spin()
