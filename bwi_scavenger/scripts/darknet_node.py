@@ -17,9 +17,9 @@ from globals import *
 from util import Logger
 from sensor_msgs.msg import Image
 
+
 METADATA_PAIRING_DELIMITER = "="
 METADATA_VALUES_DELIMITER = ","
-
 METADATA_KEY_NETS = "nets"
 
 log = Logger("darknet_node")
@@ -170,7 +170,7 @@ def start_training_cb(msg):
         net.dat_path,
         net.cfg_path,
     )
-    # os.system(cmd)
+    os.system(cmd)
 
     # Training ended for one reason or another; try to ship it off
     ship_network(net)
@@ -195,7 +195,6 @@ def send_file(path, tag):
     pub_send_file.publish(f)
 
 
-
 def ship_network(net):
     """Ships a network to darknet_ros by copying over the .cfg and .weights
     files as well as autogenerating the YAML and launch files needed by
@@ -210,14 +209,6 @@ def ship_network(net):
     weight_file_path = paths.dn + "/backup/" + net.name + ".weights"
 
     try:
-        # shutil.copyfile(
-        #     weight_file_path,
-        #     osp.join(weights_path, net.name + ".weights"),
-        # )
-        # shutil.copyfile(
-        #     net.cfg_path,
-        #     osp.join(cfg_path, net.name + ".cfg"),
-        # )
         send_file(weight_file_path, "dnros_weights")
         send_file(net.cfg_path, "dnros_cfg")
     except IOError:
@@ -322,22 +313,22 @@ if __name__ == "__main__":
     # a.network_name = "Find Object"
     # start_training_cb(a)
 
-    a = DarknetAddTrainingFile()
-    b = Image()
-    b.encoding = "bgr8"
-    a.image = b
-    a.network_name = "Find Object"
-    a.label = "can"
-    a.xmin = 0
-    a.xmax = 10
-    a.ymin = 0
-    a.ymax = 10
-    a.image_width = 100
-    a.image_height = 100
-    add_training_file_cb(a)
-
-    a = DarknetStartTraining()
-    a.network_name = "Find Object"
-    start_training_cb(a)
+    # a = DarknetAddTrainingFile()
+    # b = Image()
+    # b.encoding = "bgr8"
+    # a.image = b
+    # a.network_name = "Find Object"
+    # a.label = "can"
+    # a.xmin = 0
+    # a.xmax = 10
+    # a.ymin = 0
+    # a.ymax = 10
+    # a.image_width = 100
+    # a.image_height = 100
+    # add_training_file_cb(a)
+    #
+    # a = DarknetStartTraining()
+    # a.network_name = "Find Object"
+    # start_training_cb(a)
 
     rospy.spin()
