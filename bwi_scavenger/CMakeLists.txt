@@ -29,6 +29,7 @@ catkin REQUIRED COMPONENTS
   message_generation
 )
 
+
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
@@ -232,18 +233,8 @@ target_link_libraries(perception_node
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
-add_executable(generate_training_file
-  src/generate_training_files.cpp)
-
-add_dependencies(generate_training_file
-  bwi_scavenger_generate_messages_cpp)
-
-target_link_libraries(generate_training_file
-  ${OpenCV_LIBS}
-  ${catkin_LIBRARIES})
-
 add_executable(file_send
-  src/scripts/file_send.cpp)
+  src/file_send.cpp)
 
 add_dependencies(file_send
   bwi_scavenger_generate_messages_cpp)
@@ -253,12 +244,23 @@ target_link_libraries(file_send
   ${catkin_LIBRARIES})
 
 add_executable(file_receive
-  src/scripts/file_receive.cpp)
+  src/file_receive.cpp)
 
 add_dependencies(file_receive
   bwi_scavenger_generate_messages_cpp)
 
 target_link_libraries(file_receive
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
+
+add_executable(generate_training_files
+  src/generate_training_files.cpp
+  src/file_editor.cpp)
+
+add_dependencies(generate_training_files
+  bwi_scavenger_generate_messages_cpp)
+
+target_link_libraries(generate_training_files
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
