@@ -6,9 +6,6 @@
 #include <fstream>
 #include <ros/ros.h>
 
-static const std::string WS_PATH = "/home/jsuriadinata/scavenger_hunt";
-static const std::string DNROS_PATH = WS_PATH + "/src/darknet_ros/darknet_ros";
-
 static const std::string TAG_DNROS_WEIGHTS = "dnros_weights";
 static const std::string TAG_DNROS_CFG = "dnros_cfg";
 static const std::string TAG_DNROS_MODEL_YAML = "dnros_model_yaml";
