@@ -5,15 +5,15 @@ void receive_cb(const bwi_scavenger_msgs::DatabaseFile msg){
   std::string destination;
 
   if (msg.tag == TAG_DNROS_WEIGHTS)
-    destination = paths:dnros() + "/yolo_network_config/weights";
+    destination = paths::dnros() + "/yolo_network_config/weights";
   else if (msg.tag == TAG_DNROS_CFG)
-    destination = paths:dnros() + "/yolo_network_config/cfg";
+    destination = paths::dnros() + "/yolo_network_config/cfg";
   else if (msg.tag == TAG_DNROS_MODEL_YAML)
-    destination = paths:dnros() + "/config";
+    destination = paths::dnros() + "/config";
   else if (msg.tag == TAG_DNROS_ROS_YAML)
-    destination = paths:dnros() + "/config";
+    destination = paths::dnros() + "/config";
   else if (msg.tag == TAG_DNROS_LAUNCH)
-    destination = paths:dnros() + "/launch";
+    destination = paths::dnros() + "/launch";
   else {
     ROS_ERROR("Unknown file tag: %s", msg.tag);
     return;
