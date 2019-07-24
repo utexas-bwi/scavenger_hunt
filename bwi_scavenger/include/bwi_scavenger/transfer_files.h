@@ -1,11 +1,10 @@
-#include <ros/ros.h>
-
 #include <bwi_scavenger/globals.h>
 
 #include <bwi_scavenger_msgs/DatabaseFile.h>
 
 #include <iostream>
 #include <fstream>
+#include <ros/ros.h>
 
 static const std::string WS_PATH = "/home/jsuriadinata/scavenger_hunt";
 static const std::string DNROS_PATH = WS_PATH + "/src/darknet_ros/darknet_ros";

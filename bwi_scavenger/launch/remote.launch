@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+	<!-- Load config parameters -->
+	<arg name="config_path" default="$(find bwi_scavenger)/config"/>
+	<rosparam command="load" file="$(arg config_path)/bwi_scavenger.yaml"/>
+
+	<!-- File and information processing -->
+	<node name="darknet_node"     pkg="bwi_scavenger" type="darknet_node.py"  output="screen"/>
+</launch>

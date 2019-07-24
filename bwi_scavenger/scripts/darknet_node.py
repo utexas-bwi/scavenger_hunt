@@ -126,6 +126,11 @@ def add_training_file(net_name, image, label, bbox, image_size):
 
     nets[net_name].add_training_file(image, label, bbox, image_size)
 
+    log.info(
+        "Added training file with label \"%s\" to network \"%s\""              \
+        % (label, net_name)
+    )
+
 
 def add_training_file_cb(msg):
     """Callback for adding a new traiing file.
@@ -170,7 +175,7 @@ def start_training_cb(msg):
         net.dat_path,
         net.cfg_path,
     )
-    os.system(cmd)
+    # os.system(cmd)
 
     # Training ended for one reason or another; try to ship it off
     ship_network(net)
