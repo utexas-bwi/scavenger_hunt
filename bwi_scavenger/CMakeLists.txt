@@ -193,7 +193,7 @@ add_executable(database_node
 
 add_executable(do_hunt
   src/do_hunt.cpp
-  src/file_editor.cpp
+  src/proofs_xml_editor.cpp
   src/object_cluster.cpp
   src/dbscan_object.cpp)
 
@@ -234,12 +234,23 @@ target_link_libraries(perception_node
   ${catkin_LIBRARIES})
 
 add_executable(file_receive
-  src/file_receive.cpp)
+  src/darknet_files_receive.cpp)
 
 add_dependencies(file_receive
   bwi_scavenger_generate_messages_cpp)
 
 target_link_libraries(file_receive
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
+
+add_executable(xml_editor_test
+  src/proofs_xml_editor.cpp
+  src/xml_editor_test.cpp)
+
+add_dependencies(xml_editor_test
+  bwi_scavenger_generate_messages_cpp)
+
+target_link_libraries(xml_editor_test
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
