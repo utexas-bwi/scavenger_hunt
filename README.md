@@ -14,42 +14,19 @@ sensor.
 
 ## BWI Scavenger Startup
 
-### 0. Bring up offboard nodes
-
-We like to use Kane for offboard computing. This is done with OpenVPN, which
-should start automatically on all relevant machines.
-
-Navigate to the workspace on Kane containing this repository, source a few
-things, and start roscore.
-
-```
-cd /home/bwilab/scavenger_hunt
-source devel/setup.bash
-source src/scav.bash kane
-roscore
-```
-
-The latter of the sources will export the correct IPs and URIs to facilitate the
-remote ROS connection.
-
-With that done, launch the remote nodes in another terminal (remember to
-re-soruce):
-
-```
-source src/scav.bash kane
-roslaunch bwi_scavenger offboard.launch
-```
-
 ### 1. Scavenger robot startup
 
 Boot up the scavenger robot and `cd` into the workspace containing this
-repository. Repeat the source procedure. Replace `<robot-name>` with the robot's
+repository. Source the following files. Replace `<robot-name>` with the robot's
 name, probably either `pickles` or `bender`.
 
 ```
 source devel/setup.bash
 source src/scav.bash <robot-name>
 ```
+
+The latter of the sources will export the correct IPs and URIs to facilitate
+remote ROS connections.
 
 Confirm the correctness of environment variables in
 `bwi_scavenger/config/bwi_scavenger.yaml` (namely, website login credentials and
@@ -78,7 +55,32 @@ source src/scav.bash <robot-name>
 roslaunch bwi_scavenger scavenger.launch
 ```
 
-### 2. Initiate a scavenger hunt
+### 2. Bring up offboard nodes
+
+We like to use Kane for offboard computing. This is done with OpenVPN, which
+should start automatically on all relevant machines.
+
+Navigate to the workspace on Kane containing this repository and source a few
+things:
+
+```
+cd /home/bwilab/scavenger_hunt
+source devel/setup.bash
+source src/scav.bash kane
+```
+
+With that done, launch the remote nodes in another terminal (remember to
+re-source):
+
+```
+source src/scav.bash kane <robot-name>
+roslaunch bwi_scavenger offboard.launch
+```
+
+After thinking for a bit, darknet_ros should open a window showing detections
+from the robot's camera.
+
+### 3. Initiate a scavenger hunt
 
 The node `do_hunt` completes scavenger hunts. After localizing the robot, run
 this node by providing a hunt name ("BWI Lab Hunt" is our main test hunt).
