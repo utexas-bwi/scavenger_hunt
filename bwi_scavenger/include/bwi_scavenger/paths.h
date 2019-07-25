@@ -22,7 +22,7 @@ namespace {
   void init() {
     if (nh == nullptr) {
       nh = new ros::NodeHandle();
-      nh->param("bwi_scavenger/ws_path", _ws, std::string(""));
+      nh->param("bwi_scavenger/ws_path", _ws, std::string("/home/"));
 
       _proof_db = _ws + "/" + PROOF_DATABASE_FNAME;
       _proof_material = _ws + "/" + PROOF_MATERIAL_FNAME;
