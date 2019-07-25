@@ -55,6 +55,12 @@ Confirm the correctness of environment variables in
 `bwi_scavenger/config/bwi_scavenger.yaml` (namely, website login credentials and
 the fully-qualified workspace path).
 
+Open an SSH tunnel to Kane so the robot can see the website.
+
+```
+ssh -L 8080:localhost:80 bwilab@kane.csres.utexas.edu
+```
+
 Then, launch the ROS drivers. This will automatically launch the segbot drivers
 as well.
 
