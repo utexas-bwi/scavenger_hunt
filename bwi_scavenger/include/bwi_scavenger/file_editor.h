@@ -10,12 +10,13 @@
 const int NUM_ITEMS = 6;
 
 typedef struct{
-  proof_id_t proof_id;
-  int verification;
   geometry_msgs::Pose robot_pose;
   geometry_msgs::Pose secondary_pose;
   std::string task_name;
   std::string parameter_name;
+  float bounding_box_points[4];
+  int verification;
+  proof_id_t proof_id;
 } proof_item;
 
 enum proof_item_num{
@@ -38,6 +39,10 @@ enum writing{
   WRITE
 };
 
+
+typedef rapidxml::xml_document<> xml_doc;
+typedef rapidxml::xml_node<> node;
+
 /*
   FileEditor class that can read and write to files. Specialized for a "proofs file" that stores 
   the proof id, task name, parameter name, robot point, and a secondary point
@@ -45,11 +50,18 @@ enum writing{
 class FileEditor{
 protected:
   std::string filename;
+	xml_doc doc;
   std::ofstream *oFile;
   std::ifstream *iFile;
   proof_item proof;
+  node* task_node;
+  node* parameter_node;
+  node* proof_node;
   bool output;
-
+  std::vector<char*> strings_keeper;
+private:
+  void get_nodes();
+  
 public:
   /*
     Creates a FileEditor for either reading or writing a file

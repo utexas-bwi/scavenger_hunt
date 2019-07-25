@@ -1,3 +1,5 @@
+
+#include "bwi_scavenger/paths.h"
 #include <bwi_scavenger/transfer_files.h>
 
 ros::Publisher pub_send_proofs_file;
@@ -11,27 +13,27 @@ void send_file(int tag){
 
   if (tag == 0){
     msg.tag = TAG_DNROS_WEIGHTS;
-    source = DNROS_PATH + "/yolo_network_config/weights";
+    source = paths::dnros() + "/yolo_network_config/weights";
     name = type + ".weights";
   }
   else if (tag == 1){
     msg.tag = TAG_DNROS_CFG;
-    source = DNROS_PATH + "/yolo_network_config/cfg";
+    source = paths::dnros() + "/yolo_network_config/cfg";
     name = type + ".cfg";
   }
   else if (tag == 2){
     msg.tag = TAG_DNROS_MODEL_YAML;
-    source = DNROS_PATH + "/config";
+    source = paths::dnros() + "/config";
     name = type + ".yaml";
   }
   else if (tag == 3){
     msg.tag = TAG_DNROS_ROS_YAML;
-    source = DNROS_PATH + "/config";
+    source = paths::dnros() + "/config";
     name = type + "-ros.yaml";
   }
   else if (tag == 4){
     msg.tag = TAG_DNROS_LAUNCH;
-    source = DNROS_PATH + "/launch";
+    source = paths::dnros() + "/launch";
     name = "darknet_ros_" + type + ".launch";
   }
   else {
@@ -57,15 +59,21 @@ void send_file(int tag){
   pub_send_proofs_file.publish(msg);
 }
 
+void send_all_files(){
+  for(int i = 0; i < NUM_FILES; i++)
+    send_file(i);
+}
+
 int main(int argc, char** argv){
   ros::init(argc, argv, "file_send");
   ros::NodeHandle nh;
 
-  pub_send_proofs_file = nh.advertise<bwi_scavenger_msgs::DatabaseFile>(TPC_TRANSFER_NODE_SEND_FILE, 1);
-  ros::Duration(2.0).sleep();
+  // ros::Subscriber sub_send_file = nh.subscribe(
+  //   TPC_TRAIN_NETWORK_SEND_FILE, 1, send_all_files);
 
-  for(int i = 0; i < NUM_FILES; i++)
-    send_file(i);
+  pub_send_proofs_file = nh.advertise<bwi_scavenger_msgs::DatabaseFile>(TPC_TRANSFER_NODE_SEND_FILE, 1);
+
+  ros::Duration(2.0).sleep();
   
   ros::spin();
 }
