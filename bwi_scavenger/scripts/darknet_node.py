@@ -195,8 +195,10 @@ def send_file(path, tag):
     f = DatabaseFile()
     f.name = fname
     f.tag = tag
+    f.data = bytearray()
     with open(path, "r") as fin:
-        f.data = fin.read()
+        f.data.extend(fin.read())
+    log.info("Sending [%s] %s..." % (tag, fname))
     pub_send_file.publish(f)
 
 

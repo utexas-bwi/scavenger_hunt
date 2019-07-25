@@ -233,16 +233,6 @@ target_link_libraries(perception_node
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
-add_executable(file_send
-  src/file_send.cpp)
-
-add_dependencies(file_send
-  bwi_scavenger_generate_messages_cpp)
-
-target_link_libraries(file_send
-  ${OpenCV_LIBS}
-  ${catkin_LIBRARIES})
-
 add_executable(file_receive
   src/file_receive.cpp)
 
