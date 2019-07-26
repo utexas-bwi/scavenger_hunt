@@ -193,7 +193,7 @@ add_executable(database_node
 
 add_executable(do_hunt
   src/do_hunt.cpp
-  src/file_editor.cpp
+  src/proofs_xml_editor.cpp
   src/object_cluster.cpp
   src/dbscan_object.cpp)
 

@@ -78,6 +78,7 @@ void send_training_file(){
 void parse_proofs(){
   FileEditor *read = new FileEditor(paths::proof_db(), READ);
   FileEditor *write = new FileEditor(paths::proof_db() + ".tmp", WRITE);
+  std::cout << "initialized both file editors" << std::endl;
 
   while((*read).read_line()){
     proof.proof_id = (*read).get_proof_id();
@@ -171,6 +172,7 @@ void next_task(const bwi_scavenger_msgs::TaskEnd::ConstPtr &msg) {
       fe = new FileEditor(paths::proof_db(), WRITE);
       fe->write_to_file(proof);
       fe->close();
+
     }
 
     task_index++;
