@@ -22,7 +22,7 @@ static float identity_distance = 0.25;
 static std::vector<object_t> memory;
 
 void think(const object_t& obj) {
-  bool obj_new = false;
+  bool obj_new = memory.size() == 0;
 
   ROS_INFO("Current object memory:");
 
@@ -30,7 +30,7 @@ void think(const object_t& obj) {
     const object_t& obj_mem = memory[i];
 
     ROS_INFO("  %s @ (%f, %f, %f)",
-      obj_mem.label, obj_mem.x, obj_mem.y, obj_mem.z
+      obj_mem.label.c_str(), obj_mem.x, obj_mem.y, obj_mem.z
     );
 
     if (obj_mem.label != obj.label)
@@ -53,7 +53,7 @@ void think(const object_t& obj) {
     );
     memory.push_back(obj);
   } else
-    ROS_INFO("I've seen this %s before", obj.label);
+    ROS_INFO("I've seen this %s before", obj.label.c_str());
 }
 
 void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr& msg) {
