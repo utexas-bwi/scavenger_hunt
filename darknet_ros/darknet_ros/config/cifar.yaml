@@ -1,0 +1,19 @@
+cifar_model:
+  config_file:
+    name: cifar.cfg
+  weight_file:
+    name: cifar.weights
+  threshold:
+    value: 0.0
+  detection_classes:
+    names:
+      - airplane
+      - automobile
+      - bird
+      - cat
+      - deer
+      - dog
+      - frog
+      - horse
+      - ship
+      - truck
