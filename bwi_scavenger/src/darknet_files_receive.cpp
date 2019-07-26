@@ -15,7 +15,7 @@ void receive_cb(const bwi_scavenger_msgs::DatabaseFile msg){
   else if (msg.tag == TAG_DNROS_LAUNCH)
     destination = paths::dnros() + "/launch";
   else {
-    ROS_ERROR("Unknown file tag: %s", msg.tag);
+    ROS_ERROR("Unknown file tag: %s", msg.tag.c_str());
     return;
   }
 

@@ -135,9 +135,9 @@ bool info(bwi_scavenger_msgs::DatabaseInfoSrv::Request &msg,
     curProof.secondary_pose = msg.secondary_pose;
     curProof.verification = msg.verification;
     update_proofs(curTask, curProof);
-  } else if(msg.data == CREATE_CLUSTERS){
+  } else if(msg.data == CREATE_CLUSTERS)
     create_clusterers();
-  } else 
+  else 
     methodWorking = false;
 
   return methodWorking; // will note if there is a method associated with the data type sent
