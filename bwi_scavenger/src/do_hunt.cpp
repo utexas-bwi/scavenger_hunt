@@ -117,12 +117,9 @@ void parse_proofs(){
       (*write).write_to_file(proof);
     }
   }
-  std::cout << "closing" << std::endl;
   (*read).close();
-  std::cout << "read closed" << std::endl;
   (*write).close();
 
-  std::cout << "closed" << std::endl;
   (*read).delete_file();
   (*write).rename_file(paths::proof_db()); // will delete proofs not uploaded to server
 
@@ -171,8 +168,9 @@ void next_task(const bwi_scavenger_msgs::TaskEnd::ConstPtr &msg) {
       std::string command = "cp " + paths::proof_material() + " " + proof_copy;
       system(command.c_str());
 
+      fe = new FileEditor(paths::proof_db(), WRITE);
       fe->write_to_file(proof);
-
+      fe->close();
     }
 
     task_index++;
@@ -198,7 +196,6 @@ void next_task(const bwi_scavenger_msgs::TaskEnd::ConstPtr &msg) {
     bwi_scavenger_msgs::TaskStart task;
     task.name = TASK_CONCLUDE;
     pub_task_start.publish(task);
-    fe->close();
     conclude = true;
     return;
   }
@@ -251,7 +248,6 @@ int main(int argc, char **argv) {
     exit(0);
   }
   
-  fe = new FileEditor(paths::proof_db(), WRITE);
   ros::Duration(2.0).sleep();
 
   client->get_hunt(argv[1], tasks);
