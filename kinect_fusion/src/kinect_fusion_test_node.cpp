@@ -1,10 +1,11 @@
+#include <math.h>
 #include <ros/ros.h>
 
 #include "kinect_fusion/kinect_fusion.h"
 
 static sensor_msgs::Image depth;
 static bool depth_stale = true;
-static std::string target = "bottle"; // The YOLO label we're looking for
+static std::string target = "sports ball"; // The YOLO label we're looking for
 
 /**
   @brief buffers a depth map to be used on the next YOLO broadcast
@@ -34,11 +35,22 @@ void process(const darknet_ros_msgs::BoundingBoxes::ConstPtr &msg) {
     if (box.Class == target) {
       // Target spotted!
       geometry_msgs::Point offset = kinect_fusion::get_position(box, depth);
-      ROS_INFO("%s is at relative position (%f, %f, %f)",
-               target.c_str(),
-               offset.x,
-               offset.y,
-               offset.z);
+
+      float camera_x = 0; // 0.29;
+      float camera_y = 0; // 0.39;
+      float camera_theta = 0; // -0.96586521;
+
+      float obj_x = camera_x + cos(camera_theta) * offset.x - sin(camera_theta) * offset.y;
+      float obj_y = camera_y + sin(camera_theta) * offset.x + cos(camera_theta) * offset.y;
+      float obj_z = 0;
+
+      if (obj_x != camera_x) {
+        ROS_INFO("%s is at relative position (%f, %f, %f)",
+                 target.c_str(),
+                 obj_x,
+                 obj_y,
+                 obj_z);
+      }
     }
   }
 }

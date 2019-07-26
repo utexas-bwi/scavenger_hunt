@@ -42,7 +42,7 @@ namespace kinect_fusion {
 unsigned int extrema_search_partitions        = 16;   // 16 partitions per iteration
 unsigned int extrema_search_thoroughness      = 3;    // 3 iterations per search
 unsigned int erode_dilate_strength            = 10;   // 10 layers of erode/dilate
-unsigned int simplicity_threshold             = 3000; // 3000px size threshold
+unsigned int simplicity_threshold             = 1000000000; // 3000px size threshold
 float        extrema_search_minimum_magnitude = 0.15; // 0.15 m between partition ends
 float        interquartile_trim_width         = 0.85; // Avg inner 85%
 
@@ -213,8 +213,6 @@ double estimate_distance(const darknet_ros_msgs::BoundingBox &box,
   int box_width = focus_box.xmax - focus_box.xmin;
   int box_height = focus_box.ymax - focus_box.ymin;
   int box_area = box_width * box_height;
-
-  std::cout << box_area << std::endl;
 
   if (box_area < simplicity_threshold)
     return simple_estimate(box, depth_map);
@@ -397,7 +395,7 @@ geometry_msgs::Point get_position(const darknet_ros_msgs::BoundingBox &box,
   int box_x = (box.xmin + box.xmax) / 2;
   int box_y = (box.ymin + box.ymax) / 2;
 
-  float theta_xy = (box_x - IMAGE_WIDTH / 2) * 1.0 / (IMAGE_WIDTH / 2)
+  float theta_xy = (IMAGE_WIDTH / 2 - box_x) * 1.0 / (IMAGE_WIDTH / 2)
                   * (KINECT_HORIZ_FOV / 2);
   float theta_z = -(box_y - IMAGE_HEIGHT / 2) * 1.0 / (IMAGE_HEIGHT / 2)
                   * (KINECT_VERT_FOV / 2);
