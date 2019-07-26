@@ -1,5 +1,6 @@
 #include <bwi_scavenger_msgs/PerceptionMoment.h>
 #include <bwi_scavenger_msgs/PoseRequest.h>
+#include <cmath>
 #include <kinect_fusion/kinect_fusion.h>
 #include <math.h>
 #include <ros/ros.h>
@@ -21,7 +22,14 @@ static std::string target = "chair";
 static float identity_distance = 0.25;
 static std::vector<object_t> memory;
 
+bool valid_position(const object_t& obj) {
+  return std::isfinite(obj.x) && std::isfinite(obj.y) && std::isfinite(obj.z);
+}
+
 void think(const object_t& obj) {
+  if (!valid_position(obj))
+    return;
+
   bool obj_new = memory.size() == 0;
 
   ROS_INFO("Current object memory:");
@@ -49,7 +57,7 @@ void think(const object_t& obj) {
 
   if (obj_new) {
     ROS_INFO("Saw new %s at (%f, %f, %f)",
-      obj.label, obj.x, obj.y, obj.z
+      obj.label.c_str(), obj.x, obj.y, obj.z
     );
     memory.push_back(obj);
   } else
