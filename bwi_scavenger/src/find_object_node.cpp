@@ -24,10 +24,11 @@
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 
+#include <std_msgs/Bool.h>
+
 #include "bwi_scavenger/globals.h"
 #include "bwi_scavenger/mapping.h"
 #include "bwi_scavenger/paths.h"
-#include "bwi_scavenger/database_node.h"
 #include "bwi_scavenger/robot_motion.h"
 #include "bwi_scavenger/state_machine.h"
 

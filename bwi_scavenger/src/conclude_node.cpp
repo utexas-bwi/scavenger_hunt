@@ -3,7 +3,6 @@
 #include <bwi_scavenger_msgs/RobotStop.h>
 #include <bwi_scavenger/robot_motion.h>
 #include <bwi_scavenger_msgs/TaskEnd.h>
-#include <bwi_scavenger_msgs/TaskStart.h>
 
 #include <scavenger_hunt_msgs/Task.h>
 
