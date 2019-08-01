@@ -1,3 +1,6 @@
+#ifndef BWI_SCAVENGER_TRANSER_FILES_H
+#define BWI_SCAVENGER_TRANSER_FILES_H
+
 #include <bwi_scavenger/globals.h>
 
 #include <bwi_scavenger_msgs/DatabaseFile.h>
@@ -13,3 +16,5 @@ static const std::string TAG_DNROS_ROS_YAML = "dnros_ros_yaml";
 static const std::string TAG_DNROS_LAUNCH = "dnros_launch";
 
 #define NUM_FILES 5
+
+#endif

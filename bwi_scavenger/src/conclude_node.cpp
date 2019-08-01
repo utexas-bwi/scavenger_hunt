@@ -4,6 +4,9 @@
 #include <bwi_scavenger/robot_motion.h>
 #include <bwi_scavenger_msgs/TaskEnd.h>
 #include <bwi_scavenger_msgs/TaskStart.h>
+
+#include <scavenger_hunt_msgs/Task.h>
+
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
@@ -15,18 +18,17 @@ static ros::Publisher pub_move;
 static ros::Publisher pub_task_complete;
 
 // Called when the main node is starting a task
-void task_start_cb(const bwi_scavenger_msgs::TaskStart::ConstPtr &msg) {
-  if (msg->name == "Conclude") {
+void task_start_cb(const scavenger_hunt_msgs::Task& msg) {
+  if (msg.name == TASK_CONCLUDE) {
     ROS_INFO("%s Conclusion protocol firing!", TELEM_TAG);
-    node_active = true;
     ros::Duration(1.0).sleep();
 
-    // Go to conclusion spot
+    node_active = true;
     bwi_scavenger_msgs::RobotMove msg;
     msg.type = 0;
-    coordinate c = environment_location_coordinates[FELLOW_COMPUTERS];
-    msg.location.push_back(c.first);
-    msg.location.push_back(c.second);
+    coordinates c = environment_location_coordinates[FELLOW_COMPUTERS];
+    msg.location.push_back(c.x);
+    msg.location.push_back(c.y);
     pub_move.publish(msg);
   }
 }

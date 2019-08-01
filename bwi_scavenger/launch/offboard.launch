@@ -7,5 +7,5 @@
 
 	<!-- Offboard computing -->
 	<include file="$(find darknet_ros)/launch/darknet_ros.launch"/>
-	<node name="darknet_node"     pkg="bwi_scavenger" type="darknet_node.py"  output="screen"/>
+	<node name="darknet_node" pkg="bwi_scavenger" type="darknet_node.py" output="screen"/>
 </launch>

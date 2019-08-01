@@ -18,18 +18,17 @@ static std::string _proof_materials_repo;
 static std::string _darknet;
 static std::string _dnros;
 
-namespace {
-  void init() {
-    if (nh == nullptr) {
-      nh = new ros::NodeHandle();
-      nh->param("bwi_scavenger/ws_path", _ws, std::string("/home/"));
+void init() {
+  if (nh == nullptr) {
+    nh = new ros::NodeHandle();
+    nh->param("bwi_scavenger/ws_path", _ws,
+              std::string("/home/bwilab/scavenger_hunt"));
 
-      _proof_db = _ws + "/" + PROOF_DATABASE_FNAME;
-      _proof_material = _ws + "/" + PROOF_MATERIAL_FNAME;
-      _proof_materials_repo = _ws + "/" + PROOF_MATERIALS_REPO_DNAME;
-      _darknet = _ws + "/src/darknet_ros/darknet";
-      _dnros = _ws + "/src/darknet_ros/darknet_ros";
-    }
+    _proof_db = _ws + "/" + PROOF_DATABASE_FNAME;
+    _proof_material = _ws + "/" + PROOF_MATERIAL_FNAME;
+    _proof_materials_repo = _ws + "/" + PROOF_MATERIALS_REPO_DNAME;
+    _darknet = _ws + "/src/darknet_ros/darknet";
+    _dnros = _ws + "/src/darknet_ros/darknet_ros";
   }
 }
 

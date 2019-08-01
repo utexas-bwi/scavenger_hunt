@@ -1,0 +1,6 @@
+scavenger_hunt:
+  login:
+    email: stefandebruyn@utexas.edu
+    password: sick robots
+  website:
+    domain: localhost

@@ -6,13 +6,14 @@
 	<rosparam command="load" file="$(arg config_path)/bwi_scavenger.yaml"/>
 
 	<!-- Hardware and sensory IO -->
-	<node name="perception_node"  pkg="bwi_scavenger" type="perception_node"  output="screen"/>
-  <node name="move_node"        pkg="bwi_scavenger" type="move_node"        output="screen"/>
+	<node name="perception_node" pkg="bwi_scavenger" type="perception_node" output="screen"/>
+  <node name="move_node" pkg="bwi_scavenger" type="move_node" output="screen"/>
 
 	<!-- File and information processing -->
-	<node name="database_node"    pkg="bwi_scavenger" type="database_node"    output="screen"/>
+	<node name="memory_node" pkg="bwi_scavenger" type="memory_node.py" output="screen"/>
+	<include file="$(find scavenger_hunt)/launch/scavenger_hunt.launch"/>
 
 	<!-- Tasks -->
   <node name="find_object_node" pkg="bwi_scavenger" type="find_object_node" output="screen"/>
-  <node name="conclude_node"    pkg="bwi_scavenger" type="conclude_node"    output="screen"/>
+  <node name="conclude_node" pkg="bwi_scavenger" type="conclude_node" output="screen"/>
 </launch>

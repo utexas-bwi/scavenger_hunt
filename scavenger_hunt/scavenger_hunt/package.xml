@@ -1,0 +1,27 @@
+<package>
+  <name>scavenger_hunt</name>
+  <version>1.0.0</version>
+  <description>
+    This package provides foo capability.
+  </description>
+  <maintainer email="ivana@willowgarage.com">Ivana Bildbotz</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/foo_core</url>
+  <author>Ivana Bildbotz</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>message_generation</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>scavenger_hunt_msgs</build_depend>
+  <build_depend>bwi_scavenger_msgs</build_depend>
+  <build_depend>std_msgs</build_depend>
+
+  <run_depend>message_runtime</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>scavenger_hunt_msgs</run_depend>
+  <run_depend>bwi_scavenger_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
+</package>

@@ -19,8 +19,8 @@ void RobotMotion::end_movement(){
   ac->cancelGoal();
 }
 
-void RobotMotion::move_to_location(coordinate coordinates) {
-  ROS_INFO("[RobotMotion] Travelling to location (%f, %f)", coordinates.first, coordinates.second);
+void RobotMotion::move_to_location(coordinates coords) {
+  ROS_INFO("[RobotMotion] Traveling to coordinates (%f, %f)", coords.x, coords.y);
   double start = ros::Time::now().toSec();
 
   move_base_msgs::MoveBaseGoal goal;
@@ -30,8 +30,8 @@ void RobotMotion::move_to_location(coordinate coordinates) {
   goal_pose.header.stamp = ros::Time(0);
   goal_pose.header.frame_id = grid_frame_id;
 
-  goal_pose.pose.position.x = coordinates.first;
-  goal_pose.pose.position.y = coordinates.second;
+  goal_pose.pose.position.x = coords.x;
+  goal_pose.pose.position.y = coords.y;
   goal_pose.pose.orientation.w = 1;
 
   geometry_msgs::PoseStamped tag_rel_pose;

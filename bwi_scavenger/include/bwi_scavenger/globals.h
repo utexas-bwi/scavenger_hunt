@@ -49,6 +49,7 @@ const char TPC_DARKNET_NODE_START_TRAINING[] = "/bwi_scavenger/darknet_node/star
 
 const char TPC_TRANSFER_NODE_SEND_FILE[] = "/bwi_scavenger/transfer_node/send_file";
 
+const char TPC_OBJMEM_NODE_ADD[] = "/bwi_scavenger/objmem_node/add";
 
 /*------------------------------------------------------------------------------
 SERVICES
@@ -56,5 +57,8 @@ SERVICES
 
 const char SRV_POSE_REQUEST[] = "/bwi_scavenger/services/pose_request";
 const char SRV_DATABASE_INFO_REQUEST[] = "/bwi_scavenger/services/database_info_request";
+const char SRV_SEND_PROOF[] = "/bwi_scavenger/services/send_proof";
+const char SRV_CONFIRM_OBJECT[] = "/bwi_scavenger/services/confirm_object";
+const char SRV_GET_PRIORITY_POINTS[] = "/bwi_scavenger/services/get_priority_points";
 
 #endif

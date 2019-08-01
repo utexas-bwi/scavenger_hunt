@@ -1,0 +1,4 @@
+string task_name
+string task_parameter
+---
+geometry_msgs/Point[] points

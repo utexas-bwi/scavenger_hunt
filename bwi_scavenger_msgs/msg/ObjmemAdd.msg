@@ -1,0 +1,9 @@
+string label
+float64 x
+float64 y
+float64 z
+sensor_msgs/Image image
+int32 xmin
+int32 xmax
+int32 ymin
+int32 ymax

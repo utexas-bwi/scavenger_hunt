@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>bwi_scavenger_msgs</name>
+  <name>scavenger_hunt_msgs</name>
   <version>0.0.0</version>
   <description>The bwi_scavenger_msgs package</description>
 
@@ -19,15 +19,11 @@
   <build_depend>sensor_msgs</build_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>std_msgs</build_depend>
-  <build_depend>darknet_ros_msgs</build_depend>
-  <build_depend>scavenger_hunt_msgs</build_depend>
 
   <run_depend>geometry_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>message_runtime</run_depend>
   <run_depend>std_msgs</run_depend>
-  <run_depend>darknet_ros_msgs</run_depend>
-  <run_depend>scavenger_hunt_msgs</run_depend>
 
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->

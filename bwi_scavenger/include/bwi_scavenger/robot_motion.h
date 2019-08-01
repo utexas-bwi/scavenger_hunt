@@ -12,11 +12,12 @@
 #include <tf/transform_listener.h>
 #include <nav_msgs/OccupancyGrid.h>
 
+typedef struct {
+  float x;
+  float y;
+} coordinates;
 
-typedef std::pair<float, float> coordinate;
-
-typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction>
-    MoveBaseClient;
+typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
 enum environment_location {
   BWI_LAB_DOOR_NORTH,
@@ -32,27 +33,27 @@ enum environment_location {
 
 const int NUM_ENVIRONMENT_LOCATIONS = 9;
 
-static std::map<environment_location, coordinate> environment_location_coordinates {
+static std::map<environment_location, coordinates> environment_location_coordinates {
 #ifndef SIMULATION
-  {BWI_LAB_DOOR_NORTH,    coordinate( -39.3304, -11.2290 )},
-  {BWI_LAB_DOOR_SOUTH,    coordinate( -38.2976, -4.3244  )},
-  {CLEARING_NORTH,        coordinate( -13.9990, -12.024  )},
-  {CLEARING_SOUTH,        coordinate( -13.7639, -5.5648  )},
-  {ALCOVE,                coordinate( -18.2928, -4.9306  )},
-  {KITCHEN,               coordinate( -30.1798, -4.5981  )},
-  {SOCCER_LAB_DOOR_NORTH, coordinate( -47.7036, -11.2160 )},
-  {SOCCER_LAB_DOOR_SOUTH, coordinate( -47.5810, -4.1472  )},
-  {FELLOW_COMPUTERS,      coordinate( -35.0182, -11.4877 )}
+  {BWI_LAB_DOOR_NORTH,    { -39.3304, -11.2290 }},
+  {BWI_LAB_DOOR_SOUTH,    { -38.2976, -4.3244  }},
+  {CLEARING_NORTH,        { -13.9990, -12.024  }},
+  {CLEARING_SOUTH,        { -13.7639, -5.5648  }},
+  {ALCOVE,                { -18.2928, -4.9306  }},
+  {KITCHEN,               { -30.1798, -4.5981  }},
+  {SOCCER_LAB_DOOR_NORTH, { -47.7036, -11.2160 }},
+  {SOCCER_LAB_DOOR_SOUTH, { -47.5810, -4.1472  }},
+  {FELLOW_COMPUTERS,      { -35.0182, -11.4877 }}
 #else
-  {BWI_LAB_DOOR_NORTH,    coordinate( 39.6831, 112.569   )},
-  {BWI_LAB_DOOR_SOUTH,    coordinate( 39.553,  105.192   )},
-  {CLEARING_NORTH,        coordinate( 14.4326, 112.49    )},
-  {CLEARING_SOUTH,        coordinate( 14.3866, 105.104   )},
-  {ALCOVE,                coordinate( 19.6725, 105.155   )},
-  {KITCHEN,               coordinate( 30.9585, 105.623   )},
-  {SOCCER_LAB_DOOR_NORTH, coordinate( 48.2878, 112.392   )},
-  {SOCCER_LAB_DOOR_SOUTH, coordinate( 48.3504, 105.226   )},
-  {FELLOW_COMPUTERS,      coordinate( 35.8519, 112.632   )}
+  {BWI_LAB_DOOR_NORTH,    { 39.6831, 112.569   }},
+  {BWI_LAB_DOOR_SOUTH,    { 39.553,  105.192   }},
+  {CLEARING_NORTH,        { 14.4326, 112.49    }},
+  {CLEARING_SOUTH,        { 14.3866, 105.104   }},
+  {ALCOVE,                { 19.6725, 105.155   }},
+  {KITCHEN,               { 30.9585, 105.623   }},
+  {SOCCER_LAB_DOOR_NORTH, { 48.2878, 112.392   }},
+  {SOCCER_LAB_DOOR_SOUTH, { 48.3504, 105.226   }},
+  {FELLOW_COMPUTERS,      { 35.8519, 112.632   }}
 #endif
 };
 
@@ -76,7 +77,7 @@ public:
   */
   RobotMotion(std::string grid_frame_id, tf::TransformListener &tfl);
 
-  /* 
+  /*
     Stops the robot
   */
   void end_movement();
@@ -84,11 +85,11 @@ public:
   /*
     Moves the robot to the given location
 
-    @param location coordinate point for the robot to travel to
+    @param location coordinates point for the robot to travel to
   */
-  void move_to_location(coordinate location);
+  void move_to_location(coordinates location);
 
-  /* 
+  /*
     Turns the robot by the number of degrees specified
   */
   void turn(float degrees);

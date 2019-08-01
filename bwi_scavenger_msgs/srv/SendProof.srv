@@ -1,0 +1,7 @@
+scavenger_hunt_msgs/Proof proof
+scavenger_hunt_msgs/Task task
+geometry_msgs/Point robot_position
+geometry_msgs/Point secondary_position
+string metadata
+---
+uint32 id

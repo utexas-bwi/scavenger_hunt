@@ -108,8 +108,6 @@ int main(int argc, char **argv) {
       TPC_PERCEPTION_NODE_MOMENT, 1);
   ros::Subscriber sub_depth =
       nh->subscribe("/camera/depth/image", 1, save_depth);
-  ros::Subscriber sub_color =
-      nh->subscribe("/camera/rgb/image_color", 1, vision);
   ros::Subscriber sub_boxes =
       nh->subscribe("/darknet_ros/bounding_boxes", 1, vision);
 
