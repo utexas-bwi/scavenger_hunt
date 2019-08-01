@@ -9,20 +9,13 @@
 #include "bwi_scavenger/globals.h"
 
 static ros::Publisher pub_task_start;
-static ros::ServiceClient client_database_info_request;
 static ros::ServiceClient client_get_hunt;
-static ros::ServiceClient client_send_proof;
 
 static std::size_t task_index = 0;
 static bool conclude = false;
 
 static scavenger_hunt_msgs::Hunt hunt;
 
-/**
- * Advances to the next task. On the first call, the hunt begins.
- *
- * @param msg end message broadcast by task node or nullptr if initial task
- */
 void next_task(const bwi_scavenger_msgs::TaskEnd::ConstPtr &msg) {
   // Terminate
   if (conclude) {

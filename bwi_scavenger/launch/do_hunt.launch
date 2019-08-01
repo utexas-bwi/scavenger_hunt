@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+
+	<!-- Load config parameters -->
+	<arg name="config_path" default="$(find bwi_scavenger)/config"/>
+	<rosparam command="load" file="$(arg config_path)/bwi_scavenger.yaml"/>
+
+  
+	<!-- Launch do hunt -->
+	<node name="do_hunt"    pkg="bwi_scavenger" type="do_hunt" args='"Longhorn Hunt"'  output="screen"/>
+
+</launch>

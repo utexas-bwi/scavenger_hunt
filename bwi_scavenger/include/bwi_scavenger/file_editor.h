@@ -59,6 +59,7 @@ protected:
   node* proof_node;
   bool output;
   std::vector<char*> strings_keeper;
+  char* buffer;
 private:
   void get_nodes();
   
@@ -139,6 +140,8 @@ public:
     Closes the FileEditor, must be called after you are done editing
   */
   void close();
+
+  void print_buffer();
 };
 
 #endif

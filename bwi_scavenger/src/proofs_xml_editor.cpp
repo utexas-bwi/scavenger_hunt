@@ -7,33 +7,39 @@ FileEditor::FileEditor(std::string filename, bool output){
   this->filename = filename;
   this->output = output;
   
-  if(output){ // write
-    iFile = new std::ifstream(filename);
-	  std::vector<char> buffer((std::istreambuf_iterator<char>(*iFile)), std::istreambuf_iterator<char>());
-	  buffer.push_back('\0');
-    // Parse the buffer using the xml file parsing library into doc 
-	  doc.parse<0>(&buffer[0]);
+  if(output){ // write  
+    std::ifstream file(filename);
 
-    // creating document if there is nothing in the file
-    if(doc.first_node() != NULL){
-      task_node = doc.first_node("task");
-      if(task_node){
-        proof.task_name = task_node->first_attribute("name")->value();
-	      parameter_node = task_node->first_node("parameter");
-        if(parameter_node){
-          proof.parameter_name = parameter_node->first_attribute("name")->value();
-          proof_node = NULL;
-        }
-      }
+    if(file.peek() == std::ifstream::traits_type::eof()){
+      std::cout << "empty file " << std::endl;
+    } else {
+      file.seekg(0, file.end);
+      size_t length = file.tellg();
+      file.seekg(0, file.beg);
+      std::cout << "length: " << length << std::endl;
+      buffer = new char[length + 1];
+      file.read(buffer, length);
+	    doc.parse<0>(buffer);
     }
-
-  } else { // read
-    iFile = new std::ifstream (filename);
-	  std::vector<char> buffer((std::istreambuf_iterator<char>(*iFile)), std::istreambuf_iterator<char>());
-	  buffer.push_back('\0');
-    // Parse the buffer using the xml file parsing library into doc 
-	  doc.parse<0>(&buffer[0]);
+    buffer = new char[1];
+    std::cout << "write" << std::endl;
+    file.close();
     
+  } else { // read
+
+    std::ifstream file(filename);
+
+    file.seekg(0, file.end);
+    size_t length = file.tellg();
+    file.seekg(0, file.beg);
+    // char* temp = new char[length + 1];
+    buffer  = new char[length + 1];
+    std::cout << "length: " << length << std::endl;
+    file.read(buffer, length);
+	  doc.parse<0>(buffer);
+    std::cout << "read" << std::endl;
+    
+    // setting nodes for read
     task_node = doc.first_node("task");
     if(task_node){
       proof.task_name = task_node->first_attribute("name")->value();
@@ -41,7 +47,7 @@ FileEditor::FileEditor(std::string filename, bool output){
       proof.parameter_name = parameter_node->first_attribute("name")->value();
       proof_node = NULL;
     }
-
+    file.close();
   }
 
 }
@@ -81,23 +87,27 @@ void set_pose(node *pose_node, geometry_msgs::Pose *pose){
     pose->orientation.z = 0;
     pose->orientation.w = 0;
   } else {
-    pose->position.x = std::stoi(pose_node->first_attribute("pos_x")->value());
-    pose->position.y = std::stoi(pose_node->first_attribute("pos_y")->value());
-    pose->position.z = std::stoi(pose_node->first_attribute("pos_z")->value());
+    pose->position.x = std::atoi(pose_node->first_attribute("pos_x")->value());
+    pose->position.y = std::atoi(pose_node->first_attribute("pos_y")->value());
+    pose->position.z = std::atoi(pose_node->first_attribute("pos_z")->value());
 
-    pose->orientation.x = std::stoi(pose_node->first_attribute("orien_x")->value());
-    pose->orientation.y = std::stoi(pose_node->first_attribute("orien_y")->value());
-    pose->orientation.z = std::stoi(pose_node->first_attribute("orien_z")->value());
-    pose->orientation.w = std::stoi(pose_node->first_attribute("orien_w")->value());
+    pose->orientation.x = std::atoi(pose_node->first_attribute("orien_x")->value());
+    pose->orientation.y = std::atoi(pose_node->first_attribute("orien_y")->value());
+    pose->orientation.z = std::atoi(pose_node->first_attribute("orien_z")->value());
+    pose->orientation.w = std::atoi(pose_node->first_attribute("orien_w")->value());
   }
 }
 
 bool FileEditor::read_line(){
-  if(!task_node) // no more tasks listed in the file
+
+  if(!task_node){ // no more tasks listed in the file
+    std::cout << "no task node" << std::endl;
     return false;
+  }
   
-  if(proof_node)
+  if(proof_node){
     proof_node = proof_node->next_sibling();
+  }
   else
     proof_node = parameter_node->first_node("proof");
 
@@ -105,7 +115,7 @@ bool FileEditor::read_line(){
     parameter_node = parameter_node->next_sibling();
     while(!parameter_node){ // reached last parameter, get next available one
       task_node = task_node->next_sibling();
-      if(!task_node){ // raeched end of xml
+      if(!task_node){ // reached end of xml
         std::cout << "end of file" << std::endl;
         return false;
       }
@@ -115,16 +125,28 @@ bool FileEditor::read_line(){
     proof.parameter_name = parameter_node->first_attribute("name")->value();
     proof_node = parameter_node->first_node("proof");
   }
+  std::cout << "[read]checking proof node" << std::endl;
+  if(!proof_node){
+    std::cout << "proof node doesn't exist" << std::endl;
+    exit(0);
+  } else if (!(proof_node->first_attribute("id"))){
+    std::cout << "attr doesn't exist" << std::endl;
+    exit(0);
+  }
+  std::cout << proof_node->first_attribute("id")->value() << std::endl;
+  proof.proof_id = std::atoi(proof_node->first_attribute("id")->value());
 
-  proof.proof_id = std::stoi(proof_node->first_attribute("id")->value());
   std::string ver = proof_node->first_attribute("verification")->value();
   proof.verification = std::atoi(ver.c_str());
-  
+
+  std::cout << "[read] checking robot pose" << std::endl;
   node* pose_node = proof_node->first_node("robot_pose");
   set_pose(pose_node, &proof.robot_pose);
 
+  std::cout << "[read] checking second pose" << std::endl;
   pose_node = proof_node->first_node("secondary_pose");
   set_pose(pose_node, &proof.secondary_pose);
+  return true;
 }
 
 /*
@@ -162,7 +184,6 @@ node* create_bb_points_node(xml_doc* doc, float* points, node* points_node, std:
  * Creates a new pose node to be appended to a proof node
  */
 node* create_pose_node(xml_doc* doc, geometry_msgs::Pose pose, node* pose_node, std::vector<char*> *strings_keeper){
-
   char* pos_x = int_to_string(pose.position.x, strings_keeper);
   char* pos_y = int_to_string(pose.position.y, strings_keeper);
   char* pos_z = int_to_string(pose.position.z, strings_keeper);
@@ -230,13 +251,11 @@ void edit_proof_node(node* proof_node, proof_item proof, std::vector<char*> *str
 void FileEditor::write_to_file(proof_item proof){
 
   task_node = doc.first_node("task");
-
   while(task_node && task_node->first_attribute("name")->value() != proof.task_name)
     task_node = task_node->next_sibling();
   
   
   if(!task_node){ // create new task 
-    std::cout << "creating_new_task" << std::endl;
     node* task_temp = doc.allocate_node(rapidxml::node_element, "task");
     task_temp->append_attribute(doc.allocate_attribute("name", proof.task_name.c_str()));
     doc.append_node(task_temp);
@@ -261,6 +280,7 @@ void FileEditor::write_to_file(proof_item proof){
   if(!proof_node){ //create new proof because it doesn't already exist
     proof_node = create_proof_node(&doc, proof, &strings_keeper);
     parameter_node->append_node(proof_node);
+
     return;
   }
 
@@ -281,20 +301,25 @@ void FileEditor::close(){
     std::ofstream write_file(filename);
     write_file << doc;
     write_file.close();
-    (*iFile).close();
-    // this->~FileEditor();
   }
-  else
-    (*iFile).close();
 }
 
 FileEditor::~FileEditor(){
   delete task_node;
   delete parameter_node;
   delete proof_node;
-  free(iFile);
+  // free(iFile);
   int length = strings_keeper.size();
   for(int i = 0; i < length; i++)
     free(strings_keeper[i]);
   free(proof.bounding_box_points);
+}
+
+void FileEditor::print_buffer(){
+  std::cout << "printing buffer: " << std::endl;
+  std::cout << buffer << std::endl;
+  // for(int i = 0 ; i < 1014; i++){
+  //   std::cout << buffer[i] << std::endl;
+  //   getchar();
+  // }
 }
