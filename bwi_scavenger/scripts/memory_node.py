@@ -406,7 +406,7 @@ def confirm_object(req):
     )
     novel, obj = objmem.memorize_rigid(obj, grow_bank=False)
     res = bwi_scavenger_msgs.srv.ConfirmObjectResponse()
-    res.ok = novel or obj.status != ProofStatus.INCORRECT
+    res.ok = novel or obj is None or obj.status != ProofStatus.INCORRECT
 
     return res
 
