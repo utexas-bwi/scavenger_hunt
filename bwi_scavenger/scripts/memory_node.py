@@ -498,7 +498,7 @@ def visualize():
         label.type = Marker.TEXT_VIEW_FACING
         label.action = Marker.ADD
         label.scale.x = label.scale.y = label.scale.z = 0.5
-        label.text = obj.label
+        label.text = str(obj.uid) + " " + obj.label
         label.pose.position.x = obj.pos[0]
         label.pose.position.y = obj.pos[1]
         label.pose.position.z = obj.pos[2] + 1
@@ -629,7 +629,7 @@ if __name__ == "__main__":
         scavenger_hunt_msgs.srv.SendProof
     )
 
-    log.info("Standing by.")
     rospy.sleep(3)
     visualize()
+    log.info("Standing by.")
     rospy.spin()
