@@ -451,15 +451,120 @@ def get_priority_points(req):
 
 
 def visualize():
+    """Populates rviz with useful markers for visualizing object locations,
+    priority points, etc.
+    """
+    log.info("Sending visuals to rviz...")
+
+    marker_id = 0
+
+    # Visualize objmem
     for ind, obj in enumerate(objmem.bank):
+        # Position marker
         msg = Marker()
+        msg.header.frame_id = "level_mux_map"
+        msg.header.stamp = rospy.get_rostime()
         msg.type = Marker.SPHERE
-        msg.scale.x = msg.scale.y = msg.scale.z = 0.25
-        msg.position.x = obj.pos[0]
-        msg.position.y = obj.pos[1]
-        msg.position.z = obj.pos[2]
-        msg.ns = "/bwi_scavenger/vis"
-        msg.id = ind
+        msg.action = Marker.ADD
+        msg.scale.x = msg.scale.y = msg.scale.z = 0.5
+        msg.pose.position.x = obj.pos[0]
+        msg.pose.position.y = obj.pos[1]
+        msg.pose.position.z = 0
+
+        # Green -> correct
+        # Red -> incorrect
+        # Blue -> unverified
+        if obj.status == ProofStatus.CORRECT:
+            msg.color.r = 0
+            msg.color.b = 0
+            msg.color.g = 1
+        elif obj.status == ProofStatus.INCORRECT:
+            msg.color.r = 1
+            msg.color.b = 0
+            msg.color.g = 0
+        else:
+            msg.color.r = 0
+            msg.color.b = 1
+            msg.color.g = 0
+
+        msg.color.a = 1
+        msg.id = marker_id
+        marker_id += 1
+
+        # Label marker
+        label = Marker()
+        label.header.frame_id = "level_mux_map"
+        label.header.stamp = rospy.get_rostime()
+        label.type = Marker.TEXT_VIEW_FACING
+        label.action = Marker.ADD
+        label.scale.x = label.scale.y = label.scale.z = 0.5
+        label.text = obj.label
+        label.pose.position.x = obj.pos[0]
+        label.pose.position.y = obj.pos[1]
+        label.pose.position.z = obj.pos[2] + 1
+        label.color.r = 1
+        label.color.b = 1
+        label.color.g = 1
+        label.color.a = 1
+        label.id = marker_id
+        marker_id += 1
+
+        pub_marker.publish(msg)
+        pub_marker.publish(label)
+
+    # Visualize priority points
+    for key in status_clustering.completion_clusters:
+        clusters = status_clustering.completion_clusters[key]
+
+        for cluster in clusters:
+            pos = status_clustering.get_cluster_centroid(cluster)
+
+            # Position marker
+            msg = Marker()
+            msg.header.frame_id = "level_mux_map"
+            msg.header.stamp = rospy.get_rostime()
+            msg.type = Marker.SPHERE
+            msg.action = Marker.ADD
+            msg.scale.x = msg.scale.y = msg.scale.z = 2
+            msg.pose.position.x = pos[0]
+            msg.pose.position.y = pos[1]
+            msg.pose.position.z = 0
+
+            if status_clustering.score_cluster(cluster) >= 0:
+                msg.color.r = 0
+                msg.color.b = 0
+                msg.color.g = 1
+            else:
+                msg.color.r = 1
+                msg.color.b = 0
+                msg.color.g = 0
+
+            msg.color.a = 0.5
+            msg.id = marker_id
+            marker_id += 1
+
+            # Label marker
+            label = Marker()
+            label.header.frame_id = "level_mux_map"
+            label.header.stamp = rospy.get_rostime()
+            label.type = Marker.TEXT_VIEW_FACING
+            label.action = Marker.ADD
+            label.scale.x = label.scale.y = label.scale.z = 0.5
+            label.text = key
+            label.pose.position.x = pos[0]
+            label.pose.position.y = pos[1]
+            label.pose.position.z = 1
+            label.color.r = 1
+            label.color.b = 1
+            label.color.g = 1
+            label.color.a = 1
+            label.id = marker_id
+            marker_id += 1
+
+            pub_marker.publish(msg)
+            pub_marker.publish(label)
+
+    log.info("Done.")
 
 
 ################################################################################
@@ -525,4 +630,6 @@ if __name__ == "__main__":
     )
 
     log.info("Standing by.")
+    rospy.sleep(3)
+    visualize()
     rospy.spin()
