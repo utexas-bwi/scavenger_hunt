@@ -1,91 +1,66 @@
-# scavenger-hunt
+# Scavenger Hunt
 
-Complete codebase for the Lifelong Learning Machines Scavenger Hunt project.
+Complete codebase for BWI's Scavenger Hunt project.
 
 `website/` contains everything relating to the website. All other directories
 are ROS packages for Scavenger Hunt robots. Some important ones:
 
-* `scavenger_hunt/` - The Scavenger Hunt API. Contains classes for connecting to
-the website, uploading proofs, organizing information about hunts, etc.
+* `scavenger_hunt/` - The Scavenger Hunt API. Contains utilities for connecting
+to the website, uploading proofs, and querying proof feedback. Non-ROSified,
+though there is an optional ROS wrapper.
 * `bwi_scavenger/` - Drivers for our Scavenger Hunt participant robots.
-* `bwi_scavenger_msgs/` - Messages and services for aforementioned drivers.
-* `kinect_fusion/` - Utility for estimating relative object pose with a Kinect
-sensor.
 
 ## BWI Scavenger Startup
 
-### 1. Scavenger robot startup
-
-Boot up the scavenger robot and `cd` into the workspace containing this
-repository. Source the following files. Replace `<robot-name>` with the robot's
-name, probably either `pickles` or `bender`.
-
-```
-source devel/setup.bash
-source src/scav.bash <robot-name>
-```
-
-The latter of the sources will export the correct IPs and URIs to facilitate
-remote ROS connections.
-
-Confirm the correctness of environment variables in
-`bwi_scavenger/config/bwi_scavenger.yaml` (namely, website login credentials and
-the fully-qualified workspace path).
-
-Open an SSH tunnel to Kane so the robot can see the website.
+1. Boot up the scavenger robot (probably Pickles or Bender). Before any ROS
+commands, open an SSH tunnel to Kane so the robot can see the website.
 
 ```
 ssh -L 8080:localhost:80 bwilab@kane.csres.utexas.edu
 ```
 
-Then, launch the ROS drivers. This will automatically launch the segbot drivers
-as well.
+2. Navigate to the workspace and launch the following drivers in the order they
+appear. Verify that `offboard.launch` opens a window displaying object
+detections. If it doesn't, you may need to fiddle with the Kinect cable.
 
 ```
 roslaunch bwi_scavenger drivers.launch
-```
-
-Once those have had time to spin up, launch the suite of general scavenger
-nodes. These are purely utility and will not initiate any scavenging behavior.
-Remember to re-source `scav.bash` for every new terminal running scavenger
-nodes.
-
-```
-source src/scav.bash <robot-name>
+roslaunch bwi_scavenger offboard.launch
 roslaunch bwi_scavenger scavenger.launch
 ```
 
-### 2. Bring up offboard nodes
+The segbot drivers are included in `drivers.launch`. `offboard.launch` contains
+computationally expensive nodes such as `darknet_ros` that are ideally run
+offboard, though this has historically produced latency issues that prevent the
+robot from reliably completing tasks. We're still investigating workarounds.
 
-We like to use Kane for offboard computing. This is done with OpenVPN, which
-should start automatically on all relevant machines.
-
-Navigate to the workspace on Kane containing this repository and source a few
-things:
-
-```
-cd /home/bwilab/scavenger_hunt
-source devel/setup.bash
-source src/scav.bash kane
-```
-
-With that done, launch the remote nodes in another terminal (remember to
-re-source):
+3. Localize the robot in rviz and start a hunt via the `do_hunt` node.
 
 ```
-source src/scav.bash kane <robot-name>
-roslaunch bwi_scavenger offboard.launch
-```
-
-After thinking for a bit, darknet_ros should open a window showing detections
-from the robot's camera.
-
-### 3. Initiate a scavenger hunt
-
-The node `do_hunt` completes scavenger hunts. After localizing the robot, run
-this node by providing a hunt name ("BWI Lab Hunt" is our main test hunt).
-
-```
-source src/scav.bash <robot-name>
 rosrun bwi_scavenger do_hunt "BWI Lab Hunt"
 ```
+
+`BWI Lab Hunt` is the name of our test hunt, though any hunt registered on the
+website will work.
+
+## BWI Scavenger With Offboard Computing
+
+The procedure is identical, except that `offboard.launch` is run on Kane. Also,
+each terminal window requires sourcing `scav.bash` to export the IPs and master
+URI that interact with OpenVPN (which should start automatically on all relevant
+machines).
+
+On Kane, enter the following:
+
+```
+cd src
+source scav.bash kane <robot-name>
+```
+
+On the robot, enter the following:
+
+```
+source scav.bash <robot-name>
+```
+
+Robot name is either `pickles` or `bender`.
