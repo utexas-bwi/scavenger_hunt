@@ -15,7 +15,7 @@ import numpy as np
 import objmem
 
 from scavenger_hunt import ProofStatus
-from sklearn.cluster import DBSCAN
+from dbscan import MyDBSCAN
 
 
 completion_clusters = {}
@@ -101,11 +101,7 @@ def cluster():
             position_database.append(item.pos)
 
         # Perform the clustering
-        clustering = DBSCAN(
-            eps=EPS,
-            min_samples=MIN_SAMPLES
-        ).fit(position_database)
-        labels = clustering.labels_
+        labels = MyDBSCAN(position_database, EPS, MIN_SAMPLES)
 
         # Assemble actual cluster lists from the label vector
         cluster_count = len(set(labels)) - (1 if -1 in labels else 0)
@@ -121,7 +117,7 @@ def cluster():
             if label == -1:
                 continue
 
-            key_clusters[label].append(comp)
+            key_clusters[label - 1].append(comp)
 
 
 def get_cluster_centroid(cluster):
