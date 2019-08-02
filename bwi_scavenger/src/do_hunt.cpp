@@ -13,6 +13,7 @@ static ros::ServiceClient client_get_hunt;
 
 static std::size_t task_index = 0;
 static bool conclude = false;
+static bool loop = true;
 
 static scavenger_hunt_msgs::Hunt hunt;
 
@@ -28,10 +29,10 @@ void next_task(const bwi_scavenger_msgs::TaskEnd::ConstPtr &msg) {
   else
     task_index++;
 
-  if (task_index < hunt.tasks.size()) {
-    scavenger_hunt_msgs::Task& current_task = hunt.tasks[task_index];
+  if (loop || task_index < hunt.tasks.size()) {
+    scavenger_hunt_msgs::Task& current_task = hunt.tasks[task_index % hunt.tasks.size()];
     pub_task_start.publish(current_task);
-  } else {
+  } else if (!loop) {
     ROS_INFO("[main_node] Hunt complete.");
     ros::Duration(6.0).sleep();
 
