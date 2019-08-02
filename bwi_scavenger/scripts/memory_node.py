@@ -29,6 +29,7 @@ from scavenger_hunt import ProofStatus
 from scavenger_hunt_msgs.msg import Hunt, Login, Parameter, Proof, Task
 from sensor_msgs.msg import Image
 from util import Logger
+from visualization_msgs.msg import Marker
 
 
 log = Logger("memory_node")
@@ -36,6 +37,7 @@ bridge = CvBridge()
 scav_send_proof = None
 proof_db = []
 pub_add_training_file = None
+pub_marker = None
 
 
 class ProofDbEntry:
@@ -134,7 +136,7 @@ def send_proof(req):
         add_msg.ymin = bbox[2]
         add_msg.ymax = bbox[3]
         uid = objmem_add(add_msg)
-        entry.objmem_id = uid
+        entry.objmem_id = uid if uid is not None else -1
 
     proof_db.append(entry)
 
@@ -361,7 +363,8 @@ def load_proof_db():
                         entry.status.name
                     )
                 )
-                objmem.bank[entry.objmem_id].status = entry.status
+                if entry.objmem_id > -1:
+                    objmem.bank[entry.objmem_id].status = entry.status
 
         # Add to the status clustering database if verified
         if entry.status != ProofStatus.UNVERIFIED:
@@ -443,6 +446,23 @@ def get_priority_points(req):
 
 
 ################################################################################
+# VISUALIZATION
+################################################################################
+
+
+def visualize():
+    for ind, obj in enumerate(objmem.bank):
+        msg = Marker()
+        msg.type = Marker.SPHERE
+        msg.scale.x = msg.scale.y = msg.scale.z = 0.25
+        msg.position.x = obj.pos[0]
+        msg.position.y = obj.pos[1]
+        msg.position.z = obj.pos[2]
+        msg.ns = "/bwi_scavenger/vis"
+        msg.id = ind
+
+
+################################################################################
 # NODE ENTRYPOINT
 ################################################################################
 
@@ -477,6 +497,11 @@ if __name__ == "__main__":
     pub_add_training_file = rospy.Publisher(
         TPC_DARKNET_NODE_ADD_TRAINING_FILE,
         DarknetAddTrainingFile,
+        queue_size=0
+    )
+    pub_marker = rospy.Publisher(
+        "/bwi_scavenger/vis",
+        Marker,
         queue_size=0
     )
     rospy.Service(
