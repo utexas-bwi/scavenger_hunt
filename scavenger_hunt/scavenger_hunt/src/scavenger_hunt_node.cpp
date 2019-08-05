@@ -82,7 +82,7 @@ bool send_proof(scavenger_hunt_msgs::SendProof::Request& req,
       sensor_msgs::image_encodings::BGR8
     );
     cv::Mat image_raw = cv_ptr->image;
-    std::string fpath = scratch_path + "/proof.jpeg";
+    fpath = scratch_path + "/proof.jpeg";
     cv::imwrite(fpath, image_raw);
   } else if (req.proof.type == scavenger_hunt_msgs::Proof::TYPE_VIDEO) {
     // Do nothing; fpath is already pointing to the provided path
