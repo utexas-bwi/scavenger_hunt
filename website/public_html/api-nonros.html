@@ -48,14 +48,8 @@
 <h2>Scavenger Hunt API</h2>
 
 <p>
-Participating in hunts requires a robot use the Scavenger Hunt API to interface
-with the website. The core API is robot-agnostic and can stand alone, though
-a ROS wrapper is also provided.
-</p>
-
-<p>
-This page details how to use the ROS wrapper. For robots that are not ROS-based,
-see <a href="api-nonros.html">this guide</a>.
+This guide details how to connect to Scavenger Hunt using the core API (which
+does not require ROS).
 </p>
 
 <p>
@@ -69,175 +63,135 @@ Click the button below to download the Scavenger Hunt API.
 </form>
 
 <hr>
-<h2>Launch Parameters</h2>
+<h2>Connecting Your Robot</h2>
 
 <p>
-Before launching anything, edit the launch parameters in
-<code>scavenger_hunt/config/scavenger_hunt.yaml</code>. These are picked up by
-<code>scavenger_hunt.launch</code>.
+First, include the main Scavenger Hunt header.
 </p>
-
-<p>
-Enter your Scavenger Hunt login credentials in the
-<code>scavenger_hunt/login/email</code> and <code>scavenger_hunt/login/password</code>
-fields.
-</p>
-
-<p>
-<code>scavenger_hunt/scratch_path</code> should contain a valid path that the
-node will have permission to create files in. The upload process may create
-temporary files in this location to aid with image transport.
-</code>
-</p>
-
-<p>
-Once the parameters are in place and the package is built, you can launch
-Scavenger Hunt services with <code>roslaunch scavenger_hunt scavenger_hunt.launch</code>.
-</p>
-
-<hr>
-<h2>Downloading Hunts</h2>
-
-The main node offers a service with default name <code>/scavenger_hunt/get_hunt</code>
-that is used to download task lists from the website. Hunts are queried by name.
-We've created a never expiring hunt called Bottle Hunt for you to test with.
-You can, of course, create your own hunts as well.
 
 <pre>
   <code class="language-cpp">
-#include &lt;scavenger_hunt_msgs/GetHunt.h&gt;
-#include &lt;scavenger_hunt_msgs/Hunt.h&gt;
-#include &lt;scavenger_hunt_msgs/Task.h&gt;
-
-...
-
-ros::NodeHandle nh;
-ros::ServiceClient client_get_hunt = nh.serviceClient&lt;scavenger_hunt_msgs::GetHunt&gt;(
-  "/scavenger_hunt/get_hunt"
-);
-
-scavenger_hunt_msgs::GetHunt get_hunt;
-get_hunt.request.hunt_name = "Bottle Hunt"; // Name of the hunt to download
-client_get_hunt.call(get_hunt);
-scavenger_hunt_msgs::Hunt hunt = get_hunt.response.hunt;
+#include &lt;scavenger_hunt/scavenger_hunt.h&gt;
   </code>
 </pre>
 
-A <code>scavenger_hunt_msgs::Hunt</code> contains a list of
-<code>scavenger_hunt_msgs::Task</code>. Each member of the list represents a
-different task in the hunt with details on how to complete it.
+<p>
+Then, create a new client object and sign in with your website credentials.
+Don't worry—we're very careful with the password.
+</p>
 
 <pre>
   <code class="language-cpp">
-for (scavenger_hunt_msgs::Task& task : hunt.tasks) {
-  std::string task_name = task.name;
-  std::string parameter = task.parameters[0].value;
-  // See Task.msg for the full range of information available
+ScavengerHuntClient client("your@email.com", "password");
+  </code>
+</pre>
+
+<p>
+Scavenger hunts are downloaded by name. We've created a never-expiring hunt
+called Bottle Hunt to test with. It contains a single task to find a bottle and
+take a picture of it.
+</p>
+
+<pre>
+  <code class="language-cpp">
+std::vector&lt;Task&gt; tasks;
+client.get_hunt("Bottle Hunt", tasks);
+  </code>
+</pre>
+
+<p>
+The provided vector will be populated with all tasks in the requested hunt.
+</p>
+
+<p>
+Each <code>Task</code> object describes a single task within the hunt. They
+contain lots of useful information, including the task name, description, and
+any parameters required to complete it.
+</p>
+
+<pre>
+  <code class="language-cpp">
+for (int i = 0; i < tasks.size(); i++) {
+  Task &task = tasks[i];
+
+  // Insert a task into a stream to get a pretty-printed summary.
+  std::cout << task << std::endl;
+
+  // Access to task details. See
+  // include/scavenger_hunt/scavenger_hunt_structure.h for the full docs.
+  std::string task_name = task.get_name();
+  std::string task_description = task.get_description();
+  std::string target_object = task.get_parameter_value("object"); // Specific to the "Find Object" task
 }
   </code>
 </pre>
 
-<hr>
-<h2>Uploading Proofs</h2>
-
 <p>
-To receive points for completing a task, a scavenger robot must upload proof
-that they have done so. The format of the proof (e.g. image, video) is specified
-by the task.
-</p>
-
-<p>
-Proofs are wrapped by <code>scavenger_hunt_msgs::Proof</code>. Uploading an
-image proof is as simple as creating one and sticking a <code>sensor_msgs::Image</code>
-inside.
+Proof of task completion is uploaded to the website via <code>send_proof</code>.
+This method takes a path to a proof file (either an image or a video), the task
+in question, and the time taken to complete the task in seconds.
 </p>
 
 <pre>
   <code class="language-cpp">
-#include &lt;scavenger_hunt_msgs/Proof.h&gt;
-
-...
-
-sensor_msgs::Image camera_image; // Image to upload
-scavenger_hunt_msgs::Proof proof;
-proof.image = camera_image;
-proof.task_duration = ros::Time::now().toSec() - time_task_start; // Time to complete task
+proof_id_t id = client.send_proof("bottle.png", tasks[0], 60.0);
+// A proof ID can be used to download the original uploaded file.
+client.download_proof_material(id, "/home/my_downloaded_proofs/proof.jpeg");
   </code>
 </pre>
 
 <p>
-To upload video, provide a filepath instead. For generating video, we recommend
-recording a rosbag and using one of several Python scripts available online to
-extract an MP4 from it.
+The upload process generates a unique ID for the proof that can be used to
+get feedback on it:
 </p>
 
 <pre>
   <code class="language-cpp">
-proof.type = scavenger_hunt_msgs::Proof::TYPE_VIDEO;
-proof.file_path = "/path/to/video";
+proof_status_t status = client.get_proof_status(id);
+
+if (status == PROOF_CORRECT)
+  std::cout << ":)";
+else if (status == PROOF_INCORRECT)
+  std::cout << ":(";
+else if (status == PROOF_NOT_VALIDATED)
+  std::cout << ":|";
   </code>
 </pre>
 
 <p>
-Once the proof message is filled out, the service <code>/scavenger_hunt/send_proof</code>
-will accept it along with the task the proof is for.
+Alternatively, all of the proofs submitted for a particular task that have been
+validated can be downloaded in bulk with <code>get_proofs</code>:
 </p>
 
 <pre>
   <code class="language-cpp">
-#include &lt;scavenger_hunt_msgs/SendProof.h&gt;
-
-...
-
-ros::NodeHandle nh;
-ros::ServiceClient client_send_proof = nh.serviceClient&lt;scavenger_hunt_msgs::SendProof&gt;(
-  "/scavenger_hunt/send_proof"
-);
-
-scavenger_hunt_msgs::SendProof send_proof;
-send_proof.request.proof = proof;
-send_proof.request.task = task; // scavenger_hunt_msgs::Task
-
-client_send_proof.call(send_proof);
-unsigned long proof_id = send_proof.response.id;
+std::vector&lt;Proof&gt; proofs;
+client.get_proofs(tasks[0], proofs);
   </code>
 </pre>
 
 <p>
-Errors in the upload process are sent to stdout. If the upload succeeded,
-the response returns a unique ID for the proof that can be used to retrieve
-feedback on it.
-</p>
-
-<hr>
-<h2>Querying Proof Feedback</h2>
-
-<p>
-The UID generated for a proof by the upload process can be used to retrieve
-feedback on it.
+If the vector is empty after this step, no proofs for the specified task have
+been validated yet.
 </p>
 
 <pre>
   <code class="language-cpp">
-#include &lt;scavenger_hunt_msgs/GetProofStatus.h&gt;
+for (int i = 0; i < proofs.size(); i++) {
+  Proof &proof = proofs[i];
+  bool is_correct = proof.get_correct(); // Was I right?
 
-...
-
-ros::NodeHandle nh;
-ros::ServiceClient client_get_status = nh.serviceClient&lt;scavenger_hunt_msgs::GetProofStatus&gt;(
-  "/scavenger_hunt/get_proof_status"
-);
-
-scavenger_hunt_msgs::GetProofStatus get_status;
-get_status.request.id = proof_id;
-
-client_get_status.call(get_status);
-// 0 -> Proof is not yet validated
-// 1 -> Proof was marked correct
-// 2 -> Proof was marked incorrect
-unsigned char proof_status = send_proof.response.status;
+  // The original file uploaded as proof can be retrieved if necessary.
+  std::string download_directory = "/home/my_downloaded_proofs";
+  client.download_proof_material(proof, download_directory);
+  std::string path_to_proof = download_directory + "/" + proof.get_filename();
+}
   </code>
 </pre>
+
+<p>
+You're ready to roll.
+</p>
 
             </section>
         </section>

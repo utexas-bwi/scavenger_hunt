@@ -9,7 +9,7 @@
   A unique ID that robots can use to correlate local proof information with
   server-side proofs.
 */
-typedef unsigned int proof_id_t;
+typedef unsigned long proof_id_t;
 
 /**
   Indicates a failed proof upload.

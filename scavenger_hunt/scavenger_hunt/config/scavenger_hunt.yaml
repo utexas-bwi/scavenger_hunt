@@ -4,3 +4,10 @@ scavenger_hunt:
     password: sick robots
   website:
     domain: localhost
+  topics:
+    login: /scavenger_hunt/login
+  services:
+    get_hunt: /scavenger_hunt/get_hunt
+    send_proof: /scavenger_hunt/send_proof
+    get_proof_status: /scavenger_hunt/get_proof_status
+  scratch_path: /home/robot
