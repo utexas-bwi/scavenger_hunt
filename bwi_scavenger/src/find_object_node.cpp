@@ -446,7 +446,7 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
     if (box.Class == target_object) {
       target_object_bbox = box;
       target_object_image = msg->color_image;
-      target_object_position = kinect_fusion::get_position(box, depth_image);
+      geometry_msgs::Point tobj_rel_position = kinect_fusion::get_position(box, depth_image);
 
       bwi_scavenger_msgs::PoseRequest req_pose;
       client_pose_request.call(req_pose);
@@ -459,13 +459,13 @@ void perceive(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
       tf::Matrix3x3(tf_quat).getRPY(roll, pitch, yaw);
 
       target_object_position.x = req_pose.response.pose.position.x +
-                                 cos(yaw) * target_object_position.x -
-                                 sin(yaw) * target_object_position.y;
+                                 cos(yaw) * tobj_rel_position.x -
+                                 sin(yaw) * tobj_rel_position.y;
       target_object_position.y = req_pose.response.pose.position.y +
-                                 sin(yaw) * target_object_position.x +
-                                 cos(yaw) * target_object_position.y;
+                                 sin(yaw) * tobj_rel_position.x +
+                                 cos(yaw) * tobj_rel_position.y;
       target_object_position.z = req_pose.response.pose.position.z +
-                                 target_object_position.z;
+                                 tobj_rel_position.z;
 
       state_id_t state = sm.get_current_state()->get_id();
 
