@@ -1,7 +1,7 @@
 #ifndef BWI_SCAVENGER_ROBOT_MOTION_H
 #define BWI_SCAVENGER_ROBOT_MOTION_H
 
-#define SIMULATION // Use for simulation points or real world points
+// #define SIMULATION // Use for simulation points or real world points
 
 #include <actionlib/client/simple_action_client.h>
 #include <geometry_msgs/PoseStamped.h>
@@ -31,11 +31,9 @@ enum environment_location {
   FELLOW_COMPUTERS
 };
 
-const int NUM_ENVIRONMENT_LOCATIONS = 9;
-
 static std::map<environment_location, coordinates> environment_location_coordinates {
 #ifndef SIMULATION
-  {BWI_LAB_DOOR_NORTH,    { -39.3304, -11.2290 }},
+  {BWI_LAB_DOOR_NORTH,    { -39.3304, -11.7290 }},
   {BWI_LAB_DOOR_SOUTH,    { -38.2976, -4.3244  }},
   {CLEARING_NORTH,        { -13.9990, -12.024  }},
   {CLEARING_SOUTH,        { -13.7639, -5.5648  }},
