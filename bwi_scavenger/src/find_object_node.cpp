@@ -543,8 +543,10 @@ int main(int argc, char **argv) {
     perceive
   );
 
-  // Build default search circuit
   map_circuit = new OrderedLocationSet(world);
+  map_priority = new OrderedLocationSet();
+
+  // Build default search circuit
   map_circuit->add_location(BWI_LAB_DOOR_NORTH);
   map_circuit->add_location(CLEARING_NORTH);
   map_circuit->add_location(CLEARING_SOUTH);
