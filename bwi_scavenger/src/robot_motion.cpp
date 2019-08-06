@@ -45,8 +45,7 @@ void RobotMotion::move_to_location(coordinates_t coords) {
 
   ac->sendGoal(goal);
   // Keep moving until goal is completed or stopped
-  while (ac->getState() != actionlib::SimpleClientGoalState::SUCCEEDED &&
-         ac->getState() != actionlib::SimpleClientGoalState::PREEMPTED);
+  while (!ac->getState().isDone());
 
   double end = ros::Time::now().toSec();
 }
