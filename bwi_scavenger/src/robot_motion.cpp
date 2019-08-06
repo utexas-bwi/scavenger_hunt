@@ -1,11 +1,12 @@
-#include <bwi_scavenger/robot_motion.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf/transform_datatypes.h>
 
-#define PI 3.14159265359
-// #define VERBOSE
+#include "bwi_scavenger/robot_motion.h"
 
-RobotMotion::RobotMotion(std::string grid_frame_id, tf::TransformListener &tfl) {
+#define PI 3.14159265359
+
+RobotMotion::RobotMotion(std::string grid_frame_id,
+                         tf::TransformListener &tfl) {
   this->grid_frame_id = grid_frame_id;
   ac = new MoveBaseClient("move_base", true);
   this->tfl = &tfl;
@@ -19,7 +20,7 @@ void RobotMotion::end_movement(){
   ac->cancelGoal();
 }
 
-void RobotMotion::move_to_location(coordinates coords) {
+void RobotMotion::move_to_location(coordinates_t coords) {
   ROS_INFO("[RobotMotion] Traveling to coordinates (%f, %f)", coords.x, coords.y);
   double start = ros::Time::now().toSec();
 
@@ -44,8 +45,8 @@ void RobotMotion::move_to_location(coordinates coords) {
 
   ac->sendGoal(goal);
   // Keep moving until goal is completed or stopped
-  while(ac->getState() != actionlib::SimpleClientGoalState::SUCCEEDED &&
-        ac->getState() != actionlib::SimpleClientGoalState::PREEMPTED);
+  while (ac->getState() != actionlib::SimpleClientGoalState::SUCCEEDED &&
+         ac->getState() != actionlib::SimpleClientGoalState::PREEMPTED);
 
   double end = ros::Time::now().toSec();
 }

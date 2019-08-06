@@ -14,25 +14,16 @@ though there is an optional ROS wrapper.
 
 ### Initial Configuration
 
-1. Verify that `#define SIMULATION` is commented out in `robot_motion.h` (if
-not running in simulation). This ensures correctness of world coordinates.
+* Verify launch parameters in `bwi_scavenger/config/bwi_scavenger.yaml`
+  * `scav_hunt_login` - Valid website credentials
+  * `ws_path` - Fully-qualified path to the workspace containing these packages
+  * `world` - Either `sim` if running in Gazebo or `irl` if running in the lab
 
-2. In `scavenger_hunt/src/scavenger_hunt_client.cpp` ensure
-`std::string DOMAIN` is pointing to the correct website domain. Until the web
-server is operational, this is either `localhost` for lab machines or
-`localhost:8080` for robots.
-
-3. In `scavenger_hunt_node.cpp`, ensure `std::string PROOF_TEMP_PATH` is a
-valid path (except for the name of the file at the end of the path--that doesn't
-have to exist). This is simply a scratch file used for image transport.
-
-4. Ensure the variables in `bwi_scavenger/config/bwi_scavenger.yaml` are
-correct.
-  - `bwi_scavenger/scav_hunt_login/*` - valid website credentials
-  - `bwi_scavenger/ws_path` - fully-qualified path to the workspace containing
-  this repository
-
-Some day we'll allocate all of these things in a single configuration file.
+* Verify launch parameters in `scavenger_hunt/config/scavenger_hunt.yaml`
+  * `website/domain` - Domain of Scavenger Hunt website (until the web server is
+    up this is `localhost` for lab machines and `localhost:8080` for robots)
+  * `scratch_path` - Valid path that ROS has permission to create files in
+    (we usually use the workspace path)
 
 ### Robot Startup
 
@@ -69,22 +60,21 @@ website will work.
 
 ## BWI Scavenger With Offboard Computing
 
-The procedure is identical, except that `offboard.launch` is run on Kane. Also,
-each terminal window requires sourcing `scav.bash` to export the IPs and master
-URI that interact with OpenVPN (which should start automatically on all relevant
-machines).
+The startup procedure is identical, except that `offboard.launch` is run on Kane.
+Also, each terminal window requires sourcing `scav.bash` to export the IPs and
+master URI that interact with OpenVPN (which should start automatically on all
+relevant machines).
 
 On Kane, enter the following:
 
 ```
-cd src
-source scav.bash kane <robot-name>
+source src/scav.bash kane <robot-name>
 ```
 
 On the robot, enter the following:
 
 ```
-source scav.bash <robot-name>
+source src/scav.bash <robot-name>
 ```
 
 Robot name is either `pickles` or `bender`.

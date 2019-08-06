@@ -152,7 +152,8 @@ include_directories(
 ## either from message generation or dynamic reconfigure
 
 add_executable(find_object_node
-  src/mapping.cpp
+  src/world_mapping.cpp
+  src/path_planning.cpp
   src/find_object_node.cpp
   src/state_machine.cpp)
 
@@ -165,6 +166,7 @@ target_link_libraries(find_object_node
   curl)
 
 add_executable(conclude_node
+  src/world_mapping.cpp
   src/conclude_node.cpp)
 
 add_dependencies(conclude_node
@@ -175,6 +177,8 @@ target_link_libraries(conclude_node
   ${catkin_LIBRARIES})
 
 add_executable(move_node
+  src/world_mapping.cpp
+  src/path_planning.cpp
   src/move_node.cpp
   src/robot_motion.cpp)
 

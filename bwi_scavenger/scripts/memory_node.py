@@ -11,6 +11,7 @@ train darknet detectors on task-specific entities.
 """
 import cv2
 import enum
+import numpy as np
 import objmem
 import os
 import paths
@@ -519,13 +520,49 @@ def visualize():
         for cluster in clusters:
             pos = status_clustering.get_cluster_centroid(cluster)
 
+            # Visualize points in cluster
+            dist_max = -1
+
+            for item in cluster:
+                dist = np.linalg.norm(pos - item.pos)
+
+                if dist > dist_max:
+                    dist_max = dist
+
+                # Item marker
+                msg = Marker()
+                msg.header.frame_id = "level_mux_map"
+                msg.header.stamp = rospy.get_rostime()
+                msg.type = Marker.SPHERE
+                msg.action = Marker.ADD
+                msg.scale.x = msg.scale.y = msg.scale.z = 0.1
+                msg.pose.position.x = pos[0]
+                msg.pose.position.y = pos[1]
+                msg.pose.position.z = 0
+
+                if item.status == ProofStatus.CORRECT:
+                    msg.color.r = 0
+                    msg.color.b = 0
+                    msg.color.g = 1
+                else:
+                    msg.color.r = 1
+                    msg.color.b = 0
+                    msg.color.g = 0
+
+                msg.color.a = 0.5
+                msg.id = marker_id
+                marker_id += 1
+
+                pub_marker.publish(msg)
+
             # Position marker
             msg = Marker()
             msg.header.frame_id = "level_mux_map"
             msg.header.stamp = rospy.get_rostime()
-            msg.type = Marker.SPHERE
+            msg.type = Marker.CYLINDER
             msg.action = Marker.ADD
-            msg.scale.x = msg.scale.y = msg.scale.z = 2
+            msg.scale.x = msg.scale.y = dist_max
+            msg.scale.z = 0.05
             msg.pose.position.x = pos[0]
             msg.pose.position.y = pos[1]
             msg.pose.position.z = 0
@@ -550,13 +587,14 @@ def visualize():
             label.type = Marker.TEXT_VIEW_FACING
             label.action = Marker.ADD
             label.scale.x = label.scale.y = label.scale.z = 0.5
-            label.text = key
+            radius_str = "~0" if dist_max < 1e-3 else str(dist_max)
+            label.text = key + " (r=%s m)" % radius_str
             label.pose.position.x = pos[0]
             label.pose.position.y = pos[1]
             label.pose.position.z = 1
-            label.color.r = 1
-            label.color.b = 1
-            label.color.g = 1
+            label.color.r = msg.color.r
+            label.color.b = msg.color.b
+            label.color.g = msg.color.g
             label.color.a = 1
             label.id = marker_id
             marker_id += 1

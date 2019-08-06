@@ -132,8 +132,7 @@ int main(int argc, char** argv) {
   nh.param("scavenger_hunt/login/email", scav_email, std::string(""));
   nh.param("scavenger_hunt/login/password", scav_pass, std::string(""));
 
-  std::string domain;
-  nh.param("scavenger_hunt/website/domain", domain, std::string("localhost"));
+  nh.param("scavenger_hunt/website/domain", domain, std::string("NODOMAIN"));
 
   std::string tpc_login;
   nh.param("scavenger_hunt/topics/login", tpc_login, std::string(""));

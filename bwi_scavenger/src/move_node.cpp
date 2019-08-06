@@ -1,51 +1,83 @@
-// #define VERBOSE
-#include <bwi_scavenger/move_node.h>
+#include <bwi_scavenger_msgs/RobotMove.h>
+#include <bwi_scavenger_msgs/RobotStop.h>
+#include <bwi_scavenger_msgs/PoseRequest.h>
 
-void stop(const bwi_scavenger_msgs::RobotStop::ConstPtr &data){
-    rm->end_movement();
+#include <std_msgs/Bool.h>
+
+#include <ros/ros.h>
+#include <tf/tf.h>
+
+#include <iostream>
+
+#include "bwi_scavenger/globals.h"
+#include "bwi_scavenger/robot_motion.h"
+#include "bwi_scavenger/world_mapping.h"
+
+static RobotMotion *rm;
+static ros::Publisher pub_move;
+static tf::TransformListener *listener;
+static std::string grid_frame_id;
+static std::map<EnvironmentLocation, coordinates_t>* world_waypoints;
+
+void stop(const bwi_scavenger_msgs::RobotStop::ConstPtr &msg) {
+  rm->end_movement();
 }
 
-void move(const bwi_scavenger_msgs::RobotMove::ConstPtr &data){
-  if(data -> type == MOVE){
-    coordinates goal_coords = {data->location[0], data->location[1]};
-  #ifdef VERBOSE
-    ROS_INFO("[move_node] Moving to location (%f, %f).", goal_coord.first, goal_coord.second);
-  #endif
+void move(const bwi_scavenger_msgs::RobotMove::ConstPtr &msg) {
+  std_msgs::Bool result;
+  result.data = true;
+
+  if (msg->type == bwi_scavenger_msgs::RobotMove::MOVE) {
+    coordinates_t goal_coords = {msg->location[0], msg->location[1]};
     rm->move_to_location(goal_coords);
-    movePub.publish(result);
-  } else if (data -> type == SPIN){
-    rm->turn (data->degrees);
-    movePub.publish(result);
+    pub_move.publish(result);
+  } else if (msg->type == bwi_scavenger_msgs::RobotMove::TURN) {
+    rm->turn(msg->degrees);
+    pub_move.publish(result);
+  } else if (msg->type == bwi_scavenger_msgs::RobotMove::WAYPOINT) {
+    EnvironmentLocation loc = static_cast<EnvironmentLocation>(msg->waypoint);
+    coordinates_t goal_coords = (*world_waypoints)[loc];
+    rm->move_to_location(goal_coords);
+    pub_move.publish(result);
   }
 }
 
-void getMapId(const nav_msgs::OccupancyGrid::ConstPtr &grid) {
+void get_grid_frame_id(const nav_msgs::OccupancyGrid::ConstPtr &msg) {
   listener = new tf::TransformListener();
-  gridFrameId = grid->header.frame_id;
-  rm = new RobotMotion(gridFrameId, *listener);
+  grid_frame_id = msg->header.frame_id;
+  rm = new RobotMotion(grid_frame_id, *listener);
 }
 
-bool serveRobotPose(bwi_scavenger_msgs::PoseRequest::Request &req,
-                    bwi_scavenger_msgs::PoseRequest::Response &res) {
-  tf::StampedTransform robotTransform;
-  listener->waitForTransform(gridFrameId, "base_link", ros::Time::now(), ros::Duration(4));
-  listener->lookupTransform(gridFrameId, "base_link", ros::Time(0), robotTransform);
+bool serve_robot_pose(bwi_scavenger_msgs::PoseRequest::Request &req,
+                      bwi_scavenger_msgs::PoseRequest::Response &res) {
+  tf::StampedTransform robot_transform;
+  listener->waitForTransform(
+    grid_frame_id,
+    "base_link",
+    ros::Time::now(),
+    ros::Duration(4)
+  );
+  listener->lookupTransform(
+    grid_frame_id,
+    "base_link",
+    ros::Time(0),
+    robot_transform
+  );
 
   geometry_msgs::Point pose_position;
-  pose_position.x = robotTransform.getOrigin().x();
-  pose_position.y = robotTransform.getOrigin().y();
+  pose_position.x = robot_transform.getOrigin().x();
+  pose_position.y = robot_transform.getOrigin().y();
   pose_position.z = 0;
 
   geometry_msgs::Quaternion pose_orientation;
-  pose_orientation.w = robotTransform.getRotation().w();
-  pose_orientation.x = robotTransform.getRotation().x();
-  pose_orientation.y = robotTransform.getRotation().y();
-  pose_orientation.z = robotTransform.getRotation().z();
+  pose_orientation.w = robot_transform.getRotation().w();
+  pose_orientation.x = robot_transform.getRotation().x();
+  pose_orientation.y = robot_transform.getRotation().y();
+  pose_orientation.z = robot_transform.getRotation().z();
 
   geometry_msgs::Pose pose;
   pose.position = pose_position;
   pose.orientation = pose_orientation;
-
   res.pose = pose;
 
   return true;
@@ -53,17 +85,29 @@ bool serveRobotPose(bwi_scavenger_msgs::PoseRequest::Request &req,
 
 int main(int argc, char **argv){
   ros::init(argc, argv, "move_node");
-  ros::NodeHandle moveNode;
+  ros::NodeHandle nh;
 
-  ros::Subscriber mapSub = moveNode.subscribe("/level_mux/map", 1, getMapId);
+  std::string world;
+  nh.param("bwi_scavenger/world", world, std::string("WORLDNOTFOUND"));
 
-  ros::Subscriber findObjectSub = moveNode.subscribe(TPC_MOVE_NODE_GO, 1, move);
-  ros::Subscriber stopMoveSub = moveNode.subscribe(TPC_MOVE_NODE_STOP, 1, stop);
+  if (world == "irl")
+    world_waypoints = &WORLD_WAYPOINTS_IRL;
+  else if (world == "sim")
+    world_waypoints = &WORLD_WAYPOINTS_SIM;
+  else
+    ROS_ERROR("Unknown world: %s", world.c_str());
 
-  movePub = moveNode.advertise<std_msgs::Bool>(TPC_MOVE_NODE_FINISHED, 1);
+  ROS_INFO("Established world: %s", world.c_str());
+
+  ros::Subscriber sub_map =
+    nh.subscribe("/level_mux/map", 1, get_grid_frame_id);
+  ros::Subscriber sub_go = nh.subscribe(TPC_MOVE_NODE_GO, 1, move);
+  ros::Subscriber sub_stop = nh.subscribe(TPC_MOVE_NODE_STOP, 1, stop);
+
+  pub_move = nh.advertise<std_msgs::Bool>(TPC_MOVE_NODE_FINISHED, 1);
 
   ros::ServiceServer srv_pose_request =
-      moveNode.advertiseService(SRV_POSE_REQUEST, serveRobotPose);
+    nh.advertiseService(SRV_POSE_REQUEST, serve_robot_pose);
 
   ROS_INFO("[move_node] Standing by.");
 

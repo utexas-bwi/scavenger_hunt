@@ -1,7 +1,5 @@
-#include <bwi_scavenger/globals.h>
 #include <bwi_scavenger_msgs/RobotMove.h>
 #include <bwi_scavenger_msgs/RobotStop.h>
-#include <bwi_scavenger/robot_motion.h>
 #include <bwi_scavenger_msgs/TaskEnd.h>
 
 #include <scavenger_hunt_msgs/Task.h>
@@ -9,6 +7,9 @@
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
 #include <std_msgs/String.h>
+
+#include "bwi_scavenger/globals.h"
+#include "bwi_scavenger/world_mapping.h"
 
 static const char TELEM_TAG[] = "[conclude_node]";
 static bool node_active = false;
@@ -24,10 +25,8 @@ void task_start_cb(const scavenger_hunt_msgs::Task& msg) {
 
     node_active = true;
     bwi_scavenger_msgs::RobotMove msg;
-    msg.type = 0;
-    coordinates c = environment_location_coordinates[FELLOW_COMPUTERS];
-    msg.location.push_back(c.x);
-    msg.location.push_back(c.y);
+    msg.type = bwi_scavenger_msgs::RobotMove::WAYPOINT;
+    msg.waypoint = FELLOW_COMPUTERS;
     pub_move.publish(msg);
   }
 }

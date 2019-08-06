@@ -3,3 +3,4 @@ bwi_scavenger:
     email: stefandebruyn@utexas.edu
     password: sick robots
   ws_path: /home/bwilab/scavenger_hunt
+  world: sim

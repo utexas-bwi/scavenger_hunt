@@ -4,6 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <ros/ros.h>
 #include <scavenger_hunt/scavenger_hunt.h>
+#include <tf/tf.h>
 
 #include <bwi_scavenger_msgs/PerceptionMoment.h>
 #include <bwi_scavenger_msgs/PoseRequest.h>
@@ -27,10 +28,10 @@
 #include <std_msgs/Bool.h>
 
 #include "bwi_scavenger/globals.h"
-#include "bwi_scavenger/mapping.h"
 #include "bwi_scavenger/paths.h"
-#include "bwi_scavenger/robot_motion.h"
+#include "bwi_scavenger/path_planning.h"
 #include "bwi_scavenger/state_machine.h"
+#include "bwi_scavenger/world_mapping.h"
 
 using namespace scavenger_fsm;
 
@@ -47,7 +48,7 @@ static ros::Publisher pub_move;
 static ros::Publisher pub_stop;
 static ros::Publisher pub_task_complete;
 
-static environment_location current_location;
+static EnvironmentLocation current_location;
 
 static const float INSPECT_DURATION = 8.0;
 static const float INSPECT_GOOD_CONFIRMATIONS = 2;
@@ -58,8 +59,8 @@ static StateMachine sm;
 static double t_task_start;
 static bool node_active = false;
 
-static OrderedLocationSet map_circuit;
-static OrderedLocationSet map_priority;
+static OrderedLocationSet* map_circuit;
+static OrderedLocationSet* map_priority;
 static LocationSet* map_active;
 
 static std::string target_object;
@@ -99,7 +100,7 @@ struct FindObjectSystemStateVector : SystemStateVector {
   bool turn_sleeping = false;
   double t_turn_sleep_begin = 0;
 
-  coordinates destination;
+  coordinates_t destination;
 } ssv;
 
 class FindObjectEndState : public State {
@@ -182,8 +183,8 @@ public:
     if (!svec->travel_in_progress) {
       svec->travel_in_progress = true;
       bwi_scavenger_msgs::RobotMove msg;
-      msg.type = 0;
-      coordinates dest = svec->destination;
+      msg.type = bwi_scavenger_msgs::RobotMove::MOVE;
+      coordinates_t dest = svec->destination;
       msg.location.push_back(dest.x);
       msg.location.push_back(dest.y);
       pub_move.publish(msg);
@@ -194,13 +195,13 @@ public:
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
 
     // Transition to circuit map if the priority map has finished
-    if (map_active == &map_priority && map_active->get_laps() >= 1) {
+    if (map_active == map_priority && map_active->get_laps() >= 1) {
       ROS_INFO("%s Changing maps...", TELEM_TAG);
 
-      map_active = &map_circuit;
+      map_active = map_circuit;
       bwi_scavenger_msgs::PoseRequest req_pose;
       client_pose_request.call(req_pose);
-      coordinates c = {
+      coordinates_t c = {
         req_pose.response.pose.position.x,
         req_pose.response.pose.position.y
       };
@@ -249,7 +250,7 @@ public:
       svec->turn_in_progress = true;
       const int TURN_AMOUNT = 45;
       bwi_scavenger_msgs::RobotMove msg;
-      msg.type = 1;
+      msg.type = bwi_scavenger_msgs::RobotMove::TURN;
       msg.degrees = TURN_AMOUNT;
       pub_move.publish(msg);
       svec->turn_angle_traversed += TURN_AMOUNT;
@@ -288,7 +289,7 @@ public:
     // Enter INSPECTING when target is seen and current state is not END and currently not travelling to a prioritized location
     if (from->get_id() != STATE_END &&
         svec->target_seen) {
-      if (from->get_id() == STATE_TRAVELING && map_active == &map_priority){
+      if (from->get_id() == STATE_TRAVELING && map_active == map_priority){
         svec->target_seen = false;
         ROS_INFO("%s Priority map has blocked INSPECTING!", TELEM_TAG);
         return false;
@@ -410,17 +411,17 @@ void task_start_cb(const scavenger_hunt_msgs::Task& msg) {
     );
 
     for (geometry_msgs::Point& point : get_points.response.points)
-      map_priority.add_location({point.x, point.y});
+      map_priority->add_location({point.x, point.y});
 
-    map_active = &map_priority;
+    map_active = map_priority;
   } else
-    map_active = &map_circuit;
+    map_active = map_circuit;
 
   // Query the current robot pose so we can find the closest waypoint
   bwi_scavenger_msgs::PoseRequest reqPose;
   client_pose_request.call(reqPose);
   geometry_msgs::Pose robot_pose = reqPose.response.pose;
-  coordinates c;
+  coordinates_t c;
   c.x = robot_pose.position.x;
   c.y = robot_pose.position.y;
 
@@ -487,6 +488,17 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "find_object_node");
   ros::NodeHandle nh;
 
+  std::string world_str;
+  World world;
+  nh.param("bwi_scavenger/world", world_str, std::string("WORLDNOTFOUND"));
+
+  if (world_str == "irl")
+    world = IRL;
+  else if (world_str == "sim")
+    world = SIM;
+  else
+    ROS_ERROR("Unknown world: %s", world_str.c_str());
+
   // Create clients
   client_pose_request = nh.serviceClient<bwi_scavenger_msgs::PoseRequest>(
     SRV_POSE_REQUEST
@@ -532,14 +544,15 @@ int main(int argc, char **argv) {
   );
 
   // Build default search circuit
-  map_circuit.add_location(BWI_LAB_DOOR_NORTH);
-  map_circuit.add_location(CLEARING_NORTH);
-  map_circuit.add_location(CLEARING_SOUTH);
-  map_circuit.add_location(ALCOVE);
-  map_circuit.add_location(KITCHEN);
-  map_circuit.add_location(BWI_LAB_DOOR_SOUTH);
-  map_circuit.add_location(SOCCER_LAB_DOOR_SOUTH);
-  map_circuit.add_location(SOCCER_LAB_DOOR_NORTH);
+  map_circuit = new OrderedLocationSet(world);
+  map_circuit->add_location(BWI_LAB_DOOR_NORTH);
+  map_circuit->add_location(CLEARING_NORTH);
+  map_circuit->add_location(CLEARING_SOUTH);
+  map_circuit->add_location(ALCOVE);
+  map_circuit->add_location(KITCHEN);
+  map_circuit->add_location(BWI_LAB_DOOR_SOUTH);
+  map_circuit->add_location(SOCCER_LAB_DOOR_SOUTH);
+  map_circuit->add_location(SOCCER_LAB_DOOR_NORTH);
 
   // Build state machine
   s_traveling->add_output(s_end);
