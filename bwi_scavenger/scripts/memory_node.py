@@ -38,7 +38,8 @@ bridge = CvBridge()
 scav_send_proof = None
 proof_db = []
 pub_add_training_file = None
-pub_marker = None
+pub_objmem_markers = None
+pub_priority_markers = None
 
 
 class ProofDbEntry:
@@ -462,62 +463,64 @@ def visualize():
     # Visualize objmem
     for ind, obj in enumerate(objmem.bank):
         # Position marker
-        msg = Marker()
-        msg.header.frame_id = "level_mux_map"
-        msg.header.stamp = rospy.get_rostime()
-        msg.type = Marker.SPHERE
-        msg.action = Marker.ADD
-        msg.scale.x = msg.scale.y = msg.scale.z = 0.5
-        msg.pose.position.x = obj.pos[0]
-        msg.pose.position.y = obj.pos[1]
-        msg.pose.position.z = 0
+        m_obj = Marker()
+        m_obj.header.frame_id = "level_mux_map"
+        m_obj.header.stamp = rospy.get_rostime()
+        m_obj.type = Marker.SPHERE
+        m_obj.action = Marker.ADD
+        m_obj.scale.x = m_obj.scale.y = m_obj.scale.z = 0.5
+        m_obj.pose.position.x = obj.pos[0]
+        m_obj.pose.position.y = obj.pos[1]
+        m_obj.pose.position.z = 0
 
         # Green -> correct
         # Red -> incorrect
         # Blue -> unverified
         if obj.status == ProofStatus.CORRECT:
-            msg.color.r = 0
-            msg.color.b = 0
-            msg.color.g = 1
+            m_obj.color.r = 0
+            m_obj.color.b = 0
+            m_obj.color.g = 1
         elif obj.status == ProofStatus.INCORRECT:
-            msg.color.r = 1
-            msg.color.b = 0
-            msg.color.g = 0
+            m_obj.color.r = 1
+            m_obj.color.b = 0
+            m_obj.color.g = 0
         else:
-            msg.color.r = 0
-            msg.color.b = 1
-            msg.color.g = 0
+            m_obj.color.r = 0
+            m_obj.color.b = 1
+            m_obj.color.g = 0
 
-        msg.color.a = 1
-        msg.id = marker_id
+        m_obj.color.a = 1
+        m_obj.id = marker_id
         marker_id += 1
+
+        pub_objmem_markers.publish(m_obj)
 
         # Label marker
-        label = Marker()
-        label.header.frame_id = "level_mux_map"
-        label.header.stamp = rospy.get_rostime()
-        label.type = Marker.TEXT_VIEW_FACING
-        label.action = Marker.ADD
-        label.scale.x = label.scale.y = label.scale.z = 0.5
-        label.text = str(obj.uid) + " " + obj.label
-        label.pose.position.x = obj.pos[0]
-        label.pose.position.y = obj.pos[1]
-        label.pose.position.z = obj.pos[2] + 1
-        label.color.r = 1
-        label.color.b = 1
-        label.color.g = 1
-        label.color.a = 1
-        label.id = marker_id
+        m_lab = Marker()
+        m_lab.header.frame_id = "level_mux_map"
+        m_lab.header.stamp = rospy.get_rostime()
+        m_lab.type = Marker.TEXT_VIEW_FACING
+        m_lab.action = Marker.ADD
+        m_lab.scale.x = m_lab.scale.y = m_lab.scale.z = 0.5
+        m_lab.text = str(obj.uid) + " " + obj.label
+        m_lab.pose.position.x = obj.pos[0]
+        m_lab.pose.position.y = obj.pos[1]
+        m_lab.pose.position.z = obj.pos[2] + 1
+        m_lab.color.r = 1
+        m_lab.color.b = 1
+        m_lab.color.g = 1
+        m_lab.color.a = 1
+        m_lab.id = marker_id
         marker_id += 1
 
-        pub_marker.publish(msg)
-        pub_marker.publish(label)
+        pub_objmem_markers.publish(m_lab)
 
     # Visualize priority points
     for key in status_clustering.completion_clusters:
         clusters = status_clustering.completion_clusters[key]
 
         for cluster in clusters:
+            score = status_clustering.score_cluster(cluster)
             pos = status_clustering.get_cluster_centroid(cluster)
 
             # Visualize points in cluster
@@ -530,77 +533,96 @@ def visualize():
                     dist_max = dist
 
                 # Item marker
-                msg = Marker()
-                msg.header.frame_id = "level_mux_map"
-                msg.header.stamp = rospy.get_rostime()
-                msg.type = Marker.SPHERE
-                msg.action = Marker.ADD
-                msg.scale.x = msg.scale.y = msg.scale.z = 0.1
-                msg.pose.position.x = pos[0]
-                msg.pose.position.y = pos[1]
-                msg.pose.position.z = 0
+                m_item = Marker()
+                m_item.header.frame_id = "level_mux_map"
+                m_item.header.stamp = rospy.get_rostime()
+                m_item.type = Marker.SPHERE
+                m_item.action = Marker.ADD
+                m_item.scale.x = m_item.scale.y = m_item.scale.z = 0.1
+                m_item.pose.position.x = pos[0]
+                m_item.pose.position.y = pos[1]
+                m_item.pose.position.z = 0
 
                 if item.status == ProofStatus.CORRECT:
-                    msg.color.r = 0
-                    msg.color.b = 0
-                    msg.color.g = 1
+                    m_item.color.r = 0
+                    m_item.color.b = 0
+                    m_item.color.g = 1
                 else:
-                    msg.color.r = 1
-                    msg.color.b = 0
-                    msg.color.g = 0
+                    m_item.color.r = 1
+                    m_item.color.b = 0
+                    m_item.color.g = 0
 
-                msg.color.a = 0.5
-                msg.id = marker_id
+                m_item.color.a = 0.5
+                m_item.id = marker_id
                 marker_id += 1
 
-                pub_marker.publish(msg)
+                pub_priority_markers.publish(m_item)
 
-            # Position marker
-            msg = Marker()
-            msg.header.frame_id = "level_mux_map"
-            msg.header.stamp = rospy.get_rostime()
-            msg.type = Marker.CYLINDER
-            msg.action = Marker.ADD
-            msg.scale.x = msg.scale.y = dist_max
-            msg.scale.z = 0.05
-            msg.pose.position.x = pos[0]
-            msg.pose.position.y = pos[1]
-            msg.pose.position.z = 0
+            # Radius marker
+            m_rad = Marker()
+            m_rad.header.frame_id = "level_mux_map"
+            m_rad.header.stamp = rospy.get_rostime()
+            m_rad.type = Marker.CYLINDER
+            m_rad.action = Marker.ADD
+            m_rad.scale.x = m_rad.scale.y = dist_max / 2
+            m_rad.scale.z = 0.05
+            m_rad.pose.position.x = pos[0]
+            m_rad.pose.position.y = pos[1]
+            m_rad.pose.position.z = 0
 
-            if status_clustering.score_cluster(cluster) >= 0:
-                msg.color.r = 0
-                msg.color.b = 0
-                msg.color.g = 1
+            if score >= 0:
+                m_rad.color.r = 0
+                m_rad.color.b = 0
+                m_rad.color.g = 1
             else:
-                msg.color.r = 1
-                msg.color.b = 0
-                msg.color.g = 0
+                m_rad.color.r = 1
+                m_rad.color.b = 0
+                m_rad.color.g = 0
 
-            msg.color.a = 0.5
-            msg.id = marker_id
+            m_rad.color.a = 0.5
+            m_rad.id = marker_id
             marker_id += 1
+
+            pub_priority_markers.publish(m_rad)
+
+            # Waypoint
+            m_wayp = Marker()
+            m_wayp.header.frame_id = "level_mux_map"
+            m_wayp.header.stamp = rospy.get_rostime()
+            m_wayp.type = Marker.SPHERE
+            m_wayp.action = Marker.ADD
+            m_wayp.scale.x = m_wayp.scale.y = m_wayp.scale.z = 0.33
+            m_wayp.pose.position.x = pos[0]
+            m_wayp.pose.position.y = pos[1]
+            m_wayp.pose.position.z = 1
+            m_wayp.color.r = m_rad.color.r
+            m_wayp.color.b = m_rad.color.b
+            m_wayp.color.g = m_rad.color.g
+            m_wayp.color.a = 1
+            m_wayp.id = marker_id
+            marker_id += 1
+
+            pub_priority_markers.publish(m_wayp)
 
             # Label marker
-            label = Marker()
-            label.header.frame_id = "level_mux_map"
-            label.header.stamp = rospy.get_rostime()
-            label.type = Marker.TEXT_VIEW_FACING
-            label.action = Marker.ADD
-            label.scale.x = label.scale.y = label.scale.z = 0.5
-            radius_str = "~0" if dist_max < 1e-3 else str(dist_max)
-            label.text = key + " (r=%s m)" % radius_str
-            label.pose.position.x = pos[0]
-            label.pose.position.y = pos[1]
-            label.pose.position.z = 1
-            label.color.r = msg.color.r
-            label.color.b = msg.color.b
-            label.color.g = msg.color.g
-            label.color.a = 1
-            label.id = marker_id
+            m_lab = Marker()
+            m_lab.header.frame_id = "level_mux_map"
+            m_lab.header.stamp = rospy.get_rostime()
+            m_lab.type = Marker.TEXT_VIEW_FACING
+            m_lab.action = Marker.ADD
+            m_lab.scale.x = m_lab.scale.y = m_lab.scale.z = 0.5
+            m_lab.text = key + " (s=%s)" % score
+            m_lab.pose.position.x = pos[0]
+            m_lab.pose.position.y = pos[1]
+            m_lab.pose.position.z = 1.33
+            m_lab.color.r = 1
+            m_lab.color.b = 1
+            m_lab.color.g = 1
+            m_lab.color.a = 1
+            m_lab.id = marker_id
             marker_id += 1
 
-            pub_marker.publish(msg)
-            pub_marker.publish(label)
+            pub_priority_markers.publish(m_lab)
 
     log.info("Done.")
 
@@ -642,8 +664,13 @@ if __name__ == "__main__":
         DarknetAddTrainingFile,
         queue_size=0
     )
-    pub_marker = rospy.Publisher(
-        "/bwi_scavenger/vis",
+    pub_objmem_markers = rospy.Publisher(
+        "/bwi_scavenger/objmem_vis",
+        Marker,
+        queue_size=0
+    )
+    pub_priority_markers = rospy.Publisher(
+        "/bwi_scavenger/priority_vis",
         Marker,
         queue_size=0
     )
