@@ -16,6 +16,7 @@
 
 static ScavengerHuntClient* scav_client = nullptr;
 static std::string scratch_path;
+static std::string domain;
 
 /**
  * @brief change login credentials
@@ -25,6 +26,7 @@ void login(const scavenger_hunt_msgs::Login& msg) {
     delete scav_client;
 
   scav_client = new ScavengerHuntClient(msg.username, msg.password);
+  scav_client->domain = domain;
 
   ROS_INFO("[scavenger_hunt_node] Created client with email %s",
            msg.username.c_str());
@@ -129,6 +131,9 @@ int main(int argc, char** argv) {
   std::string scav_email, scav_pass;
   nh.param("scavenger_hunt/login/email", scav_email, std::string(""));
   nh.param("scavenger_hunt/login/password", scav_pass, std::string(""));
+
+  std::string domain;
+  nh.param("scavenger_hunt/website/domain", domain, std::string("localhost"));
 
   std::string tpc_login;
   nh.param("scavenger_hunt/topics/login", tpc_login, std::string(""));

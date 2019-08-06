@@ -9,7 +9,7 @@
 /**
   Your robot's connection to Scavenger Hunt.
 */
-class ScavengerHuntClient {
+class ScavengerHuntClient final {
 public:
   /**
     Creates a new connection to the Scavenger Hunt service. We recommend only
@@ -76,6 +76,11 @@ public:
     @return UID of submitted proof, or UPLOAD_FAILED if something went wrong
   */
   proof_id_t send_proof(std::string file_path, Task &task, double time);
+
+  /**
+   * @brief don't touch this probably
+   */
+  std::string domain = "localhost";
 };
 
 #endif
