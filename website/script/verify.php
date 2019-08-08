@@ -2,8 +2,8 @@
   include_once 'connect.php';
   $dbh = connect();
 
-  $image_extensions = array("png", "jpg", "jpeg");
-  $video_extensions = array("mp4");
+  $imageExtensions = array("png", "jpg", "jpeg");
+  $videoExtensions = array("mp4");
 
   $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -44,8 +44,12 @@
     $descriptionQuery->setFetchMode(PDO::FETCH_ASSOC);
     $taskType = $descriptionQuery->fetch();
     $taskDescription = $taskType['description'];
+    $extension = strtolower(pathinfo($proofFilename, PATHINFO_EXTENSION));
 
-    include '../public_html/components/verify-proof-table-row.html';
+    if (in_array($extension, $imageExtensions))
+      include '../public_html/components/verify-proof-table-row-image.html';
+    else
+      include '../public_html/components/verify-proof-table-row-video.html';
 
     // $imageFilename = $item['filename'];
     // $proofId = $item['proof_id'];
