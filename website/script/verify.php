@@ -19,20 +19,47 @@
 
   $proofs = 0;
 
+  echo '<table style="width:100%" class="table">';
+  echo '<tr>';
+  echo '<th>Proof</th>';
+  echo '<th>Task Name</th>';
+  echo '<th>Description</th>';
+  echo '<th>Parameters</th>';
+  echo '<th>Status</th>';
+  echo '</tr>';
+
   // goes through the filenames of proofs that have not been verified and displays on page
   while($item = $stmt -> fetch()){
-    $imageFilename = $item['filename'];
     $proofId = $item['proof_id'];
-    $huntInstrId = $item['hunt_instr_id'];
+    $proofFilename = $item['filename'];
     $uploaderId = $item['uploader_id'];
-    $extension = strtolower(pathinfo($imageFilename, PATHINFO_EXTENSION));
-    if (in_array($extension, $image_extensions))
-      include '../public_html/components/image-verify.html';
-    else
-      include '../public_html/components/video-verify.html';
+    $huntInstrId = $item['hunt_instr_id'];
+
+    $taskQuery = $dbh->query("SELECT * FROM hunt_instructions_table WHERE hunt_instr_id=" . $huntInstrId);
+    $taskQuery->setFetchMode(PDO::FETCH_ASSOC);
+    $task = $taskQuery->fetch();
+    $taskParameter = $task['param_value'];
+    $taskName = $task['task_type'];
+    $descriptionQuery = $dbh->query("SELECT * from task_table WHERE task_type='" . $taskName . "'");
+    $descriptionQuery->setFetchMode(PDO::FETCH_ASSOC);
+    $taskType = $descriptionQuery->fetch();
+    $taskDescription = $taskType['description'];
+
+    include '../public_html/components/verify-proof-table-row.html';
+
+    // $imageFilename = $item['filename'];
+    // $proofId = $item['proof_id'];
+    // $huntInstrId = $item['hunt_instr_id'];
+    // $uploaderId = $item['uploader_id'];
+    // $extension = strtolower(pathinfo($imageFilename, PATHINFO_EXTENSION));
+    // if (in_array($extension, $image_extensions))
+    //   include '../public_html/components/image-verify.html';
+    // else
+    //   include '../public_html/components/video-verify.html';
     $proofs += 1;
   }
 
-  if ($proofs == 0)
-    include '../public_html/components/no-proofs.html';
+  echo '</table>';
+
+  include '../public_html/components/verify-proof-table-submit.html';
 ?>
