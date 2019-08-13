@@ -699,6 +699,7 @@ int main(int argc, char **argv) {
   map_circuit->add_location(ALCOVE);
   map_circuit->add_location(KITCHEN);
   map_circuit->add_location(BWI_LAB_DOOR_SOUTH);
+  map_circuit->add_location(HALLWAY0);
   map_circuit->add_location(SOCCER_LAB_DOOR_SOUTH);
   map_circuit->add_location(SOCCER_LAB_DOOR_NORTH);
 

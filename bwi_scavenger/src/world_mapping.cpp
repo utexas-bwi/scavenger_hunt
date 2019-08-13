@@ -21,5 +21,6 @@ std::map<EnvironmentLocation, coordinates_t> WORLD_WAYPOINTS_IRL {
   {KITCHEN,               { -30.1798, -4.5981  }},
   {SOCCER_LAB_DOOR_NORTH, { -47.7036, -11.2160 }},
   {SOCCER_LAB_DOOR_SOUTH, { -47.5810, -4.1472  }},
-  {FELLOW_COMPUTERS,      { -35.0182, -11.4877 }}
+  {FELLOW_COMPUTERS,      { -35.0182, -11.4877 }},
+  {HALLWAY0,              { -41.2976,  -4.3244 }}
 };
