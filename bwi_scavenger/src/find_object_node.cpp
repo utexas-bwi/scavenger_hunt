@@ -52,7 +52,7 @@ static const state_id_t STATE_END = 4;
 
 // Parameters for search and inspect behavior
 static const double T_TIMEOUT = 0; // 0 for no timeout
-static const double T_TURN_SLEEP = 10.0;
+static const double T_TURN_SLEEP = 15.0;
 static const double MIN_INSPECT_PROBABILITY = 0;
 static const double INSPECT_DURATION = 10.0;
 static const int INSPECT_GOOD_CONFIRMATIONS = 2;
@@ -156,6 +156,11 @@ void send_proof(const scavenger_hunt_msgs::Task& task) {
     target_object_labels.begin(), target_object_labels.end(), label
   );
   target_object_labels.erase(it);
+
+  ROS_INFO("%s Things I'm still looking for:", TELEM_TAG);
+
+  for (const std::string& str : target_object_labels)
+    ROS_INFO("%s %s", TELEM_TAG, str);
 }
 
 /*******************************************************************************
@@ -696,12 +701,12 @@ int main(int argc, char **argv) {
   map_circuit->add_location(BWI_LAB_DOOR_NORTH);
   map_circuit->add_location(CLEARING_NORTH);
   map_circuit->add_location(CLEARING_SOUTH);
-  map_circuit->add_location(ALCOVE);
+  // map_circuit->add_location(ALCOVE);
   map_circuit->add_location(KITCHEN);
-  map_circuit->add_location(BWI_LAB_DOOR_SOUTH);
+  // map_circuit->add_location(BWI_LAB_DOOR_SOUTH);
   map_circuit->add_location(HALLWAY0);
-  map_circuit->add_location(SOCCER_LAB_DOOR_SOUTH);
-  map_circuit->add_location(SOCCER_LAB_DOOR_NORTH);
+  // map_circuit->add_location(SOCCER_LAB_DOOR_SOUTH);
+  // map_circuit->add_location(SOCCER_LAB_DOOR_NORTH);
 
   // Build state machine
   s_traveling->add_output(s_end);
