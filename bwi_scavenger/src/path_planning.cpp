@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <iostream>
 #include <math.h>
+#include <random>
 
 #include "bwi_scavenger/path_planning.h"
 #include "bwi_scavenger/world_mapping.h"
@@ -54,6 +56,10 @@ void LocationSet::start(coordinates_t c) {
   index = starting_index;
 }
 
+std::size_t LocationSet::size() {
+  return locations.size();
+}
+
 OrderedLocationSet::OrderedLocationSet() : LocationSet() {}
 
 OrderedLocationSet::OrderedLocationSet(World w) : LocationSet(w) {}
@@ -62,4 +68,9 @@ coordinates_t OrderedLocationSet::get_next_location() {
   coordinates_t c = locations[index % locations.size()];
   index++;
   return c;
+}
+
+void OrderedLocationSet::shuffle() {
+  auto rng = std::default_random_engine {};
+  std::shuffle(locations.begin(), locations.end(), rng);
 }

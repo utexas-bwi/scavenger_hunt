@@ -6,8 +6,6 @@
 
 #include <vector>
 
-namespace scavenger_fsm {
-
 /**
   A vector detailing the complete state of the system, usually the robot.
   This should be extended and defined for the robot in question. Machine states
@@ -146,7 +144,5 @@ public:
   */
   State* get_current_state();
 };
-
-}; // end namespace taskmaster
 
 #endif

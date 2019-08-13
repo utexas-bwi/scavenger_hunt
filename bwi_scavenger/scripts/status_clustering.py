@@ -16,6 +16,7 @@ import objmem
 
 from scavenger_hunt import ProofStatus
 from dbscan import MyDBSCAN
+from globals import *
 
 
 completion_clusters = {}
@@ -156,8 +157,13 @@ def score_cluster(cluster):
         cluster score (>0 good, <0 bad)
     """
     score = 0
+
     # Rating function
-    F = lambda status : 1 if status == ProofStatus.CORRECT else -FEAR_OF_FAILURE
+    if not CLUSTER_ANY:
+        F = lambda status : 1 if status == ProofStatus.CORRECT else -FEAR_OF_FAILURE
+    else:
+        # If we're clustering anything we don't care about proof status
+        F = lambda status : 1
 
     for item in cluster:
         score += F(item.status)

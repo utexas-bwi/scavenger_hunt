@@ -30,6 +30,7 @@ TOPICS
 ------------------------------------------------------------------------------*/
 
 const char TPC_TASK_START[] = "/bwi_scavenger/general/task_start";
+const char TPC_MULTITASK_START[] = "/bwi_scavenger/general/multitask_start";
 const char TPC_TASK_END[] = "/bwi_scavenger/general/task_end";
 
 const char TPC_MOVE_NODE_STOP[] = "/bwi_scavenger/move_node/stop";

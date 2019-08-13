@@ -48,6 +48,11 @@ public:
     @brief gets the number of laps traveled so far in the circuit
   */
   int get_laps();
+
+  /**
+   * @brief gets the number of locations in the set
+   */
+  std::size_t size();
 };
 
 /**
@@ -65,6 +70,11 @@ public:
            to the beginning
   */
   coordinates_t get_next_location() override;
+
+  /**
+   * @brief shuffles the location set randomly
+   */
+  void shuffle();
 
 };
 

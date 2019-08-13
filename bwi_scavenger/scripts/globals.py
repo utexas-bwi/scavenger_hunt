@@ -9,3 +9,13 @@ TPC_OBJMEM_NODE_ADD = "/bwi_scavenger/objmem_node/add"
 SRV_PROOFDB_NODE_SEND_PROOF = "/bwi_scavenger/services/send_proof"
 SRV_CONFIRM_OBJECT = "/bwi_scavenger/services/confirm_object"
 SRV_GET_PRIORITY_POINTS = "/bwi_scavenger/services/get_priority_points"
+
+# This is a really important variable!
+#
+# When CLUSTER_ANY is true, the status clustering process will include EVERY
+# proof in its priority assessment, regardless of status. It will also weigh
+# correct, incorrect, and unverified proofs the same when scoring clusters.
+#
+# When CLUSTER_ANY if false, only verified proofs are clustered, and
+# FEAR_OF_FAILURE is enforced.
+CLUSTER_ANY = True

@@ -1,7 +1,5 @@
 #include <bwi_scavenger/state_machine.h>
 
-using namespace scavenger_fsm;
-
 State::State(state_id_t id) {
   this->id = id;
 }

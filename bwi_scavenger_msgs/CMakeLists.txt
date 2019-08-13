@@ -22,6 +22,7 @@ add_message_files(FILES
   DarknetStartTraining.msg
   DatabaseFile.msg
   ObjmemAdd.msg
+  MultitaskStart.msg
 )
 
 add_service_files(FILES

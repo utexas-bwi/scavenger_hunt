@@ -369,7 +369,7 @@ def load_proof_db():
                     objmem.bank[entry.objmem_id].status = entry.status
 
         # Add to the status clustering database if verified
-        if entry.status != ProofStatus.UNVERIFIED:
+        if entry.status != ProofStatus.UNVERIFIED or CLUSTER_ANY:
             status_clustering.expand_database(
                 entry.task_name,
                 entry.parameter,
@@ -441,6 +441,7 @@ def get_priority_points(req):
         point.y = c[0][1]
         point.z = c[0][2]
         res.points.append(point)
+        res.scores.append(c[1])
 
     log.info("Served %s priority points." % len(centroids))
 
