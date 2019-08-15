@@ -160,7 +160,7 @@ void send_proof(const scavenger_hunt_msgs::Task& task) {
   ROS_INFO("%s Things I'm still looking for:", TELEM_TAG);
 
   for (const std::string& str : target_object_labels)
-    ROS_INFO("%s %s", TELEM_TAG, str);
+    ROS_INFO("%s %s", TELEM_TAG, str.c_str());
 }
 
 /*******************************************************************************
@@ -184,6 +184,7 @@ struct FindObjectSystemStateVector : SystemStateVector {
   int turn_angle_traversed = 0;    // Total arc turned by SCANNING so far
   bool turn_sleeping = false;      // If SCANNING is sleeping the turn cycle
   double t_turn_sleep_begin = 0;   // Time of sleep cycle begin
+  bool scan_interrupted = false;   // If INSPECTING interrupted SCANNING
 
   coordinates_t destination;       // Last set destination
 } ssv;
@@ -236,8 +237,10 @@ public:
         svec->turn_finished &&
         !svec->target_seen) {
       return true;
+    // Enter TRAVELING if INSPECTING finished and it did not interrupt SCANNING
     } else if (from->get_id() == STATE_INSPECTING &&
-               svec->inspect_finished)
+               svec->inspect_finished &&
+               !svec->scan_interrupted)
       return true;
     // Continue in current state otherwise
     return false;
@@ -309,6 +312,15 @@ public:
         svec->travel_finished &&
         (T_TIMEOUT == 0 || svec->t < T_TIMEOUT)) {
       return true;
+    // Enter SCANNING becaues INSPECTING finished and interrupted a scan that
+    // was running previously
+    } else if (from->get_id() == STATE_INSPECTING &&
+               svec->inspect_finished &&
+               svec->scan_interrupted &&
+               (T_TIMEOUT == 0 || svec->t < T_TIMEOUT))
+    {
+      ROS_INFO("%s Returning to finish scan.", TELEM_TAG);
+      return true;
     }
 
     // Continue in current state otherwise
@@ -337,18 +349,20 @@ public:
 
   void on_transition_from(SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
+
     if (!svec->turn_finished) {
       bwi_scavenger_msgs::RobotStop stop;
       pub_stop.publish(stop);
+    } else {
+      // Only reset the flags if the scan finished. This allows us to save
+      // the state of in-progress scans when interrupted by inspection
+      svec->turn_finished = false;
+      svec->turn_in_progress = false;
+      svec->turn_angle_traversed = 0;
     }
   }
 
-  void on_transition_to(SystemStateVector *vec) {
-    FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
-    svec->turn_finished = false;
-    svec->turn_in_progress = false;
-    svec->turn_angle_traversed = 0;
-  }
+  void on_transition_to(SystemStateVector *vec) {}
 };
 
 /**
@@ -361,10 +375,17 @@ public:
 
   bool can_transition(State *from, SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
-    // Enter INSPECTING when target is seen and current state is not END and currently not travelling to a prioritized location
-    if (from->get_id() != STATE_END &&
+    // Enter INSPECTING when target is seen while traveling
+    if (from->get_id() == STATE_TRAVELING &&
         svec->target_seen) {
       ROS_INFO("%s Glimpsed the target. Transitioning to INSPECTING.", TELEM_TAG);
+      return true;
+    // Enter INSPECTING when target is seen while scanning
+    } else if (from->get_id() == STATE_SCANNING &&
+               svec->target_seen) {
+      ROS_INFO("%s SCANNING interrupted by INSPECTING after target was glimpsed", TELEM_TAG);
+      // Flag the scan as interrupted so we can return to it later
+      svec->scan_interrupted = true;
       return true;
     }
     // Continue in current state otherwise
