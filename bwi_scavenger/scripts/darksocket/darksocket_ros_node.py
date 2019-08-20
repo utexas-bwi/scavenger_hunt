@@ -8,7 +8,7 @@ from sensor_msgs.msg import Image
 
 
 bridge = cv_bridge.CvBridge()
-server = None
+server = darksocket.Server()
 img_path = os.getcwd() + "/__darksocket_ros_node_out__.jpeg"
 t_begin = 0
 t_end = 0
