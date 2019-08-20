@@ -445,6 +445,7 @@ class Stream:
                 elif unpacked[0] == Packet.HANDSHAKE:
                     self.handshake = unpacked[2]
                     res = StreamEvent.HANDSHAKE
+                self.buffer = ""
 
         return res
 

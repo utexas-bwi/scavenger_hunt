@@ -16,6 +16,7 @@ t_last_img = -1
 
 
 def recv_img(msg):
+    global t_last_img
     t = rospy.get_time()
 
     if t_last_img == -1 or t - t_last_img > 0.1:
