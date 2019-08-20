@@ -12,6 +12,15 @@ server = darksocket.Server()
 img_path = os.getcwd() + "/__darksocket_ros_node_out__.jpeg"
 t_begin = 0
 t_end = 0
+t_last_img = -1
+
+
+def recv_img(msg):
+    t = rospy.get_time()
+
+    if t_last_img == -1 or t - t_last_img > 0.1:
+        process(msg)
+        t_last_img = t
 
 
 def process(msg):
@@ -39,9 +48,8 @@ def process(msg):
 if __name__ == "__main__":
     rospy.init_node("darksocket_ros_node")
     server.launch()
-
+    rospy.sleep(2)
     rospy.Subscriber(
-        "/camera/rgb/image_color", Image, process
+        "/camera/rgb/image_color", Image, recv_img
     )
-
     rospy.spin()
