@@ -111,9 +111,9 @@ int main(int argc, char **argv) {
   pub_moment = nh->advertise<bwi_scavenger_msgs::PerceptionMoment>(
       TPC_PERCEPTION_NODE_MOMENT, 1);
   ros::Subscriber sub_depth =
-      nh->subscribe("/camera/depth/image", 1, save_depth);
+      nh->subscribe("/nav_kinect/depth/image", 1, save_depth);
   ros::Subscriber sub_color =
-      nh->subscribe("/camera/rgb/image_color", 1, save_color);
+      nh->subscribe("/nav_kinect/rgb/image_color", 1, save_color);
   ros::Subscriber sub_boxes =
       nh->subscribe("/darksocket_ros/detections", 1, vision);
 
