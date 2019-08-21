@@ -12,6 +12,7 @@
 	<!-- File and information processing -->
 	<node name="memory_node" pkg="bwi_scavenger" type="memory_node.py" output="screen"/>
 	<include file="$(find scavenger_hunt)/launch/scavenger_hunt.launch"/>
+	<include file="$(find darksocket_ros)/launch/darksocket_ros.launch"/>
 
 	<!-- Tasks -->
   <node name="find_object_node" pkg="bwi_scavenger" type="find_object_node" output="screen"/>

@@ -1,3 +1,6 @@
 [submodule "segbot"]
 	path = segbot
 	url = https://github.com/utexas-bwi/segbot
+[submodule "darksocket"]
+	path = darksocket
+	url = https://github.com/stefandebruyn/darksocket

@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
   ros::Subscriber sub_depth =
       nh->subscribe("/camera/depth/image", 1, save_depth);
   ros::Subscriber sub_boxes =
-      nh->subscribe("/darknet_ros/bounding_boxes", 1, vision);
+      nh->subscribe("/darksocket_ros/detections", 1, vision);
 
   ROS_INFO("[perception_node] Standing by.");
 
