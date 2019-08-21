@@ -4,3 +4,6 @@
 [submodule "darksocket"]
 	path = darksocket
 	url = https://github.com/stefandebruyn/darksocket
+[submodule "darknet_ros"]
+	path = darknet_ros
+	url = https://github.com/leggedrobotics/darknet_ros

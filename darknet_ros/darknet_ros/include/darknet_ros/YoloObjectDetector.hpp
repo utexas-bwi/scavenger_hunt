@@ -203,7 +203,6 @@ class YoloObjectDetector
 
   std_msgs::Header imageHeader_;
   cv::Mat camImageCopy_;
-  sensor_msgs::Image camSourceImage_;
   boost::shared_mutex mutexImageCallback_;
 
   bool imageStatus_ = false;

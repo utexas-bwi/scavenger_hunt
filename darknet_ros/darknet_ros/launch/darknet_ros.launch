@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <launch>
   <!-- Console launch prefix -->
   <arg name="launch_prefix" default=""/>
@@ -9,7 +10,7 @@
 
   <!-- ROS and network parameter files -->
   <arg name="ros_param_file"             default="$(find darknet_ros)/config/ros.yaml"/>
-  <arg name="network_param_file"         default="$(find darknet_ros)/config/yolov3.yaml"/>
+  <arg name="network_param_file"         default="$(find darknet_ros)/config/yolov2-tiny.yaml"/>
 
   <!-- Load parameters -->
   <rosparam command="load" ns="darknet_ros" file="$(arg ros_param_file)"/>
