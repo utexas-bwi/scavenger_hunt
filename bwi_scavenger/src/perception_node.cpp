@@ -19,7 +19,7 @@
 static ros::Publisher pub_moment;
 static ros::NodeHandle *nh;
 
-static sensor_msgs::Image depth_image;
+static sensor_msgs::Image depth_image, color_image;
 
 static unsigned long moment_uid = 0;
 
@@ -29,6 +29,10 @@ static unsigned long moment_uid = 0;
 */
 void save_depth(const sensor_msgs::Image::ConstPtr &msg) {
   depth_image = *msg;
+}
+
+void save_color(const sensor_msgs::Image::ConstPtr &msg) {
+  color_image = *msg;
 }
 
 // /**
@@ -90,7 +94,7 @@ void save_depth(const sensor_msgs::Image::ConstPtr &msg) {
 void vision(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg) {
     // Build perception moment
     bwi_scavenger_msgs::PerceptionMoment perception;
-    perception.color_image = msg->source_image;
+    perception.color_image = color_image;
     perception.depth_image = depth_image;
     perception.bounding_boxes = *msg;
     perception.uid = moment_uid;
@@ -108,6 +112,8 @@ int main(int argc, char **argv) {
       TPC_PERCEPTION_NODE_MOMENT, 1);
   ros::Subscriber sub_depth =
       nh->subscribe("/camera/depth/image", 1, save_depth);
+  ros::Subscriber sub_color =
+      nh->subscribe("/camera/rgb/image_color", 1, save_color);
   ros::Subscriber sub_boxes =
       nh->subscribe("/darksocket_ros/detections", 1, vision);
 
