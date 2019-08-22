@@ -51,10 +51,10 @@ static const state_id_t STATE_END = 4;
 
 // Parameters for search and inspect behavior
 static const double T_TIMEOUT = 0; // 0 for no timeout
-static const double T_TURN_SLEEP = 15.0;
+static const double T_TURN_SLEEP = 1;
 static const double MIN_INSPECT_PROBABILITY = 0;
-static const double INSPECT_DURATION = 10.0;
-static const int INSPECT_GOOD_CONFIRMATIONS = 2;
+static const double INSPECT_DURATION = 2.0;
+static const int INSPECT_GOOD_CONFIRMATIONS = 3;
 
 // Roslog node identifying tag
 static const char TELEM_TAG[] = "[find_object_node]";

@@ -4,6 +4,8 @@
 	<!-- Load config parameters -->
 	<arg name="config_path" default="$(find bwi_scavenger)/config"/>
 	<rosparam command="load" file="$(arg config_path)/bwi_scavenger.yaml"/>
+	<arg name="darksocket_config_path" default="$(find darksocket_ros)/config"/>
+	<rosparam command="load" file="$(arg darksocket_config_path)/darksocket_ros.yaml"/>
 
 	<!-- Hardware and sensory IO -->
 	<node name="perception_node" pkg="bwi_scavenger" type="perception_node" output="screen"/>

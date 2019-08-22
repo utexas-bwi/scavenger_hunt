@@ -112,12 +112,26 @@ int main(int argc, char **argv) {
   ros::init(argc, argv, "perception_node");
   nh = new ros::NodeHandle();
 
+  std::string tpc_depth, tpc_detections;
+
+  nh->param(
+    "bwi_scavenger/topics/perception/depth",
+    tpc_depth,
+    std::string("/camera/depth/image")
+  );
+  nh->param(
+    "darksocket_ros/topics/detections",
+    tpc_detections,
+    std::string("/darksocket_ros/detections")
+  );
+
   pub_moment = nh->advertise<bwi_scavenger_msgs::PerceptionMoment>(
-      TPC_PERCEPTION_NODE_MOMENT, 1);
-  ros::Subscriber sub_depth =
-      nh->subscribe("/camera/depth/image", 1, save_depth);
-  ros::Subscriber sub_boxes =
-      nh->subscribe("/darksocket_ros/detections", 1, vision);
+      TPC_PERCEPTION_NODE_MOMENT, 1
+  );
+  ros::Subscriber sub_depth = nh->subscribe(tpc_depth, 1, save_depth);
+  ros::Subscriber sub_boxes = nh->subscribe(
+    tpc_detections, 1, vision
+  );
 
   ROS_INFO("[perception_node] Standing by.");
 

@@ -4,3 +4,7 @@ bwi_scavenger:
     password: sick robots
   ws_path: /home/bwilab/scavenger_hunt
   world: sim
+  topics:
+    perception:
+      color: /camera/rgb/image_color
+      depth: /camera/depth/image
