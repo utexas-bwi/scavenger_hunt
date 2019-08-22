@@ -3,6 +3,7 @@
 #include <bwi_scavenger_msgs/PerceptionMoment.h>
 #include <cv_bridge/cv_bridge.h>
 #include <darknet_ros_msgs/CheckForObjectsAction.h>
+#include <darksocket_ros/Detections.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <ros/ros.h>
@@ -19,7 +20,8 @@
 static ros::Publisher pub_moment;
 static ros::NodeHandle *nh;
 
-static sensor_msgs::Image depth_image, color_image;
+static sensor_msgs::Image depth_image;
+static bool depth_fresh = false;
 
 static unsigned long moment_uid = 0;
 
@@ -29,10 +31,7 @@ static unsigned long moment_uid = 0;
 */
 void save_depth(const sensor_msgs::Image::ConstPtr &msg) {
   depth_image = *msg;
-}
-
-void save_color(const sensor_msgs::Image::ConstPtr &msg) {
-  color_image = *msg;
+  depth_fresh = true;
 }
 
 // /**
@@ -91,17 +90,22 @@ void save_color(const sensor_msgs::Image::ConstPtr &msg) {
 //   pub_moment.publish(perception);
 // }
 
-void vision(const darknet_ros_msgs::BoundingBoxes::ConstPtr& msg) {
-    // Build perception moment
-    bwi_scavenger_msgs::PerceptionMoment perception;
-    perception.color_image = color_image;
-    perception.depth_image = depth_image;
-    perception.bounding_boxes = *msg;
-    perception.uid = moment_uid;
+void vision(const darksocket_ros::Detections::ConstPtr& msg) {
+  if (!depth_fresh)
+    return;
 
-    moment_uid++;
+  depth_fresh = false;
 
-    pub_moment.publish(perception);
+  // Build perception moment
+  bwi_scavenger_msgs::PerceptionMoment perception;
+  perception.color_image = msg->image;
+  perception.depth_image = depth_image;
+  perception.bboxes = msg->bboxes;
+  perception.uid = moment_uid;
+
+  moment_uid++;
+
+  pub_moment.publish(perception);
 }
 
 int main(int argc, char **argv) {
@@ -111,9 +115,7 @@ int main(int argc, char **argv) {
   pub_moment = nh->advertise<bwi_scavenger_msgs::PerceptionMoment>(
       TPC_PERCEPTION_NODE_MOMENT, 1);
   ros::Subscriber sub_depth =
-      nh->subscribe("/nav_kinect/depth/image", 1, save_depth);
-  ros::Subscriber sub_color =
-      nh->subscribe("/nav_kinect/rgb/image_color", 1, save_color);
+      nh->subscribe("/camera/depth/image", 1, save_depth);
   ros::Subscriber sub_boxes =
       nh->subscribe("/darksocket_ros/detections", 1, vision);
 

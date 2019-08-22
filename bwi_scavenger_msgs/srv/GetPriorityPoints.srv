@@ -2,4 +2,4 @@ string task_name
 string task_parameter
 ---
 float32[] scores
-geometry_msgs/Point[] points
+geometry_msgs/Pose[] poses

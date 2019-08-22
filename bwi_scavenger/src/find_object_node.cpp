@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <cv_bridge/cv_bridge.h>
 #include <kinect_fusion/kinect_fusion.h>
 #include <map>
 #include <math.h>
@@ -102,7 +101,7 @@ static ros::ServiceClient client_get_priority_points;
 void send_proof(const scavenger_hunt_msgs::Task& task) {
   // Retrieve metadata from maps
   std::string label = task.parameters[0].value;
-  bwi_scavenger_msgs::PerceptionMoment perception =
+  bwi_scavenger_msgs::PerceptionMoment& perception =
       target_object_perceptions[label];
   darknet_ros_msgs::BoundingBox bbox = target_object_bboxes[label];
 
@@ -120,10 +119,12 @@ void send_proof(const scavenger_hunt_msgs::Task& task) {
   bwi_scavenger_msgs::PoseRequest pose_req;
   client_pose_request.call(pose_req);
 
-  tf::Quaternion tf_quat(pose_req.response.pose.orientation.x,
-                         pose_req.response.pose.orientation.y,
-                         pose_req.response.pose.orientation.z,
-                         pose_req.response.pose.orientation.w);
+  tf::Quaternion tf_quat(
+    pose_req.response.pose.orientation.x,
+    pose_req.response.pose.orientation.y,
+    pose_req.response.pose.orientation.z,
+    pose_req.response.pose.orientation.w
+  );
   double roll, pitch, yaw;
   tf::Matrix3x3(tf_quat).getRPY(roll, pitch, yaw);
 
@@ -141,8 +142,8 @@ void send_proof(const scavenger_hunt_msgs::Task& task) {
   bwi_scavenger_msgs::SendProof send_proof;
   send_proof.request.proof = proof;
   send_proof.request.task = task;
-  send_proof.request.robot_position = pose_req.response.pose.position;
-  send_proof.request.secondary_position = target_object_position;
+  send_proof.request.robot_pose = pose_req.response.pose;
+  send_proof.request.secondary_pose.position = target_object_position;
   send_proof.request.metadata =
       std::to_string(bbox.xmin) + "," +
       std::to_string(bbox.xmax) + "," +
@@ -559,16 +560,16 @@ void multitask_start_cb(const bwi_scavenger_msgs::MultitaskStart& msg) {
       get_points.request.task_parameter = target_label;
       client_get_priority_points.call(get_points);
 
-      for (std::size_t i = 0; i < get_points.response.points.size(); i++) {
+      for (std::size_t i = 0; i < get_points.response.poses.size(); i++) {
         // Collapse similiar points
         const float SIMILARITY_THRESH = 0.25;
         bool new_point = true;
 
         for (std::size_t j = 0; j < priority_points.size(); j++) {
           float dx = priority_points[j].coords.x -
-                     get_points.response.points[i].x;
+                     get_points.response.poses[i].position.x;
           float dy = priority_points[j].coords.y -
-                     get_points.response.points[i].y;
+                     get_points.response.poses[i].position.y;
           float dist = sqrt(dx * dx + dy * dy);
 
           if (dist < SIMILARITY_THRESH) {
@@ -581,8 +582,8 @@ void multitask_start_cb(const bwi_scavenger_msgs::MultitaskStart& msg) {
           priority_points.push_back(
             {
               {
-                get_points.response.points[i].x,
-                get_points.response.points[i].y
+                get_points.response.poses[i].position.x,
+                get_points.response.poses[i].position.y
               },
               get_points.response.scores[i]
             }
@@ -650,13 +651,11 @@ void perceive_cb(const bwi_scavenger_msgs::PerceptionMoment::ConstPtr &msg) {
   if (!node_active)
     return;
 
-  const darknet_ros_msgs::BoundingBoxes &boxes = msg->bounding_boxes;
   state_id_t state = sm.get_current_state()->get_id();
 
   // Search the bounding boxes for one of our target labels
-  for (int i = 0; i < boxes.bounding_boxes.size(); i++) {
-    const darknet_ros_msgs::BoundingBox &box = boxes.bounding_boxes[i];
-    const sensor_msgs::Image &depth_image = msg->depth_image;
+  for (int i = 0; i < msg->bboxes.size(); i++) {
+    const darknet_ros_msgs::BoundingBox &box = msg->bboxes[i];
     bool target_identified = std::find(
       target_object_labels.begin(),
       target_object_labels.end(),

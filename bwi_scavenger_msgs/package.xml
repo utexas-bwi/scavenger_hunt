@@ -21,6 +21,7 @@
   <build_depend>std_msgs</build_depend>
   <build_depend>darknet_ros_msgs</build_depend>
   <build_depend>scavenger_hunt_msgs</build_depend>
+  <build_depend>darksocket_ros</build_depend>
 
   <run_depend>geometry_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
@@ -28,6 +29,7 @@
   <run_depend>std_msgs</run_depend>
   <run_depend>darknet_ros_msgs</run_depend>
   <run_depend>scavenger_hunt_msgs</run_depend>
+  <run_depend>darksocket_ros</run_depend>
 
 
   <!-- Url tags are optional, but multiple are allowed, one per tag -->

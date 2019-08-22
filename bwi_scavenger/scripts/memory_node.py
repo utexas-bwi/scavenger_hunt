@@ -24,7 +24,7 @@ import bwi_scavenger_msgs.srv
 from bwi_scavenger_msgs.msg import ObjmemAdd, DarknetAddTrainingFile
 from cv_bridge import CvBridge, CvBridgeError
 from darknet_structure import force_open_read
-from geometry_msgs.msg import Point
+from geometry_msgs.msg import Pose
 from globals import *
 from scavenger_hunt import ProofStatus
 from scavenger_hunt_msgs.msg import Hunt, Login, Parameter, Proof, Task
@@ -51,6 +51,7 @@ class ProofDbEntry:
         task_name="",
         parameter="",
         robot_position=[0, 0, 0],
+        robot_orientation=[1, 0, 0, 0],
         status=ProofStatus.UNVERIFIED,
         objmem_id=-1):
         """
@@ -64,6 +65,8 @@ class ProofDbEntry:
             parameter of the task for which this proof was submitted
         robot_position: 3-tuple of float
             (x, y, z) of the robot at the time of task completion
+        robot_orientation: 4-tuple of float
+            (w, x, y, z) quaternion components
         status: ProofStatus
             status of the proof; updates on database load
         objmem_id: int
@@ -73,6 +76,7 @@ class ProofDbEntry:
         self.task_name = task_name
         self.parameter = parameter
         self.robot_position = robot_position
+        self.robot_orientation = robot_orientation
         self.status = status
         self.objmem_id = objmem_id
 
@@ -92,8 +96,6 @@ class ProofDbEntry:
 ################################################################################
 # DATABASE MANAGEMENT
 ################################################################################
-
-
 def send_proof(req):
     """Sends a proof to scavenger_hunt_node for upload and logs this action in
     the proof database.
@@ -119,7 +121,17 @@ def send_proof(req):
         res.id,
         req.task.name,
         param,
-        (req.robot_position.x, req.robot_position.y, req.robot_position.z),
+        (
+            req.robot_pose.position.x,
+            req.robot_pose.position.y,
+            req.robot_pose.position.z
+        ),
+        (
+            req.robot_pose.orientation.w,
+            req.robot_pose.orientation.x,
+            req.robot_pose.orientation.y,
+            req.robot_pose.orientation.z
+        ),
         ProofStatus.UNVERIFIED,
         -1
     )
@@ -128,9 +140,9 @@ def send_proof(req):
     if req.task.name == "Find Object":
         add_msg = ObjmemAdd()
         add_msg.label = param
-        add_msg.x = req.secondary_position.x
-        add_msg.y = req.secondary_position.y
-        add_msg.z = req.secondary_position.z
+        add_msg.x = req.secondary_pose.position.x
+        add_msg.y = req.secondary_pose.position.y
+        add_msg.z = req.secondary_pose.position.z
         add_msg.image = req.proof.image
         bbox = [int(x) for x in req.metadata.split(",")]
         add_msg.xmin = bbox[0]
@@ -149,65 +161,6 @@ def send_proof(req):
     res2 = bwi_scavenger_msgs.srv.SendProofResponse()
     res2.id = res.id
     return res2
-
-
-# def objmem_verify(msg):
-#     status = None
-#
-#     # Determine status of the object's proof
-#     if not msg.verified:
-#         status = objmem.ProofStatus.UNVERIFIED
-#     elif msg.correct:
-#         status = objmem.ProofStatus.CORRECT
-#     else:
-#         status = objmem.ProofStatus.INCORRECT
-#
-#     # Locate the object in the db
-#     for obj in objmem.bank:
-#         if obj.uid == msg.uid:
-#             # If the status changed to CORRECT, we need to send some training
-#             # files to darknet
-#             if obj.status != status:
-#                 obj.status = status
-#
-#                 if status == objmem.ProofStatus.CORRECT:
-#                     dir = paths.ws + "/objmem/obj" + str(obj.uid)
-#
-#                     # Send over every image in the object's metadata directory
-#                     for file in os.listdir(dir):
-#                         if file.endswith(".jpeg"):
-#                             # Load image into sensor_msgs::Image
-#                             cv_img = cv2.imread(file)
-#                             ros_img = Image()
-#                             ros_img.encoding = 'bgr8'
-#                             ros_img.height = cv_img.shape[0]
-#                             ros_img.width = cv_img.shape[1]
-#                             ros_img.step = cv_img.shape[1] * 3
-#                             ros_img.data = cv_img.tostring()
-#
-#                             # Parse bounding box from annotation file
-#                             fname = os.path.splitext(file)[0]
-#                             annot = open(fname + ".txt", "w")
-#                             bbox = [
-#                                 float(x) for x in                              \
-#                                 annot.readlines()[0].strip().split(",")
-#                             ]
-#
-#                             # Send file to Darknet
-#                             add = DarknetAddTrainingFile()
-#                             add.network_name = "Find_Object"
-#                             add.image = ros_img
-#                             add.label = obj.label
-#                             add.xmin = bbox[0]
-#                             add.xmax = bbox[1]
-#                             add.ymin = bbox[2]
-#                             add.ymax = bbox[3]
-#                             add.image_width = ros_img.width
-#                             add.image_height = ros_img.height
-#
-#                             pub_add_training_file.publish(add)
-#
-#             return
 
 
 def objmem_add(msg):
@@ -252,8 +205,6 @@ def objmem_add(msg):
 ################################################################################
 # SAVING AND LOADING DATABASES
 ################################################################################
-
-
 def save_objmem_db():
     """Saves the objmem bank to disk.
     """
@@ -310,6 +261,7 @@ def save_proof_db():
             "task_name=" + entry.task_name,
             "parameter=" + entry.parameter,
             "robot_position=%s,%s,%s" % tuple(entry.robot_position),
+            "robot_orientation=%s,%s,%s,%s" % tuple(entry.robot_orientation),
             "status=" + entry.status.name,
             "objmem_id=" + str(entry.objmem_id)
         ]
@@ -346,6 +298,9 @@ def load_proof_db():
             elif pair[0] == "robot_position":
                 pos = [float(x) for x in pair[1].split(",")]
                 entry.robot_position = pos
+            elif pair[0] == "robot_orientation":
+                quat = [float(x) for x in pair[1].split(",")]
+                entry.robot_orientation = quat
             elif pair[0] == "status":
                 entry.status = ProofStatus[pair[1]]
             elif pair[0] == "objmem_id":
@@ -387,8 +342,6 @@ def load_proof_db():
 ################################################################################
 # QUERYING INFORMATION FROM DATABASES
 ################################################################################
-
-
 def confirm_object(req):
     """A service for determining if an object was previously marked correct or
     incorrect by Scavenger Hunt.
@@ -436,11 +389,11 @@ def get_priority_points(req):
     res = bwi_scavenger_msgs.srv.GetPriorityPointsResponse()
 
     for c in centroids:
-        point = Point()
-        point.x = c[0][0]
-        point.y = c[0][1]
-        point.z = c[0][2]
-        res.points.append(point)
+        pose = Pose()
+        pose.position.x = c[0][0]
+        pose.position.y = c[0][1]
+        pose.position.z = c[0][2]
+        res.poses.append(pose)
         res.scores.append(c[1])
 
     log.info("Served %s priority points." % len(centroids))
@@ -451,8 +404,6 @@ def get_priority_points(req):
 ################################################################################
 # VISUALIZATION
 ################################################################################
-
-
 def visualize():
     """Populates rviz with useful markers for visualizing object locations,
     priority points, etc.
@@ -631,8 +582,6 @@ def visualize():
 ################################################################################
 # NODE ENTRYPOINT
 ################################################################################
-
-
 if __name__ == "__main__":
     rospy.init_node(log.tag_name)
 

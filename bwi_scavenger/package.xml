@@ -17,6 +17,7 @@
   <build_depend>std_msgs</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>bwi_scavenger_msgs</build_depend>
+  <build_depend>darksocket_ros</build_depend>
   <build_depend>scavenger_hunt</build_depend>
   <build_depend>kinect_fusion</build_depend>
 
@@ -26,6 +27,7 @@
   <run_depend>std_msgs</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>bwi_scavenger_msgs</run_depend>
+  <run_depend>darksocket_ros</run_depend>
   <run_depend>scavenger_hunt</run_depend>
   <run_depend>kinect_fusion</run_depend>
 </package>

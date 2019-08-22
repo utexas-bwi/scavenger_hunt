@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   darknet_ros_msgs
   scavenger_hunt_msgs
+  darksocket_ros
   message_generation
 )
 
@@ -38,6 +39,7 @@ generate_messages(DEPENDENCIES
   geometry_msgs
   darknet_ros_msgs
   scavenger_hunt_msgs
+  darksocket_ros
 )
 
 catkin_package(CATKIN_DEPENDS
@@ -47,4 +49,5 @@ catkin_package(CATKIN_DEPENDS
   std_msgs
   darknet_ros_msgs
   scavenger_hunt_msgs
+  darksocket_ros
 )
