@@ -10,15 +10,16 @@
 #include <tf/tf.h>
 #include <vector>
 
+#include <bwi_scavenger_msgs/ConfirmObject.h>
+#include <bwi_scavenger_msgs/GetPriorityPoints.h>
+#include <bwi_scavenger_msgs/MultitaskStart.h>
+#include <bwi_scavenger_msgs/ObjmemDump.h>
 #include <bwi_scavenger_msgs/PerceptionMoment.h>
 #include <bwi_scavenger_msgs/PoseRequest.h>
 #include <bwi_scavenger_msgs/RobotMove.h>
 #include <bwi_scavenger_msgs/RobotStop.h>
 #include <bwi_scavenger_msgs/SendProof.h>
 #include <bwi_scavenger_msgs/TaskEnd.h>
-#include <bwi_scavenger_msgs/ConfirmObject.h>
-#include <bwi_scavenger_msgs/GetPriorityPoints.h>
-#include <bwi_scavenger_msgs/MultitaskStart.h>
 #include <scavenger_hunt_msgs/Task.h>
 #include <scavenger_hunt_msgs/Proof.h>
 #include <darknet_ros_msgs/BoundingBox.h>
@@ -33,15 +34,17 @@
 #include "bwi_scavenger/state_machine.h"
 #include "bwi_scavenger/world_mapping.h"
 
-// The strategy employed by the object search
 enum SearchStrategy {
-  CIRCUIT,
+  STUPID,
   GREEDY,
   SMART
 };
 
 static const SearchStrategy SEARCH_STRATEGY = GREEDY;
-static const bool RANDOMIZE_CIRCUIT = true;
+
+// Pathing
+static std::map<EnvironmentLocation, coordinates_t>* world_waypoints;
+static LocationEvaluator* loc_eval;
 
 // IDs for state machine states
 static const state_id_t STATE_TRAVELING = 0;
@@ -71,11 +74,6 @@ static StateMachine sm;
 static double t_task_start;
 static bool node_active = false;
 
-// Pathing
-static OrderedLocationSet* map_circuit;
-static OrderedLocationSet* map_priority;
-static LocationSet* map_active;
-
 // Target object metadata
 static std::vector<std::string> target_object_labels;
 static std::string target_label_current;
@@ -89,6 +87,7 @@ static ros::ServiceClient client_pose_request;
 static ros::ServiceClient client_send_proof;
 static ros::ServiceClient client_confirm_object;
 static ros::ServiceClient client_get_priority_points;
+static ros::ServiceClient client_objmem_dump;
 
 /**
  * Called when a target object is confirmed. Relies on perceive_cb(...) to
@@ -264,29 +263,20 @@ public:
   void on_transition_from(SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
 
-    // Transition to circuit map if the priority map has finished
-    if (map_active == map_priority && map_active->get_laps() >= 1) {
-      ROS_INFO("%s Changing maps...", TELEM_TAG);
-
-      map_active = map_circuit;
+    if (!svec->travel_finished) {
+      bwi_scavenger_msgs::RobotStop stop;
+      pub_stop.publish(stop);
+    } else {
       bwi_scavenger_msgs::PoseRequest req_pose;
       client_pose_request.call(req_pose);
       coordinates_t c = {
         req_pose.response.pose.position.x,
         req_pose.response.pose.position.y
       };
-      map_active->start(c);
-    }
 
-    if (!svec->travel_finished) {
-      bwi_scavenger_msgs::RobotStop stop;
-      pub_stop.publish(stop);
-    } else {
-      // Reshuffle circuit on every travel state when using random search
-      if (RANDOMIZE_CIRCUIT)
-        map_circuit->shuffle();
-
-      svec->destination = map_active->get_next_location();
+      svec->destination = (*world_waypoints)[
+        loc_eval->get_location(target_object_labels, c)
+      ];
     }
   }
 
@@ -594,37 +584,22 @@ void multitask_start_cb(const bwi_scavenger_msgs::MultitaskStart& msg) {
       ROS_ERROR("%s Cannot multitask: %s", TELEM_TAG, task.name.c_str());
   }
 
-  // Default to counter-clockwise circuit
-  map_active = map_circuit;
+  // If doing greedy search, get object distribution data
+  if (SEARCH_STRATEGY == GREEDY) {
+    bwi_scavenger_msgs::ObjmemDump objmem_dump;
+    objmem_dump.request.labels = target_object_labels;
+    client_objmem_dump.call(objmem_dump);
 
-  if (RANDOMIZE_CIRCUIT)
-    map_circuit->shuffle();
-
-  if (SEARCH_STRATEGY == CIRCUIT) {
-    // Already configured
-  } else if (SEARCH_STRATEGY == GREEDY) {
-    // Obtain and sort priority points for all currently assigned tasks
-    if (priority_points.size() > 0) {
-      // Sort priority point list
-      std::sort(priority_points.begin(), priority_points.end());
-
-      ROS_INFO("%s Built priority map with %d points:",
-        TELEM_TAG, priority_points.size()
-      );
-
-      for (const priority_point_t& ppoint : priority_points) {
-        map_priority->add_location(ppoint.coords);
-        ROS_INFO("%s (%f, %f) with score=%f",
-          TELEM_TAG, ppoint.coords.x, ppoint.coords.y, ppoint.score
-        );
-      }
-
-      // Begin the search with the priority circuit
-      map_active = map_priority;
+    for (std::size_t i = 0; i < objmem_dump.response.labels.size(); i++) {
+      const std::string& label = objmem_dump.response.labels[i];
+      const geometry_msgs::Pose& robot_pose = objmem_dump.response.robot_poses[i];
+      coordinates_t robot_pos = {
+        robot_pose.position.x,
+        robot_pose.position.y
+      };
+      EnvironmentLocation probable_loc = loc_eval->get_closest_location(robot_pos);
+      loc_eval->add_object(probable_loc, label);
     }
-  } else if (SEARCH_STRATEGY == SMART) {
-    // TODO: figure this out
-    ROS_ERROR("wtfffff");
   }
 
   // Localize in the map and begin searching
@@ -637,9 +612,11 @@ void multitask_start_cb(const bwi_scavenger_msgs::MultitaskStart& msg) {
   c.x = robot_pose.position.x;
   c.y = robot_pose.position.y;
 
-  map_active->start(c);
+  loc_eval->get_closest_location(c, true);
 
-  ssv.destination = map_active->get_next_location();
+  ssv.destination = (*world_waypoints)[
+    loc_eval->get_location(target_object_labels, c)
+  ];
   node_active = true;
   t_task_start = ros::Time::now().toSec();
 }
@@ -698,11 +675,17 @@ int main(int argc, char **argv) {
   else
     ROS_ERROR("Unknown world: %s", world_str.c_str());
 
+  if (world == SIM)
+    world_waypoints = &WORLD_WAYPOINTS_SIM;
+  else if (world == IRL)
+    world_waypoints = &WORLD_WAYPOINTS_IRL;
+
   // Node build up
   client_pose_request = nh.serviceClient<bwi_scavenger_msgs::PoseRequest>(SRV_POSE_REQUEST);
   client_send_proof = nh.serviceClient<bwi_scavenger_msgs::SendProof>(SRV_SEND_PROOF);
   client_confirm_object = nh.serviceClient<bwi_scavenger_msgs::ConfirmObject>(SRV_CONFIRM_OBJECT);
   client_get_priority_points = nh.serviceClient<bwi_scavenger_msgs::GetPriorityPoints>(SRV_GET_PRIORITY_POINTS);
+  client_objmem_dump = nh.serviceClient<bwi_scavenger_msgs::GetPriorityPoints>("/bwi_scavenger/services/objmem_dump");
 
   pub_move = nh.advertise<bwi_scavenger_msgs::RobotMove>(TPC_MOVE_NODE_GO, 1);
   pub_stop = nh.advertise<bwi_scavenger_msgs::RobotStop>(TPC_MOVE_NODE_STOP, 1);
@@ -713,20 +696,19 @@ int main(int argc, char **argv) {
   ros::Subscriber sub_perception = nh.subscribe(TPC_PERCEPTION_NODE_MOMENT, 1, perceive_cb);
   ros::Subscriber sub_multitask_start = nh.subscribe(TPC_MULTITASK_START, 1, multitask_start_cb);
 
-  // Assemble maps
-  map_circuit = new OrderedLocationSet(world);
-  map_priority = new OrderedLocationSet();
+  // Build evaluators
+  if (SEARCH_STRATEGY == STUPID)
+    loc_eval = new StupidLocationEvaluator(world);
+  else if (SEARCH_STRATEGY == GREEDY)
+    loc_eval = new GreedyLocationEvaluator(world);
+  else if (SEARCH_STRATEGY == SMART)
+    ROS_ERROR("wtffffffffffffffffffffffffff");
 
-  // Build default search circuit
-  map_circuit->add_location(BWI_LAB_DOOR_NORTH);
-  map_circuit->add_location(CLEARING_NORTH);
-  map_circuit->add_location(CLEARING_SOUTH);
-  // map_circuit->add_location(ALCOVE);
-  map_circuit->add_location(KITCHEN);
-  // map_circuit->add_location(BWI_LAB_DOOR_SOUTH);
-  map_circuit->add_location(HALLWAY0);
-  // map_circuit->add_location(SOCCER_LAB_DOOR_SOUTH);
-  // map_circuit->add_location(SOCCER_LAB_DOOR_NORTH);
+  loc_eval->add_location(BWI_LAB_DOOR_NORTH);
+  loc_eval->add_location(CLEARING_NORTH);
+  loc_eval->add_location(CLEARING_SOUTH);
+  loc_eval->add_location(KITCHEN);
+  loc_eval->add_location(HALLWAY0);
 
   // Build state machine
   s_traveling->add_output(s_end);

@@ -78,4 +78,49 @@ public:
 
 };
 
+class LocationEvaluator {
+protected:
+  std::vector<EnvironmentLocation> locations;
+  std::map<EnvironmentLocation, coordinates_t>* world_waypoints;
+  std::map<EnvironmentLocation, std::vector<std::string>> object_db;
+
+  std::size_t loc_index;
+
+public:
+  LocationEvaluator(World w);
+
+  void add_location(EnvironmentLocation loc);
+
+  void add_object(EnvironmentLocation loc, std::string label);
+
+  void start(coordinates_t coords_current);
+
+  virtual EnvironmentLocation get_location(
+    const std::vector<std::string>& remaining_objects,
+    coordinates_t coords_current
+  ) = 0;
+
+  EnvironmentLocation get_closest_location(coordinates_t c, bool start = false);
+};
+
+class StupidLocationEvaluator : public LocationEvaluator {
+public:
+  StupidLocationEvaluator(World w);
+
+  EnvironmentLocation get_location(const std::vector<std::string>& remaining_objects,
+                                   coordinates_t coords_current);
+};
+
+class GreedyLocationEvaluator : public LocationEvaluator {
+protected:
+  StupidLocationEvaluator fallback_eval;
+  bool fallback_started = false;
+
+public:
+  GreedyLocationEvaluator(World w);
+
+  EnvironmentLocation get_location(const std::vector<std::string>& remaining_objects,
+                                   coordinates_t coords_current);
+};
+
 #endif

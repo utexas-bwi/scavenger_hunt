@@ -1,0 +1,5 @@
+string[] labels
+---
+string[] labels
+geometry_msgs/Pose[] object_poses
+geometry_msgs/Pose[] robot_poses

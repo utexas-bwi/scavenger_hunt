@@ -401,6 +401,44 @@ def get_priority_points(req):
     return res
 
 
+def objmem_dump(req):
+    """Retrieve lots of objmem data at once.
+
+    Parameters
+    ----------
+    req : bwi_scavenger_msgs.srv.ObjmemDumpRequest
+        has a list of object labels to retrieve info for
+
+    Return
+    ------
+    bwi_scavenger_msgs.srv.ObjmemDumpResponse
+        aligned lists of object labels, poses, and corresponding robot poses
+    """
+    res = bwi_scavenger_msgs.srv.ObjmemDumpResponse()
+
+    for proof in proof_db:
+        if proof.parameter in req.labels:
+            req.labels.append(proof.parameter)
+
+            robot_pose = Pose()
+            robot_pose.position.x = proof.robot_position[0]
+            robot_pose.position.y = proof.robot_position[1]
+            robot_pose.position.z = proof.robot_position[2]
+            robot_pose.orientation.w = proof.robot_orientation[0]
+            robot_pose.orientation.x = proof.robot_orientation[1]
+            robot_pose.orientation.y = proof.robot_orientation[2]
+            robot_pose.orientation.z = proof.robot_orientation[3]
+            req.robot_poses.append(robot_pose)
+
+            object_pose = Pose()
+            object_pose.position.x = objmem.bank[proof.objmem_id].pos[0]
+            object_pose.position.y = objmem.bank[proof.objmem_id].pos[1]
+            object_pose.position.z = objmem.bank[proof.objmem_id].pos[2]
+            req.object_poses.append(object_pose)
+
+    return res
+
+
 ################################################################################
 # VISUALIZATION
 ################################################################################
@@ -638,6 +676,11 @@ if __name__ == "__main__":
         SRV_GET_PRIORITY_POINTS,
         bwi_scavenger_msgs.srv.GetPriorityPoints,
         get_priority_points
+    )
+    rospy.Service(
+        SRV_OBJMEM_DUMP,
+        bwi_scavenger_msgs.srv.ObjmemDump,
+        objmem_dump
     )
     scav_send_proof = rospy.ServiceProxy(
         "/scavenger_hunt/send_proof",

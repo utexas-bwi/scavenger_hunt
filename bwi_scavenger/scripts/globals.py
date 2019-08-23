@@ -9,6 +9,7 @@ TPC_OBJMEM_NODE_ADD = "/bwi_scavenger/objmem_node/add"
 SRV_PROOFDB_NODE_SEND_PROOF = "/bwi_scavenger/services/send_proof"
 SRV_CONFIRM_OBJECT = "/bwi_scavenger/services/confirm_object"
 SRV_GET_PRIORITY_POINTS = "/bwi_scavenger/services/get_priority_points"
+SRV_OBJMEM_DUMP = "/bwi_scavenger/services/objmem_dump"
 
 # This is a really important variable!
 #

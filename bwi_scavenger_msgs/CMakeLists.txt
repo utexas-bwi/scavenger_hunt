@@ -31,6 +31,7 @@ add_service_files(FILES
   SendProof.srv
   ConfirmObject.srv
   GetPriorityPoints.srv
+  ObjmemDump.srv
 )
 
 generate_messages(DEPENDENCIES
