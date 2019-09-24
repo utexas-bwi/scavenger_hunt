@@ -418,7 +418,7 @@ def objmem_dump(req):
 
     for proof in proof_db:
         if proof.parameter in req.labels:
-            req.labels.append(proof.parameter)
+            res.labels.append(proof.parameter)
 
             robot_pose = Pose()
             robot_pose.position.x = proof.robot_position[0]
@@ -428,13 +428,13 @@ def objmem_dump(req):
             robot_pose.orientation.x = proof.robot_orientation[1]
             robot_pose.orientation.y = proof.robot_orientation[2]
             robot_pose.orientation.z = proof.robot_orientation[3]
-            req.robot_poses.append(robot_pose)
+            res.robot_poses.append(robot_pose)
 
             object_pose = Pose()
             object_pose.position.x = objmem.bank[proof.objmem_id].pos[0]
             object_pose.position.y = objmem.bank[proof.objmem_id].pos[1]
             object_pose.position.z = objmem.bank[proof.objmem_id].pos[2]
-            req.object_poses.append(object_pose)
+            res.object_poses.append(object_pose)
 
     return res
 
