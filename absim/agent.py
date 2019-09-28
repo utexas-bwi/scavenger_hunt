@@ -10,7 +10,7 @@ class Agent:
 
     def traverse(self, dest):
         # Collect objects at current location
-        for object in self.current_node.objects:
+        for object in self.map.nodes[self.current_node].objects:
             if object in self.hunt:
                 self.hunt.remove(object)
         if self.is_done():
@@ -24,8 +24,8 @@ class Agent:
         if edge is None:
             raise RuntimeError(
                 "agent tried to move along nonexistent edge %s -> %s" % (
-                    str(self.current_node),
-                    str(dest)
+                    self.current_node,
+                    dest
                 )
             )
         # Travel edge

@@ -1,0 +1,17 @@
+[map]
+a b 10 !
+b c 5 !
+c a 4 !
+
+[obj]
+chair0 chair
+chair1 chair
+box0 box
+
+[distr]
+chair0 a c 3/5 b 0.4
+box0 a 0.05 b 0.75 c 0.2
+
+[hunt]
+box
+chair

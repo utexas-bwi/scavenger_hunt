@@ -1,4 +1,17 @@
-"""Objects for representing scavenger hunt worlds.
+"""Representation of scavenger hunt worlds.
+
+A world is a weighted, directed, complete graph and associated occurrence model.
+The occurrence model describes the probability distribution of objects across
+graph nodes.
+
+It is important to distinguish between "objects" and "instances". An object is
+a type of item that may appear in the world and on hunt lists. An object has a
+unique identifying string called a label. An instance is intuitive--an instance
+of an object. Instances are also identified with unique labels, ideally
+including its object label and a numeric ID (e.g. the set of N chair instances
+has labels {chair0, chair1, ..., chairN}. An instance may be viewed from one or
+more world location. Multiple instances of the same object may appear across the
+world. Hunt lists contain objects, never instances.
 """
 import random
 import util
@@ -8,7 +21,7 @@ class Distribution:
     """A probabalistic object distribution across locations.
     """
     def __init__(self, label, probs):
-        """Should not be called directly; use world.distr instead.
+        """Should not be created directly; use Map.add_distr instead.
 
         Parameters
         ----------
@@ -16,10 +29,10 @@ class Distribution:
             unique object label
         probs : list
             list of the form [
-                (node_name0, prob0),
-                (node_name1, prob1),
-                ...
-                (node_nameN, probN)
+                ([node00, ..., node0M], prob0),
+                ([node10, ..., node1M], prob1),
+                ...,
+                ([nodeN0, ..., nodeNM], probN)
             ]
             with positive probabilities summing to 1.0
         """
@@ -43,19 +56,19 @@ class Distribution:
 
         Return
         ------
-        str
-            name of node
+        list
+            list of node names
         """
         f = random.random()
-        loc = None
+        locs = None
         for i in range(0, len(self.probs) - 1):
             p = self.probs[i]
             if f < p[1]:
-                loc = p[0]
+                locs = p[0]
                 break
-        if loc is None:
-            loc = self.probs[len(self.probs) - 1][0]
-        return loc
+        if locs is None:
+            locs = self.probs[len(self.probs) - 1][0]
+        return locs
 
 
 class Node:
@@ -101,10 +114,10 @@ class Edge:
         """
         Parameters
         ----------
-        n0 : Node
-            tail node
-        n1 : Node
-            head node
+        n0 : str
+            tail node name
+        n1 : str
+            head node name
         cost : float
             traversal cost
         """
@@ -121,8 +134,8 @@ class Map:
     def __init__(self):
         """Maps are initially empty.
         """
-        self.nodes = []
-        self.node_name_map = {}
+        self.nodes = {}
+        self.object_labels = {}
         self.edges = []
         self.connections = {}
         self.distributions = []
@@ -136,9 +149,8 @@ class Map:
         n : Node
             node to add
         """
-        if not n in self.nodes:
-            self.node_name_map[n.name] = n
-            self.nodes.append(n)
+        if not n.name in self.nodes:
+            self.nodes[n.name] = n
 
     def connect(self, name0, name1, cost):
         """Adds a new edge to the map. This edge is directed name0 -> name1.
@@ -153,7 +165,7 @@ class Map:
             traversal cost
         """
         n0, n1 = Node(name0), Node(name1)
-        edge = Edge(n0, n1, cost)
+        edge = Edge(name0, name1, cost)
         self.add_node(n0)
         self.add_node(n1)
         self.edges.append(edge)
@@ -189,14 +201,7 @@ class Map:
         bool
             if the object is present
         """
-        node = None
-        for n in self.nodes:
-            if n.name == name:
-                node = n
-                break
-        if node is None:
-            raise RuntimeError("unknown node: %s" % node)
-        return label in node.objects
+        return label in self.nodes[name].objects
 
     def finalize(self):
         """Finalizes the map by building the adjacency map. Probably don't edit
@@ -224,17 +229,21 @@ class Map:
         """
         self.distributions.append(Distribution(label, list(args)))
 
+    def add_distr_list(self, label, probs):
+        self.distributions.append(Distribution(label, probs))
+
     def populate(self):
         """Distributes objects across the map according to the provided
         distributions.
         """
         # Clear current objects
         for node in self.nodes:
-            node.objects.clear()
+            self.nodes[node].objects.clear()
         # Redistribute
         for d in self.distributions:
-            label, loc = d.label, d.place()
-            self.node_name_map[loc].objects.append(label)
+            label, locs = d.label, d.place()
+            for loc in locs:
+                self.nodes[loc].objects.append(label)
 
     def __str__(self):
         """Gets a string representation of the map showing node connections.
@@ -248,9 +257,9 @@ class Map:
         # Find longest name
         longest_name, longest_len = None, None
         for node in self.nodes:
-            if longest_len is None or len(node.name) > longest_len:
-                longest_name = node.name
-                longest_len = len(node.name)
+            if longest_len is None or len(node) > longest_len:
+                longest_name = node
+                longest_len = len(node)
 
         # Build formatted connections list
         for c in self.nodes:
@@ -259,7 +268,7 @@ class Map:
             conns_f = "["
             for i in range(0, len(conns)):
                 last = i == len(conns) - 1
-                conns_f += conns[i].name + (", " if not last else "")
+                conns_f += conns[i] + (", " if not last else "")
             conns_f += "]"
             # Pad to correct length
             c_name = str(c)
@@ -267,5 +276,5 @@ class Map:
                 c_name += " "
             res += c_name + " -> " + conns_f + "\n"
             # Show objects
-            res += "  %s\n" % str(c.objects)
+            res += "  %s\n" % str(self.nodes[c].objects)
         return res
