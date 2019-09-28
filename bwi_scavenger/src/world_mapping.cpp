@@ -9,7 +9,8 @@ std::map<EnvironmentLocation, coordinates_t> WORLD_WAYPOINTS_SIM {
   {KITCHEN,               { 30.9585, 105.623   }},
   {SOCCER_LAB_DOOR_NORTH, { 48.2878, 112.392   }},
   {SOCCER_LAB_DOOR_SOUTH, { 48.3504, 105.226   }},
-  {FELLOW_COMPUTERS,      { 35.8519, 112.632   }}
+  {FELLOW_COMPUTERS,      { 35.8519, 112.632   }},
+  {HALLWAY0,              { 43,      105       }}
 };
 
 std::map<EnvironmentLocation, coordinates_t> WORLD_WAYPOINTS_IRL {

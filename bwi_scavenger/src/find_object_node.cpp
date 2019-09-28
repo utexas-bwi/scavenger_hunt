@@ -35,12 +35,12 @@
 #include "bwi_scavenger/world_mapping.h"
 
 enum SearchStrategy {
-  STUPID,
-  GREEDY,
-  SMART
+  COMPLETE,
+  OCCUPANCY_GRID,
+  PROXIMITY_BASED
 };
 
-static const SearchStrategy SEARCH_STRATEGY = GREEDY;
+static const SearchStrategy SEARCH_STRATEGY = OCCUPANCY_GRID;
 
 // Pathing
 static std::map<EnvironmentLocation, coordinates_t>* world_waypoints;
@@ -415,10 +415,10 @@ public:
   }
 };
 
-static State *s_traveling = new FindObjectTravelingState(STATE_TRAVELING);
-static State *s_scanning = new FindObjectScanningState(STATE_SCANNING);
-static State *s_inspecting = new FindObjectInspectingState(STATE_INSPECTING);
-static State *s_end = new FindObjectEndState(STATE_END);
+static State* s_traveling = new FindObjectTravelingState(STATE_TRAVELING);
+static State* s_scanning = new FindObjectScanningState(STATE_SCANNING);
+static State* s_inspecting = new FindObjectInspectingState(STATE_INSPECTING);
+static State* s_end = new FindObjectEndState(STATE_END);
 
 /**
  * @brief resets the state machine system state vector
@@ -545,59 +545,58 @@ void multitask_start_cb(const bwi_scavenger_msgs::MultitaskStart& msg) {
       target_object_confirmations[target_label] = 0;
 
       // Get priority points for this label
-      bwi_scavenger_msgs::GetPriorityPoints get_points;
-      get_points.request.task_name = TASK_FIND_OBJECT;
-      get_points.request.task_parameter = target_label;
-      client_get_priority_points.call(get_points);
-
-      for (std::size_t i = 0; i < get_points.response.poses.size(); i++) {
-        // Collapse similiar points
-        const float SIMILARITY_THRESH = 0.25;
-        bool new_point = true;
-
-        for (std::size_t j = 0; j < priority_points.size(); j++) {
-          float dx = priority_points[j].coords.x -
-                     get_points.response.poses[i].position.x;
-          float dy = priority_points[j].coords.y -
-                     get_points.response.poses[i].position.y;
-          float dist = sqrt(dx * dx + dy * dy);
-
-          if (dist < SIMILARITY_THRESH) {
-            new_point = false;
-            break;
-          }
-        }
-
-        if (new_point) {
-          priority_points.push_back(
-            {
-              {
-                get_points.response.poses[i].position.x,
-                get_points.response.poses[i].position.y
-              },
-              get_points.response.scores[i]
-            }
-          );
-        }
-      }
+      // bwi_scavenger_msgs::GetPriorityPoints get_points;
+      // get_points.request.task_name = TASK_FIND_OBJECT;
+      // get_points.request.task_parameter = target_label;
+      // client_get_priority_points.call(get_points);
+      //
+      // for (std::size_t i = 0; i < get_points.response.poses.size(); i++) {
+      //   // Collapse similiar points
+      //   const float SIMILARITY_THRESH = 0.25;
+      //   bool new_point = true;
+      //
+      //   for (std::size_t j = 0; j < priority_points.size(); j++) {
+      //     float dx = priority_points[j].coords.x -
+      //                get_points.response.poses[i].position.x;
+      //     float dy = priority_points[j].coords.y -
+      //                get_points.response.poses[i].position.y;
+      //     float dist = sqrt(dx * dx + dy * dy);
+      //
+      //     if (dist < SIMILARITY_THRESH) {
+      //       new_point = false;
+      //       break;
+      //     }
+      //   }
+      //
+      //   if (new_point) {
+      //     priority_points.push_back(
+      //       {
+      //         {
+      //           get_points.response.poses[i].position.x,
+      //           get_points.response.poses[i].position.y
+      //         },
+      //         get_points.response.scores[i]
+      //       }
+      //     );
+      //   }
+      // }
     } else
       ROS_ERROR("%s Cannot multitask: %s", TELEM_TAG, task.name.c_str());
   }
 
   // If doing greedy search, get object distribution data
-  if (SEARCH_STRATEGY == GREEDY) {
+  if (SEARCH_STRATEGY == OCCUPANCY_GRID) {
     bwi_scavenger_msgs::ObjmemDump objmem_dump;
     objmem_dump.request.labels = target_object_labels;
     client_objmem_dump.call(objmem_dump);
-
     for (std::size_t i = 0; i < objmem_dump.response.labels.size(); i++) {
       const std::string& label = objmem_dump.response.labels[i];
-      const geometry_msgs::Pose& robot_pose = objmem_dump.response.robot_poses[i];
-      coordinates_t robot_pos = {
-        robot_pose.position.x,
-        robot_pose.position.y
+      const geometry_msgs::Pose& pose = objmem_dump.response.object_poses[i];
+      coordinates_t pos = {
+        pose.position.x,
+        pose.position.y
       };
-      EnvironmentLocation probable_loc = loc_eval->get_closest_location(robot_pos);
+      EnvironmentLocation probable_loc = loc_eval->get_closest_location(pos);
       loc_eval->add_object(probable_loc, label);
     }
   }
@@ -685,7 +684,7 @@ int main(int argc, char **argv) {
   client_send_proof = nh.serviceClient<bwi_scavenger_msgs::SendProof>(SRV_SEND_PROOF);
   client_confirm_object = nh.serviceClient<bwi_scavenger_msgs::ConfirmObject>(SRV_CONFIRM_OBJECT);
   client_get_priority_points = nh.serviceClient<bwi_scavenger_msgs::GetPriorityPoints>(SRV_GET_PRIORITY_POINTS);
-  client_objmem_dump = nh.serviceClient<bwi_scavenger_msgs::GetPriorityPoints>("/bwi_scavenger/services/objmem_dump");
+  client_objmem_dump = nh.serviceClient<bwi_scavenger_msgs::ObjmemDump>("/bwi_scavenger/services/objmem_dump");
 
   pub_move = nh.advertise<bwi_scavenger_msgs::RobotMove>(TPC_MOVE_NODE_GO, 1);
   pub_stop = nh.advertise<bwi_scavenger_msgs::RobotStop>(TPC_MOVE_NODE_STOP, 1);
@@ -697,11 +696,11 @@ int main(int argc, char **argv) {
   ros::Subscriber sub_multitask_start = nh.subscribe(TPC_MULTITASK_START, 1, multitask_start_cb);
 
   // Build evaluators
-  if (SEARCH_STRATEGY == STUPID)
-    loc_eval = new StupidLocationEvaluator(world);
-  else if (SEARCH_STRATEGY == GREEDY)
-    loc_eval = new GreedyLocationEvaluator(world);
-  else if (SEARCH_STRATEGY == SMART)
+  if (SEARCH_STRATEGY == COMPLETE)
+    loc_eval = new CompleteLocationEvaluator(world);
+  else if (SEARCH_STRATEGY == OCCUPANCY_GRID)
+    loc_eval = new OccupancyGridLocationEvaluator(world);
+  else if (SEARCH_STRATEGY == PROXIMITY_BASED)
     ROS_ERROR("wtffffffffffffffffffffffffff");
 
   loc_eval->add_location(BWI_LAB_DOOR_NORTH);
