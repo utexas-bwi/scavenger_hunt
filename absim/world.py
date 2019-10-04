@@ -18,7 +18,7 @@ import util
 
 
 class Distribution:
-    """A probabalistic object distribution across locations.
+    """A probabalistic location distribution for an instance.
     """
     def __init__(self, label, probs):
         """Should not be created directly; use Map.add_distr instead.
@@ -26,7 +26,7 @@ class Distribution:
         Parameters
         ----------
         label : str
-            unique object label
+            instance label
         probs : list
             list of the form [
                 ([node00, ..., node0M], prob0),
@@ -51,7 +51,7 @@ class Distribution:
         self.probs.sort(key=lambda x : x[1])
 
     def place(self):
-        """Generate a location for the object to be at according to the
+        """Generate a location for the instance to be at according to the
         distribution.
 
         Return
@@ -70,9 +70,27 @@ class Distribution:
             locs = self.probs[len(self.probs) - 1][0]
         return locs
 
+    def prob_node(self, node):
+        """Gets the probability of this instance being viewable from a node.
+
+        Parameters
+        ----------
+        node : str
+            node name
+
+        Return
+        ------
+        float
+            probability
+        """
+        for prob in self.probs:
+            if node in prob[0]:
+                return prob[1]
+        return 0
+
 
 class Node:
-    """A location on a map, containing some set of objects.
+    """A location on a map, containing some set of instances.
     """
     def __init__(self, name):
         """
@@ -82,7 +100,7 @@ class Node:
             unique name
         """
         self.name = name
-        self.objects = []
+        self.instances = []
 
     def __eq__(self, other):
         """
@@ -203,6 +221,78 @@ class Map:
         """
         return label in self.nodes[name].objects
 
+    def instances_at_node(self, node):
+        """Gets the IDs of instances present at a node.
+
+        Parameters
+        ----------
+        node : str
+            node name
+
+        Return
+        ------
+        list of str
+            instance IDs
+        """
+        return self.nodes[node].instances
+
+    def prob_inst(self, inst, node):
+        """Gets the probability of an instance appearing at a node.
+
+        Parameters
+        ----------
+        inst : str
+            instance label
+        node : str
+            node name
+
+        Return
+        ------
+        float
+            probability of inst appearing at node
+        """
+        for d in self.distributions:
+            if d.label == inst:
+                return d.prob_node(node)
+        return 0
+
+    def prob_obj(self, obj, node):
+        """Gets the probability of an instance appearing at a node.
+        NOTE: this implementation is flawed and does not consider multiple
+        instances at one location.
+
+        Parameters
+        ----------
+        obj : str
+            object label
+        node : str
+            node name
+
+        Return
+        ------
+        float
+            probability of obj appearing at node
+        """
+        for d in self.distributions:
+            if self.object_labels[d.label] == obj:
+                return d.prob_node(node)
+        return 0
+
+    def labels_at_node(self, node):
+        """Gets the labels of instances present at a node.
+
+        Parameters
+        ----------
+        node : str
+            node name
+
+        Return
+        ------
+        list of str
+            labels
+        """
+        return [self.object_labels[x] for x in self.nodes[node].instances]
+
     def finalize(self):
         """Finalizes the map by building the adjacency map. Probably don't edit
         the map further after calling this.
@@ -219,6 +309,12 @@ class Map:
         # Populate map
         self.populate()
 
+    def cost(self, a, b):
+        for edge in self.edges:
+            if edge.n0 == a and edge.n1 == b:
+                return edge.cost
+        return None
+
     def add_distr(self, label, *args):
         """Adds an object to the map with some occurrence model.
 
@@ -233,20 +329,21 @@ class Map:
         self.distributions.append(Distribution(label, probs))
 
     def populate(self):
-        """Distributes objects across the map according to the provided
+        """Distributes instances across the map according to the provided
         distributions.
         """
-        # Clear current objects
+        # Clear current instances
         for node in self.nodes:
-            self.nodes[node].objects.clear()
+            self.nodes[node].instances.clear()
         # Redistribute
         for d in self.distributions:
             label, locs = d.label, d.place()
             for loc in locs:
-                self.nodes[loc].objects.append(label)
+                self.nodes[loc].instances.append(label)
 
     def __str__(self):
-        """Gets a string representation of the map showing node connections.
+        """Gets a string representation of the map showing node connections
+        and instances present.
 
         Return
         ------
@@ -276,5 +373,5 @@ class Map:
                 c_name += " "
             res += c_name + " -> " + conns_f + "\n"
             # Show objects
-            res += "  %s\n" % str(self.nodes[c].objects)
+            res += "  %s\n" % str(self.nodes[c].instances)
         return res

@@ -3,6 +3,9 @@ a b 10 !
 b c 5 !
 c a 4 !
 
+[start]
+a
+
 [obj]
 chair0 chair
 chair1 chair

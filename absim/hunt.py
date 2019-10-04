@@ -1,3 +1,4 @@
+from greedy_agent import GreedyAgent
 from random_agent import RandomAgent
 
 import agent
@@ -5,14 +6,32 @@ import sys
 import world
 
 
+################################################################################
+# AGENT TYPE
+################################################################################
+agent_type = GreedyAgent
+
+################################################################################
+# SIMULATION PARAMETERS
+################################################################################
 # Enforce usage
 if len(sys.argv) < 2:
-    print("Usage: python3 test.py <hunt file> <flags>")
+    help = [
+        "python3 test.py [HUNT FILE]...",
+        "",
+        "Options:",
+        "  -t trial count; default 1"
+    ]
+    for line in help:
+        print(line)
     sys.exit(0)
 
-
-# Parse parameters
 params = {}
+params["t"] = "1"
+agent_lookup = {
+    "random" : RandomAgent,
+    "greedy" : GreedyAgent
+}
 
 for i in range(2, len(sys.argv)):
     arg = sys.argv[i]
@@ -21,11 +40,11 @@ for i in range(2, len(sys.argv)):
         value = sys.argv[i + 1] if value_follows else None
         params[arg[1:]] = value
 
-
 map = world.Map()             # Game world
 hunt = []                     # Scavenger hunt
 src = open(sys.argv[1], "r")  # Config file
 sec = None                    # Section currently being parsed
+start_loc = None              # Initial agent location
 
 # Parse config from hunt file
 for line in src.readlines():
@@ -45,11 +64,11 @@ for line in src.readlines():
             map.connect_bidi(args[0], args[1], cost)
         else:
             map.connect(args[0], args[1], cost)
-    # Object identities
+    # Object labels
     elif sec == "obj":
         args = line.split()
         map.object_labels[args[0]] = args[1]
-    # Object distributions
+    # Object instance distributions
     elif sec == "distr":
         args = line.split()
         obj = args[0]
@@ -76,18 +95,30 @@ for line in src.readlines():
     # Hunt object list
     elif sec == "hunt":
         hunt.append(line)
+    # Starting location
+    elif sec == "start":
+        start_loc = line
 
 src.close()
 map.finalize()
 
-print(map)
-
 ################################################################################
-# AGENT
+# SIMULATION
 ################################################################################
-a = RandomAgent(map, ["box", "chair"], "a")
+total_distance = 0
+trials = int(params["t"])
+agent_lambda = agent_type if "a" not in params else agent_lookup[params["a"]]
+agent = agent_lambda(map, hunt.copy(), start_loc)
 
-while not a.is_done():
-    a.run()
+print(">>> Running %s trials of %s" % (trials, agent.__class__.__name__))
 
-print(a.travel_distance)
+for i in range(trials):
+    agent = agent_lambda(map, hunt.copy(), start_loc)
+    while not agent.is_done():
+        agent.run()
+    total_distance += agent.travel_distance
+    map.populate()
+    perc = i / trials
+    print("Progress: {:2.1%}".format(i / trials), end="\r")
+
+print("Average distance: %s" % (total_distance / trials))
