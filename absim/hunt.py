@@ -17,10 +17,11 @@ agent_type = GreedyAgent
 # Enforce usage
 if len(sys.argv) < 2:
     help = [
-        "python3 test.py [HUNT FILE]...",
+        "python3 hunt.py [HUNT FILE]...",
         "",
         "Options:",
-        "  -t trial count; default 1"
+        "  -t trial count; default 1",
+        "  -a agent type; default specified in script"
     ]
     for line in help:
         print(line)
