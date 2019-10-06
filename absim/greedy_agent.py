@@ -7,14 +7,15 @@ import math
 class GreedyAgent(agent.Agent):
     """Visits the location with the greatest potential number of currently
     unfound objects. If two locations have the same number, the closer of the
-    two is chosen.
+    two is chosen. If no adjacent nodes may contain unfound objects, a random
+    adjacent node is chosen.
 
     Note that only nodes adjacent to the current node are considered. If the
     world graph is not complete, performance will be poor.
     """
-    def compare_locs(self, min_dist, max_hits, new_dist, new_hits):
-        return new_hits > max_hits or                                          \
-               (new_hits == max_hits and new_dist < min_dist)
+    def compare_locs(self, best_dist, best_occs, new_dist, new_occs):
+        return new_occs > best_occs or \
+               new_occs == best_occs and new_dist < best_dist
 
     def run(self):
         conns = self.map.connections[self.current_node]
@@ -32,14 +33,14 @@ class GreedyAgent(agent.Agent):
             occurrences = 0
 
             # Compute potential novel occurrences at destination
-            for label in self.map.labels_at_node(conn):
-                if label in self.hunt:
+            for label in self.hunt:
+                if self.map.prob_obj(label, conn) > 0:
                     occurrences += 1
 
             # Evaluate destination
-            if best_conn is None or (                                          \
-               occurrences > best_occurrences or                               \
-               occurrences == best_occurrences and dist < best_dist):
+            if best_conn is None or self.compare_locs(best_dist,
+                                                      best_occurrences,
+                                                      dist, occurrences):
               # New best destination
               best_conn = conn
               best_dist = dist

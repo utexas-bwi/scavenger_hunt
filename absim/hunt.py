@@ -1,4 +1,5 @@
 from greedy_agent import GreedyAgent
+from proximity_agent import ProximityAgent
 from random_agent import RandomAgent
 
 import agent
@@ -31,7 +32,8 @@ params = {}
 params["t"] = "1"
 agent_lookup = {
     "random" : RandomAgent,
-    "greedy" : GreedyAgent
+    "greedy" : GreedyAgent,
+    "proximity" : ProximityAgent
 }
 
 for i in range(2, len(sys.argv)):
@@ -119,7 +121,6 @@ for i in range(trials):
         agent.run()
     total_distance += agent.travel_distance
     map.populate()
-    perc = i / trials
     print("Progress: {:2.1%}".format(i / trials), end="\r")
 
 print("Average distance: %s" % (total_distance / trials))
