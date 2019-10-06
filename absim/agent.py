@@ -21,7 +21,7 @@ class Agent:
         self.hunt = hunt
         self.travel_distance = 0
         self.current_node = start
-        self.visited = []
+        self.visited = [start]
 
     def traverse(self, dest):
         """Collects objects at the current location and then moves to another.
@@ -29,15 +29,22 @@ class Agent:
         Parameters
         ----------
         dest : str
-            name of destination node
+            name of destination node or None to collect objects at current node
         """
-        self.visited.append(dest)
         # Collect objects at current location
         for label in self.map.labels_at_node(self.current_node):
             if label in self.hunt:
                 self.hunt.remove(label)
         if self.is_done():
             return
+
+        # Quit if just collecting
+        if dest is None:
+            return
+
+        # Mark destination as visited
+        self.visited.append(dest)
+
         # Find edge
         edge = None
         for e in self.map.edges:
@@ -54,6 +61,11 @@ class Agent:
         # Travel edge
         self.travel_distance += edge.cost
         self.current_node = edge.n1
+
+    def setup(self):
+        """One-time setup logic, called just prior to simulation begin.
+        """
+        pass
 
     def run(self):
         """Traversal logic. This method is called repeatedly until is_done().
