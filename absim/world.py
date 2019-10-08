@@ -310,6 +310,20 @@ class Map:
         self.populate()
 
     def cost(self, a, b):
+        """Gets the cost of traveling between two nodes.
+
+        Parameters
+        ----------
+        a : str
+            current node name
+        b : str
+            destination node name
+
+        Return
+        ------
+        float
+            cost of a -> b or None if edge nonexistent
+        """
         for edge in self.edges:
             if edge.n0 == a and edge.n1 == b:
                 return edge.cost
@@ -326,6 +340,15 @@ class Map:
         self.distributions.append(Distribution(label, list(args)))
 
     def add_distr_list(self, label, probs):
+        """Adds a new distribution to the map from a list of probabilities.
+
+        Parameters
+        ----------
+        label : str
+            instance label
+        probs : list
+            list of occurrence events
+        """
         self.distributions.append(Distribution(label, probs))
 
     def populate(self):
