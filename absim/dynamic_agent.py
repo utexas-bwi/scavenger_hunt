@@ -11,8 +11,17 @@ class TreeNode:
         self.data = data
 
 
-def tree_depth_traverse(root, all_paths, current_path):
-    """Recursively finds all paths from the root of a tree to its leaves.
+def tree_depth_traverse(root, all_paths, current_path=[]):
+    """Finds all paths from tree root to leaves.
+
+    Parameters
+    ----------
+    root : TreeNode
+        root node to examine
+    all_paths : list
+        list to populate with paths
+    current_path : list
+        incomplete path in the current recursion branch
     """
     current_path.append(root)
     if len(root.children) == 0:
@@ -22,19 +31,9 @@ def tree_depth_traverse(root, all_paths, current_path):
         tree_depth_traverse(child, all_paths, current_path.copy())
 
 
-def all_distributions(map):
-    """ Generates a list of the form
-    [
-        [(inst00, locs00), (inst01, locs01), ..., (inst0N, locs0N)],
-        [(inst10, locs10), (inst11, locs11), ..., (inst1N, locs1N)],
-        ...,
-        [(instM0, locsM0), (instM1, locsM1), ..., (instMN, locsMN)]
-    ]
-    which represents all possible instance arrangements on a map. Each member of
-    the topmost list is a different possible arrangement of instances, that is,
-    a list of all instances paired with the locations from which they can be
-    seen in that particular arrangement. These arrangements are collectively
-    exhaustive and mutually exclusive.
+def generate_occurrence_space(map):
+    """Generates all possible arrangements of instances on a scavenger hunt map
+    according to its occurrence model.
 
     Parameters
     ----------
@@ -44,7 +43,14 @@ def all_distributions(map):
     Return
     ------
     list
-        all possible object arrangements
+        list of instance arrangements of the form; each arrangement is of the
+        form [
+            (inst0_label, ([node00, ..., node0M], P0)),
+            ...
+            (instN_label, ([nodeN0, ..., nodeNM], PN))
+        ]. Note that probabilities are included only for convenience; this
+        arrangement is a concrete observation, with an instance K being present
+        at the nodes in its tuple, and a probability PK of that having occurred.
     """
     root = TreeNode()
     leaves = [root]
@@ -62,7 +68,7 @@ def all_distributions(map):
 
     # Generate all paths from root to leaf of event tree
     all_paths = []
-    tree_depth_traverse(root, all_paths, [])
+    tree_depth_traverse(root, all_paths)
 
     # Put those paths into a more useful form
     all_distrs = []
@@ -75,13 +81,25 @@ def all_distributions(map):
     return all_distrs
 
 
-def complete_graph_traverse(unvisited_nodes, all_paths, current_path):
-    """Recursively finds all permutations of a node list, i.e. all paths through
-    a complete graph that visit each node once.
+def complete_graph_traverse(unvisited_nodes, all_paths, current_path=[]):
+    """Finds all permutations of a node list, i.e. all paths through a complete
+    graph that visit each node once.
+
+    Parameters
+    ----------
+    unvisited_nodes : list
+        nodes to traverse
+    all_paths : list
+        list to be populated with paths
+    current_path : list
+        incomplete path in the current recursion branch; leave default for
+        topmost call
     """
+    # No more nodes to visit; add path and end
     if len(unvisited_nodes) == 0:
         all_paths.append(current_path.copy())
         return
+    # Branch down each subsequent unvisited node
     for node in unvisited_nodes:
         new_path = current_path.copy()
         new_path.append(node)
@@ -91,6 +109,24 @@ def complete_graph_traverse(unvisited_nodes, all_paths, current_path):
 
 
 def distr_label_at(map, distr, label, node):
+    """Gets is an instance with some object label is present at a node in a
+    distribution.
+
+    Parameters
+    ----------
+    distr : list
+        distribution from an occurrence space generated via
+        generate_occurrence_space()
+    label : str
+        object label
+    node : str
+        node name
+
+    Return
+    ------
+    bool
+        if label is present
+    """
     for occur in distr:
         if map.object_labels[occur[0]] == label:
             if node in occur[1][0]:
@@ -98,10 +134,13 @@ def distr_label_at(map, distr, label, node):
     return False
 
 
-def estimate_path_cost(map, hunt, path, distributions):
+def estimate_path_cost(map, hunt, path, occurrence_space):
+    """Computes the expected cost of a path given a map, list of unfound
+    objects, and an occurrence space.
+    """
     total_cost = 0
 
-    for distr in distributions:
+    for distr in occurrence_space:
         # Compute probability of distribution occurring
         prob = 1
         for event in distr:
@@ -139,45 +178,41 @@ class DynamicAgent(agent.Agent):
 
     def epoch(self):
         print("[DynamicAgent] Building occurrence space...")
-        self.occurrence_space = all_distributions(self.map)
+        self.occurrence_space = generate_occurrence_space(self.map)
         print("[DynamicAgent] Built occurrence space with %s events." % \
               len(self.occurrence_space))
 
     def setup(self):
-        # Generate all possible paths through remaining nodes
-        all_paths = []
-        unvisited = [loc for loc in self.map.nodes if loc not in self.visited]
-        complete_graph_traverse(unvisited, all_paths, [])
-
-        # Identify path with lowest expected cost
-        best_path = None
-        best_cost = math.inf
-        i = 0
-        for path in all_paths:
-            i += 1
-            path.insert(0, self.current_node)
-            cost = estimate_path_cost(self.map, self.hunt,
-                                      path, self.occurrence_space)
-            if best_path is None or cost < best_cost:
-                best_path = path
-                best_cost = cost
-
-        self.path = best_path
+        self.path = None
         self.path_index = 1
+        self.last_find_count = 0
 
     def run(self):
-        # # Generate paths through all unvisited nodes
-        # unvisited = [loc for loc in self.map.nodes if loc not in self.visited]
-        #
-        # # If we've been everywhere, collect and conclude
-        # if len(unvisited) == 0:
-        #     self.traverse(None)
-        #     if len(self.hunt) != 0:
-        #         raise RuntimeError("impossible scavenger hunt")
-        #     return
+        # Generate all possible paths through remaining nodes
+        if self.path is None or self.last_find_count > 0:
+            all_paths = []
+            unvisited = [loc for loc in self.map.nodes \
+                         if loc not in self.visited]
+            complete_graph_traverse(unvisited, all_paths)
 
+            # Identify path with lowest expected cost
+            self.path = None
+            self.path_index = 1
+            best_cost = math.inf
+            for path in all_paths:
+                path.insert(0, self.current_node)
+                cost = estimate_path_cost(self.map, self.hunt,
+                                          path, self.occurrence_space)
+                if self.path is None or cost < best_cost:
+                    self.path = path
+                    best_cost = cost
+
+        # Step along current path if end not yet reached
         if self.path_index < len(self.path):
-            self.traverse(self.path[self.path_index])
+            self.last_find_count = self.traverse(self.path[self.path_index])
             self.path_index += 1
+        # If end reached, hunt should be at its end; collect and conclude
         else:
             self.traverse(None)
+            if len(self.hunt) > 0:
+                raise RuntimeError("impossible scavenger hunt")

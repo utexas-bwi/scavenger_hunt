@@ -32,11 +32,18 @@ class Agent:
         ----------
         dest : str
             name of destination node or None to collect objects at current node
+
+        Return
+        ------
+        int
+            number of objects collected at current node (not destination node)
         """
         # Collect objects at current location
+        finds = 0
         for label in self.map.labels_at_node(self.current_node):
             if label in self.hunt:
                 self.hunt.remove(label)
+                finds += 1
         if self.is_done():
             return
 
@@ -63,6 +70,8 @@ class Agent:
         # Travel edge
         self.travel_distance += edge.cost
         self.current_node = edge.n1
+
+        return finds
 
     def reset(self):
         """Resets data specific to a particular scavenger hunt. This should be
