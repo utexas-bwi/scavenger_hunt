@@ -133,10 +133,17 @@ def estimate_path_cost(map, hunt, path, distributions):
 
 
 class DynamicAgent(agent.Agent):
-    def setup(self):
-        # Generate the occurrence space
-        self.occurrence_space = all_distributions(self.map)
+    def reset(self):
+        super(DynamicAgent, self).reset()
+        pass
 
+    def epoch(self):
+        print("[DynamicAgent] Building occurrence space...")
+        self.occurrence_space = all_distributions(self.map)
+        print("[DynamicAgent] Built occurrence space with %s events." % \
+              len(self.occurrence_space))
+
+    def setup(self):
         # Generate all possible paths through remaining nodes
         all_paths = []
         unvisited = [loc for loc in self.map.nodes if loc not in self.visited]
@@ -145,10 +152,9 @@ class DynamicAgent(agent.Agent):
         # Identify path with lowest expected cost
         best_path = None
         best_cost = math.inf
-        est = 0
+        i = 0
         for path in all_paths:
-            est += 1
-            print(est, "/", len(all_paths))
+            i += 1
             path.insert(0, self.current_node)
             cost = estimate_path_cost(self.map, self.hunt,
                                       path, self.occurrence_space)
@@ -158,7 +164,6 @@ class DynamicAgent(agent.Agent):
 
         self.path = best_path
         self.path_index = 1
-
 
     def run(self):
         # # Generate paths through all unvisited nodes

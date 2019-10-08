@@ -18,8 +18,10 @@ class Agent:
             name of starting node
         """
         self.map = map
-        self.hunt = hunt
+        self.original_hunt = hunt
+        self.hunt = hunt.copy()
         self.travel_distance = 0
+        self.start_node = start
         self.current_node = start
         self.visited = [start]
 
@@ -62,8 +64,22 @@ class Agent:
         self.travel_distance += edge.cost
         self.current_node = edge.n1
 
+    def reset(self):
+        """Resets data specific to a particular scavenger hunt. This should be
+        extended by child classes where appropriate.
+        """
+        self.hunt = self.original_hunt.copy()
+        self.current_node = self.start_node
+        self.visited = [self.current_node]
+        self.travel_distance = 0
+
+    def epoch(self):
+        """One-time epoch logic, called just prior to simulation begin.
+        """
+        pass
+
     def setup(self):
-        """One-time setup logic, called just prior to simulation begin.
+        """One-time setup logic, called just prior to each scavenger hunt.
         """
         pass
 

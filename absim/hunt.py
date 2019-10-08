@@ -114,16 +114,17 @@ total_distance = 0
 trials = int(params["t"])
 agent_lambda = agent_type if "a" not in params else agent_lookup[params["a"]]
 agent = agent_lambda(map, hunt.copy(), start_loc)
+agent.epoch()
 
 print(">>> Running %s trials of %s" % (trials, agent.__class__.__name__))
 
 for i in range(trials):
-    agent = agent_lambda(map, hunt.copy(), start_loc)
     agent.setup()
     while not agent.is_done():
         agent.run()
     total_distance += agent.travel_distance
     map.populate()
     print("Progress: {:2.1%}".format(i / trials), end="\r")
+    agent.reset()
 
 print("Average distance: %s" % (total_distance / trials))
