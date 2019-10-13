@@ -327,7 +327,9 @@ class Map:
         for edge in self.edges:
             if edge.n0 == a and edge.n1 == b:
                 return edge.cost
-        return None
+        raise RuntimeException(
+            "tried to get cost of nonexistent edge %s -> %s" % (a, b)
+        )
 
     def add_distr(self, label, *args):
         """Adds an object to the map with some occurrence model.

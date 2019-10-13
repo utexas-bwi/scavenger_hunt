@@ -2,6 +2,7 @@ from random_agent import RandomAgent
 
 import agent
 import math
+import pathutil
 
 
 class GreedyAgent(agent.Agent):
@@ -17,38 +18,58 @@ class GreedyAgent(agent.Agent):
         return new_occs > best_occs or \
                new_occs == best_occs and new_dist < best_dist
 
+    def setup(self):
+        self.active_path = None
+        self.path_index = 0
+
     def run(self):
         conns = self.map.connections[self.current_node]
         best_dist = math.inf
         best_occurrences = 0
         best_conn = None
 
-        # For each potential destination
-        for conn in conns:
-            # Skip already visited locations
-            if conn in self.visited:
-                continue
+        # Move along path
+        self.path_index += 1
 
-            dist = self.map.cost(self.current_node, conn)
-            occurrences = 0
+        # Reset active path if end reached
+        if self.active_path is not None and \
+           self.path_index == len(self.active_path):
+            self.active_path = None
 
-            # Compute potential novel occurrences at destination
-            for label in self.hunt:
-                if self.map.prob_obj(label, conn) > 0:
-                    occurrences += 1
+        # If no active path, compute one
+        if self.active_path is None:
+            # Identify prefered destination
+            for conn in conns:
+                # Skip already visited locations
+                if conn in self.visited:
+                    continue
 
-            # Evaluate destination
-            if best_conn is None or self.compare_locs(best_dist,
-                                                      best_occurrences,
-                                                      dist, occurrences):
-              # New best destination
-              best_conn = conn
-              best_dist = dist
-              best_occurrences = occurrences
+                dist = self.map.cost(self.current_node, conn)
+                occurrences = 0
 
-        # If a good destination could not be found, pick a random one
-        if best_conn is None:
-            best_conn = RandomAgent.pick_uniform(conns)
+                # Compute potential novel occurrences at destination
+                for label in self.hunt:
+                    if self.map.prob_obj(label, conn) > 0:
+                        occurrences += 1
 
-        # Visit best
-        self.traverse(best_conn)
+                # Evaluate destination
+                if best_conn is None or self.compare_locs(best_dist,
+                                                          best_occurrences,
+                                                          dist, occurrences):
+                  # New best destination
+                  best_conn = conn
+                  best_dist = dist
+                  best_occurrences = occurrences
+
+            # If a good destination could not be found, pick a random one
+            if best_conn is None:
+                best_conn = RandomAgent.pick_uniform(conns)
+
+            # Generate path to destination
+            self.active_path = pathutil.dijkstra(
+                self.map, self.current_node, best_conn
+            )
+            self.path_index = 1
+
+        # Visit next node in active path
+        self.traverse(self.active_path[self.path_index])

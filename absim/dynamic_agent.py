@@ -1,6 +1,7 @@
 import agent
 import copy
 import math
+import pathutil
 
 
 class TreeNode:
@@ -79,33 +80,6 @@ def generate_occurrence_space(map):
         all_distrs.append(distr)
 
     return all_distrs
-
-
-def complete_graph_traverse(unvisited_nodes, all_paths, current_path=[]):
-    """Finds all permutations of a node list, i.e. all paths through a complete
-    graph that visit each node once.
-
-    Parameters
-    ----------
-    unvisited_nodes : list
-        nodes to traverse
-    all_paths : list
-        list to be populated with paths
-    current_path : list
-        incomplete path in the current recursion branch; leave default for
-        topmost call
-    """
-    # No more nodes to visit; add path and end
-    if len(unvisited_nodes) == 0:
-        all_paths.append(current_path.copy())
-        return
-    # Branch down each subsequent unvisited node
-    for node in unvisited_nodes:
-        new_path = current_path.copy()
-        new_path.append(node)
-        new_unvisited_nodes = unvisited_nodes.copy()
-        new_unvisited_nodes.remove(node)
-        complete_graph_traverse(new_unvisited_nodes, all_paths, new_path)
 
 
 def distr_label_at(map, distr, label, node):
@@ -193,7 +167,7 @@ class DynamicAgent(agent.Agent):
             all_paths = []
             unvisited = [loc for loc in self.map.nodes \
                          if loc not in self.visited]
-            complete_graph_traverse(unvisited, all_paths)
+            pathutil.complete_traverse(unvisited, all_paths)
 
             # Identify path with lowest expected cost
             self.path = None
