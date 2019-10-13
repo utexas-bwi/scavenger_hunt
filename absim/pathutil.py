@@ -64,7 +64,7 @@ def dijkstra(map, start, end):
         u = None
         for v in q:
             cost = map.nodes[v].dist
-            if u == None or cost < min_cost:
+            if u is None or cost < min_cost:
                 u = v
                 min_cost = cost
 
