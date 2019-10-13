@@ -157,6 +157,7 @@ class Map:
         self.edges = []
         self.connections = {}
         self.distributions = []
+        self.costs = {}
 
     def add_node(self, n):
         """Adds a new node to the map. This should not be called directly; use
@@ -306,6 +307,9 @@ class Map:
             # No adjacent nodes is bad
             if len(self.connections[node]) == 0:
                 raise RuntimeError("isolated node: %s" % node)
+        # Hash all edge costs
+        for edge in self.edges:
+            self.costs[edge.n0 + edge.n1] = edge.cost
         # Populate map
         self.populate()
 
@@ -324,12 +328,7 @@ class Map:
         float
             cost of a -> b or None if edge nonexistent
         """
-        for edge in self.edges:
-            if edge.n0 == a and edge.n1 == b:
-                return edge.cost
-        raise RuntimeException(
-            "tried to get cost of nonexistent edge %s -> %s" % (a, b)
-        )
+        return self.costs[a + b]
 
     def add_distr(self, label, *args):
         """Adds an object to the map with some occurrence model.
