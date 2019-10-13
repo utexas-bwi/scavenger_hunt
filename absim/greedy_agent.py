@@ -23,10 +23,14 @@ class GreedyAgent(agent.Agent):
         self.path_index = 0
 
     def run(self):
-        conns = self.map.connections[self.current_node]
-        best_dist = math.inf
-        best_occurrences = 0
-        best_conn = None
+        unvisited = [l for l in self.map.nodes if l not in self.visited]
+
+        # If no unvisited nodes, hunt should be done
+        if len(unvisited) == 0:
+            self.traverse(None)
+            if len(self.hunt) > 0:
+                raise RuntimeError("impossible hunt")
+            return
 
         # Move along path
         self.path_index += 1
@@ -39,7 +43,11 @@ class GreedyAgent(agent.Agent):
         # If no active path, compute one
         if self.active_path is None:
             # Identify prefered destination
-            for conn in conns:
+            best_dist = math.inf
+            best_occurrences = 0
+            best_conn = None
+
+            for conn in unvisited:
                 # Skip already visited locations
                 if conn in self.visited:
                     continue
@@ -63,7 +71,7 @@ class GreedyAgent(agent.Agent):
 
             # If a good destination could not be found, pick a random one
             if best_conn is None:
-                best_conn = RandomAgent.pick_uniform(conns)
+                best_conn = RandomAgent.pick_uniform(unvisited)
 
             # Generate path to destination
             self.active_path = pathutil.dijkstra(
