@@ -124,23 +124,34 @@ def estimate_path_cost(map, hunt, path, occurrence_space):
         current_hunt = hunt.copy()
         traveled = 0
         current_node = path[0]
+        possible = True
 
         # Move along path until all objects found
         for i in range(1, len(path)):
+            traveled += map.cost(current_node, path[i])
+            current_node = path[i]
             # Collect items at current location
+            new_hunt = current_hunt.copy()
             for item in current_hunt:
                 if distr_label_at(map, distr, item, current_node):
-                    current_hunt.remove(item)
+                    new_hunt.remove(item)
+            current_hunt = new_hunt
             # If everything has been found, we're done here
             if len(current_hunt) == 0:
                 break
-            # Otherwise, move to the next node in the path
-            traveled += map.cost(current_node, path[i])
-            current_node = path[i]
+            elif i == len(path) - 1:
+                possible = False
 
-        # Contribution to total cost = probability of this distribution *
-        #                              length of path necessary to complete hunt
-        total_cost += prob * traveled
+        # NOTE: If following this path for this distribution ends with a
+        # nonempty hunt list, the distribution has already been ruled out. At
+        # the moment, we just ignore its contribution, but this is incorrect
+        # because it unormalizes the occurrence space. What should be done
+        # instead and what is currently being implemented is a recalculation of
+        # the occurrence space using the observed positions so far.
+        if possible:
+            # Contribution to total cost = probability of this distribution *
+            #                              length of path necessary to finish
+            total_cost += prob * traveled
 
     return total_cost
 
@@ -159,14 +170,18 @@ class DynamicAgent(agent.Agent):
     def setup(self):
         self.path = None
         self.path_index = 1
-        self.last_find_count = 0
 
     def run(self):
         # Generate all possible paths through remaining nodes
-        if self.path is None or self.last_find_count > 0:
+        finds = self.traverse(None)
+
+        if self.is_done():
+            return
+
+        if self.path is None or finds > 0:
             all_paths = []
             unvisited = [loc for loc in self.map.nodes \
-                         if loc not in self.visited]
+                         if loc != self.current_node]
             pathutil.complete_traverse(unvisited, all_paths)
 
             # Identify path with lowest expected cost
@@ -183,7 +198,7 @@ class DynamicAgent(agent.Agent):
 
         # Step along current path if end not yet reached
         if self.path_index < len(self.path):
-            self.last_find_count = self.traverse(self.path[self.path_index])
+            self.traverse(self.path[self.path_index])
             self.path_index += 1
         # If end reached, hunt should be at its end; collect and conclude
         else:

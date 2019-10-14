@@ -40,7 +40,7 @@ class Distribution:
         sum = 0
         for item in probs:
             p = item[1]
-            if p <= 0:
+            if p < 0:
                 raise RuntimeError("bad probability: %s" % p)
             sum += p
         if not util.approx(sum, 1.0):

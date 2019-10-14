@@ -44,32 +44,16 @@ class Agent:
             if label in self.hunt:
                 self.hunt.remove(label)
                 finds += 1
-        if self.is_done():
-            return
 
-        # Quit if just collecting
-        if dest is None:
-            return
+        if dest is None or self.is_done():
+            return finds
 
         # Mark destination as visited
         self.visited.append(dest)
 
-        # Find edge
-        edge = None
-        for e in self.map.edges:
-            if e.n0 == self.current_node and e.n1 == dest:
-                edge = e
-                break
-        if edge is None:
-            raise RuntimeError(
-                "agent tried to move along nonexistent edge %s -> %s" % (
-                    self.current_node,
-                    dest
-                )
-            )
         # Travel edge
-        self.travel_distance += edge.cost
-        self.current_node = edge.n1
+        self.travel_distance += self.map.cost(self.current_node, dest)
+        self.current_node = dest
 
         return finds
 
