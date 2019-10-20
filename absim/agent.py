@@ -24,6 +24,7 @@ class Agent:
         self.start_node = start
         self.current_node = start
         self.visited = [start]
+        self.final_path = [start]
 
     def traverse(self, dest):
         """Collects objects at the current location and then moves to another.
@@ -38,6 +39,9 @@ class Agent:
         int
             number of objects collected at current node (not destination node)
         """
+        if dest is not None:
+            self.final_path.append(dest)
+
         # Collect objects at current location
         finds = 0
         for label in self.map.labels_at_node(self.current_node):
@@ -45,7 +49,7 @@ class Agent:
                 self.hunt.remove(label)
                 finds += 1
 
-        if dest is None or self.is_done():
+        if dest is None:
             return finds
 
         # Mark destination as visited
@@ -65,6 +69,7 @@ class Agent:
         self.current_node = self.start_node
         self.visited = [self.current_node]
         self.travel_distance = 0
+        self.final_path = [self.start_node]
 
     def epoch(self):
         """One-time epoch logic, called just prior to simulation begin.

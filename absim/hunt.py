@@ -93,7 +93,7 @@ for line in src.readlines():
                 prob = float(frac[0]) / float(frac[1])
             else:
                 prob = float(prob_arg)
-            events.append((locs, prob))
+            events.append([locs, prob])
             ind = prob_ind + 1
 
         map.add_distr_list(obj, events)
