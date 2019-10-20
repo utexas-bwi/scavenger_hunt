@@ -47,7 +47,8 @@ A line of the form `inst loc0 p0 loc1 p0` states that the instance `inst`
 appears at graph node `loc0` (`p0`\*100)% of the time and at `loc1` (`p1`\*100)%
 of the time. These probabilities must follow the definition of probability.
 There may be multiple locations associated with an appearance, e.g.
-`inst0 loc0 loc1 0.45 loc1 0.55`.
+`inst0 loc0 loc1 0.45 loc1 0.55`. Probabilities may also appear in fraction
+form `a/b`.
 
 ```
 [distr]
