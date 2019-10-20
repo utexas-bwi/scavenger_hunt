@@ -2,17 +2,18 @@ import agent
 import copy
 import math
 import pathutil
+import util
 
 
 class TreeNode:
     """Simple B+ tree for generating collectively exhaustive occurrence trees.
     """
-    def __init__(self, children=[], data=None):
+    def __init__(self, children, data):
         self.children = children
         self.data = data
 
 
-def tree_depth_traverse(root, all_paths, current_path=[]):
+def tree_depth_traverse(root, all_paths, current_path):
     """Finds all paths from tree root to leaves.
 
     Parameters
@@ -53,7 +54,7 @@ def generate_occurrence_space(map):
         arrangement is a concrete observation, with an instance K being present
         at the nodes in its tuple, and a probability PK of that having occurred.
     """
-    root = TreeNode()
+    root = TreeNode([], None)
     leaves = [root]
     new_leaves = []
 
@@ -69,14 +70,14 @@ def generate_occurrence_space(map):
 
     # Generate all paths from root to leaf of event tree
     all_paths = []
-    tree_depth_traverse(root, all_paths)
+    tree_depth_traverse(root, all_paths, [])
 
     # Put those paths into a more useful form
     all_distrs = []
     for path in all_paths:
         distr_p = []
         for i in range(1, len(path)):
-            distr_p.append(path[i].data)
+            distr_p.append(copy.deepcopy(path[i].data))
         all_distrs.append(distr_p)
 
     return all_distrs
@@ -156,9 +157,9 @@ def estimate_path_cost(map, hunt, path, occurrence_space, valid_vec):
             if len(current_hunt) == 0:
                 break
 
-            # Contribution to total cost = probability of this distribution *
-            #                              length of path necessary to finish
-            total_cost += prob * traveled
+        # Contribution to total cost = probability of this distribution *
+        #                              length of path necessary to finish
+        total_cost += prob * traveled
 
     return total_cost
 
@@ -168,6 +169,7 @@ class DynamicAgent(agent.Agent):
         """One-time occurrence space generation for the assigned map.
         """
         self.occurrence_space_orig = generate_occurrence_space(self.map)
+        self.occurrence_space = []
 
     def setup(self):
         """DynamicAgent begins with no path and a full occurrence space.
@@ -180,6 +182,7 @@ class DynamicAgent(agent.Agent):
         # space are still possible. As observations are made, distributions
         # may be eliminated.
         self.valid_occurrences = [True] * len(self.occurrence_space)
+        self.p_exceptions = {}
 
     def observe(self, inst, node, seen):
         """Updates the active occurrence space by eliminating impossible
@@ -195,44 +198,41 @@ class DynamicAgent(agent.Agent):
         seen : bool
             True if the instance was seen, False if it was not
         """
-        # For all valid occurrences
         for i in range(len(self.valid_occurrences)):
+            # Eliminate impossible distributions
             if self.valid_occurrences[i]:
                 distr = self.occurrence_space[i]
+                for event in distr:
+                    if event[0] == inst and (node in event[1][0]) != seen:
+                        self.valid_occurrences[i] = False
+                        break
 
-                # Instance was observed at the location
-                if seen:
-                    # Rule out distributions where the instance did not occur
-                    # at this location
-                    impossible = False
-                    for event in distr:
-                        if event[0] == inst and node not in event[1][0]:
-                            self.valid_occurrences[i] = False
-                            impossible = True
-                            break
-                    if impossible:
-                        continue
-
-                # Instance was not observed at the location
-                else:
-                    # Rule out distributions where the object did occur at this
-                    # location
-                    impossible = False
-                    for event in distr:
+        if seen:
+            # Mark probability of inst occurring at node as 1.0 in all
+            # valid distributions
+            for i in range(len(self.valid_occurrences)):
+                if self.valid_occurrences[i]:
+                    for event in self.occurrence_space[i]:
                         if event[0] == inst and node in event[1][0]:
-                            self.valid_occurrences[i] = False
-                            impossible = True
-                            break
-                    if impossible:
-                        continue
-                    # Distributions that are still valid must be updated to
-                    # reflect the increased chance that this instance occurs
-                    # elsewhere
-                    p = self.map.prob_inst(inst, node)
-                    for event in distr:
+                            event[1][1] = 1.0
+        else:
+            # Update occurrence space to reflect the increased chance
+            # that inst occurs elsewhere, since it does not occur at
+            # node
+            for i in range(len(self.valid_occurrences)):
+                if self.valid_occurrences[i]:
+                    # Find probability of inst occurring at node
+                    key = inst + node
+                    p = self.map.prob_inst(inst, node) if \
+                        key not in self.p_exceptions else self.p_exceptions[key]
+                    for event in self.occurrence_space[i]:
                         if event[0] == inst and event[1][1] < 1.0:
                             p_old = event[1][1]
                             event[1][1] = p_old / (1 - p)
+                            # Hacky solution that avoids changing the probabilty
+                            # distributions in the world.Map itself
+                            for loc in event[1][0]:
+                                self.p_exceptions[inst + loc] = event[1][1]
 
     def run(self):
         # Determine which instances may appear at the current node
@@ -244,6 +244,16 @@ class DynamicAgent(agent.Agent):
             if self.map.object_labels[inst] in self.hunt:
                 present = inst in self.map.nodes[self.current_node].instances
                 self.observe(inst, self.current_node, present)
+
+        # Ensure the occurrence space is still normalized
+        total_prob = 0
+        for i in range(len(self.occurrence_space)):
+            if self.valid_occurrences[i]:
+                prob = 1
+                for event in self.occurrence_space[i]:
+                    prob *= event[1][1]
+                total_prob += prob
+        assert util.approx(total_prob, 1.0)
 
         # Collect objects at the current node
         finds = self.traverse(None)
@@ -273,7 +283,6 @@ class DynamicAgent(agent.Agent):
                 if self.path is None or cost < best_cost:
                     self.path = path
                     best_cost = cost
-
         assert self.path is not None
 
         # Step along current path if end not yet reached
