@@ -26,10 +26,10 @@ def tree_depth_traverse(root, all_paths, current_path=[]):
     """
     current_path.append(root)
     if len(root.children) == 0:
-        all_paths.append(copy.deepcopy(current_path))
+        all_paths.append(current_path)
         return
     for child in root.children:
-        tree_depth_traverse(child, all_paths, copy.deepcopy(current_path))
+        tree_depth_traverse(child, all_paths, current_path.copy())
 
 
 def generate_occurrence_space(map):
