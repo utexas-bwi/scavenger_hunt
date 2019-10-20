@@ -43,7 +43,7 @@ plant0 plant
 Defines which instances appear where and with what probability. Each instance
 enumerated in the objects section should have its own line in this section.
 
-A line of the form `inst loc0 p0 loc1 p0` states that the instance `inst`
+A line of the form `inst loc0 p0 loc1 p1` states that the instance `inst`
 appears at graph node `loc0` (`p0`\*100)% of the time and at `loc1` (`p1`\*100)%
 of the time. These probabilities must follow the definition of probability.
 There may be multiple locations associated with an appearance, e.g.
@@ -81,7 +81,7 @@ objects at the current node without moving anywhere. This method returns the
 number of objects collected.
 
 After implementing a new algorithm, integrate it into hunt.py by importing it
-at the top of the file and mapping it to a name in `agent_lookup` on hunt.py:34.
+at the top of the file and mapping it to a name in `agent_lookup` on hunt.py:13.
 
 ## Running Simulations
 
