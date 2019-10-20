@@ -1,0 +1,24 @@
+[map]
+a b 25 !
+a c 100 !
+a d 95 !
+b c 50 !
+b d 50 !
+c d 50 !
+
+[start]
+a
+
+[obj]
+chair0 chair
+box0 box
+plant0 plant
+
+[distr]
+chair0 d 0.2 b 0.8
+box0 d 0.1 c 0.9
+plant0 b 0.05 c 0.5 d 0.45
+
+[hunt]
+chair
+box
