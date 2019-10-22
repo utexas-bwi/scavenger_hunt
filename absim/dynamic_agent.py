@@ -198,8 +198,19 @@ class DynamicAgent(agent.Agent):
         seen : bool
             True if the instance was seen, False if it was not
         """
+        # If all distributions involving this observation have already been
+        # ruled out, don't bother
+        possible = False
         for i in range(len(self.valid_occurrences)):
-            # Eliminate impossible distributions
+            if self.valid_occurrences[i]:
+                for event in self.occurrence_space[i]:
+                    if event[0] == inst and (node in event[1][0] == seen):
+                        possible = True
+        if not possible:
+            return
+
+        # Eliminate distributions made impossible by this observation
+        for i in range(len(self.valid_occurrences)):
             if self.valid_occurrences[i]:
                 distr = self.occurrence_space[i]
                 for event in distr:
