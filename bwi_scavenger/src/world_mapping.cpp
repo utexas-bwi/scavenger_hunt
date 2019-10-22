@@ -1,27 +1,56 @@
 #include "bwi_scavenger/world_mapping.h"
 
 std::map<EnvironmentLocation, coordinates_t> WORLD_WAYPOINTS_SIM {
-  {BWI_LAB_DOOR_NORTH,    { 39.6831, 112.569   }},
-  {BWI_LAB_DOOR_SOUTH,    { 39.553,  105.192   }},
-  {CLEARING_NORTH,        { 14.4326, 112.49    }},
-  {CLEARING_SOUTH,        { 14.3866, 105.104   }},
-  {ALCOVE,                { 19.6725, 105.155   }},
   {KITCHEN,               { 30.9585, 105.623   }},
   {SOCCER_LAB_DOOR_NORTH, { 48.2878, 112.392   }},
   {SOCCER_LAB_DOOR_SOUTH, { 48.3504, 105.226   }},
-  {FELLOW_COMPUTERS,      { 35.8519, 112.632   }},
-  {HALLWAY0,              { 43,      105       }}
+  {FELLOW_COMPUTERS, {0, 0}},
+
+  {GRAD_CUBICLES_MIDDLE,  { 14.142,  108.77    }},
+  {WHITEBOARD,            { 8.1891,  109.09    }},
+  {CONFERENCE_ROOM,       { 35.281,  102.1     }}, // x is estimated
+
+  {LEFT_GC_0,             { 12.959,  112.61    }},
+  {WITHIN_GC_0,           { 14.932,  117.42    }},
+  {RIGHT_GC_0,            { 16.978,  112.5     }},
+
+  {LEFT_GC_1,             { 12.701,  104.81    }},
+  {WITHIN_GC_1,           { 14.636,  99.798    }},
+  {RIGHT_GC_1,            { 16.44,   105       }},
+
+  // {LEFT_GC_2,             { 47.569,  104.71    }}, // generalized to SOCCER_LAB_DOOR_SOUTH
+  {WITHIN_GC_2,           { 45.426,  100.25    }},
+  {RIGHT_GC_2,            { 43.271,  104.8     }},
+
+  {LEFT_GC_3,             { 36.157,  112.74    }},
+  {WITHIN_GC_3,           { 37.964,  117.56    }},
+  {RIGHT_GC_3,            { 39.742,  112.51    }}
 };
 
 std::map<EnvironmentLocation, coordinates_t> WORLD_WAYPOINTS_IRL {
-  {BWI_LAB_DOOR_NORTH,    { -39.3304, -11.7290 }},
-  {BWI_LAB_DOOR_SOUTH,    { -38.2976, -4.3244  }},
-  {CLEARING_NORTH,        { -13.9990, -12.024  }},
-  {CLEARING_SOUTH,        { -13.7639, -5.5648  }},
-  {ALCOVE,                { -18.2928, -4.9306  }},
-  {KITCHEN,               { -30.1798, -4.5981  }},
-  {SOCCER_LAB_DOOR_NORTH, { -47.7036, -11.2160 }},
-  {SOCCER_LAB_DOOR_SOUTH, { -47.5810, -4.1472  }},
-  {FELLOW_COMPUTERS,      { -35.0182, -11.4877 }},
-  {HALLWAY0,              { -41.2976,  -4.3244 }}
+  // TODO make this the actual points
+  {KITCHEN,               { 30.9585, 105.623   }},
+  {SOCCER_LAB_DOOR_NORTH, { 48.2878, 112.392   }},
+  {SOCCER_LAB_DOOR_SOUTH, { 48.3504, 105.226   }},
+  {FELLOW_COMPUTERS, {0, 0}},
+
+  {GRAD_CUBICLES_MIDDLE,  { 14.142,  108.77    }},
+  {WHITEBOARD,            { 8.1891,  109.09    }},
+  {CONFERENCE_ROOM,       { 35.281,  102.1     }}, // x is estimated
+
+  {LEFT_GC_0,             { 12.959,  112.61    }},
+  {WITHIN_GC_0,           { 14.932,  117.42    }},
+  {RIGHT_GC_0,            { 16.978,  112.5     }},
+
+  {LEFT_GC_1,             { 12.701,  104.81    }},
+  {WITHIN_GC_1,           { 14.636,  99.798    }},
+  {RIGHT_GC_1,            { 16.44,   105       }},
+
+  // {LEFT_GC_2,             { 47.569,  104.71    }}, // generalized to SOCCER_LAB_DOOR_SOUTH
+  {WITHIN_GC_2,           { 45.426,  100.25    }},
+  {RIGHT_GC_2,            { 43.271,  104.8     }},
+
+  {LEFT_GC_3,             { 36.157,  112.74    }},
+  {WITHIN_GC_3,           { 37.964,  117.56    }},
+  {RIGHT_GC_3,            { 39.742,  112.51    }}
 };

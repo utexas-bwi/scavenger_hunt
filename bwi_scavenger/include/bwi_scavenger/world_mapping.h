@@ -18,16 +18,29 @@ enum World {
  * Named locations of interest around the world
  */
 enum EnvironmentLocation {
-  BWI_LAB_DOOR_NORTH,
-  BWI_LAB_DOOR_SOUTH,
-  CLEARING_NORTH,
-  CLEARING_SOUTH,
-  ALCOVE,
   KITCHEN,
   SOCCER_LAB_DOOR_NORTH,
   SOCCER_LAB_DOOR_SOUTH,
   FELLOW_COMPUTERS,
-  HALLWAY0
+
+  GRAD_CUBICLES_MIDDLE,
+  WHITEBOARD,
+  CONFERENCE_ROOM,
+
+  LEFT_GC_0,
+  WITHIN_GC_0,
+  RIGHT_GC_0,
+
+  LEFT_GC_1,
+  WITHIN_GC_1,
+  RIGHT_GC_1,
+
+  WITHIN_GC_2,
+  RIGHT_GC_2,
+
+  LEFT_GC_3,
+  WITHIN_GC_3,
+  RIGHT_GC_3
  };
 
 /**

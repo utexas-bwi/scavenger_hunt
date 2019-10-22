@@ -11,19 +11,24 @@
 #include <vector>
 
 #include <bwi_scavenger_msgs/ConfirmObject.h>
+#include <bwi_scavenger_msgs/GetOccurrenceModel.h>
 #include <bwi_scavenger_msgs/GetPriorityPoints.h>
 #include <bwi_scavenger_msgs/MultitaskStart.h>
 #include <bwi_scavenger_msgs/ObjmemDump.h>
+#include <bwi_scavenger_msgs/ObjectProbabilities.h>
+#include <bwi_scavenger_msgs/OccurrenceModel.h>
 #include <bwi_scavenger_msgs/PerceptionMoment.h>
 #include <bwi_scavenger_msgs/PoseRequest.h>
 #include <bwi_scavenger_msgs/RobotMove.h>
 #include <bwi_scavenger_msgs/RobotStop.h>
+#include <bwi_scavenger_msgs/SaveOccurrenceModel.h>
 #include <bwi_scavenger_msgs/SendProof.h>
 #include <bwi_scavenger_msgs/TaskEnd.h>
 #include <scavenger_hunt_msgs/Task.h>
 #include <scavenger_hunt_msgs/Proof.h>
 #include <darknet_ros_msgs/BoundingBox.h>
 #include <geometry_msgs/Pose.h>
+#include <nav_msgs/GetPlan.h>
 #include <sensor_msgs/Image.h>
 #include <sensor_msgs/image_encodings.h>
 #include <std_msgs/Bool.h>
@@ -40,7 +45,7 @@ enum SearchStrategy {
   PROXIMITY_BASED
 };
 
-static const SearchStrategy SEARCH_STRATEGY = OCCUPANCY_GRID;
+static const SearchStrategy SEARCH_STRATEGY = PROXIMITY_BASED;
 
 // Pathing
 static std::map<EnvironmentLocation, coordinates_t>* world_waypoints;
@@ -88,6 +93,8 @@ static ros::ServiceClient client_send_proof;
 static ros::ServiceClient client_confirm_object;
 static ros::ServiceClient client_get_priority_points;
 static ros::ServiceClient client_objmem_dump;
+static ros::ServiceClient client_path;
+static ros::ServiceClient client_occurrence_model_request;
 
 /**
  * Called when a target object is confirmed. Relies on perceive_cb(...) to
@@ -584,21 +591,61 @@ void multitask_start_cb(const bwi_scavenger_msgs::MultitaskStart& msg) {
       ROS_ERROR("%s Cannot multitask: %s", TELEM_TAG, task.name.c_str());
   }
 
-  // If doing greedy search, get object distribution data
-  if (SEARCH_STRATEGY == OCCUPANCY_GRID) {
-    bwi_scavenger_msgs::ObjmemDump objmem_dump;
-    objmem_dump.request.labels = target_object_labels;
-    client_objmem_dump.call(objmem_dump);
-    for (std::size_t i = 0; i < objmem_dump.response.labels.size(); i++) {
-      const std::string& label = objmem_dump.response.labels[i];
-      const geometry_msgs::Pose& pose = objmem_dump.response.object_poses[i];
-      coordinates_t pos = {
-        pose.position.x,
-        pose.position.y
-      };
-      EnvironmentLocation probable_loc = loc_eval->get_closest_location(pos);
-      loc_eval->add_object(probable_loc, label);
+  // If doing greedy based search, get object distribution data
+  if (SEARCH_STRATEGY == OCCUPANCY_GRID || SEARCH_STRATEGY == PROXIMITY_BASED) {
+
+    ROS_INFO("%s Getting occurrence model", TELEM_TAG);
+
+    bwi_scavenger_msgs::GetOccurrenceModel occ_model_req;
+    while (!client_occurrence_model_request.call(occ_model_req));
+    std::vector<std_msgs::String> names = occ_model_req.response.model.object_names;
+    std::vector<bwi_scavenger_msgs::ObjectProbabilities> objects = occ_model_req.response.model.objects;
+
+    // add these objects to the location evaluator's list of objects
+    for(int i = 0 ; i < occ_model_req.response.model.num_objects; i++){
+      
+      std_msgs::String obj_name = names[i];
+      bwi_scavenger_msgs::ObjectProbabilities op = objects[i];
+      std::vector<geometry_msgs::Point> locations = op.locations;
+
+      // loops through the locations where the object is located and add that object label to the EnvironmentLocation
+      
+    ROS_INFO("%s num prob %d", TELEM_TAG, occ_model_req.response.model.objects[i].num_probabilities);
+      for(int j = 0 ; j < occ_model_req.response.model.objects[i].num_probabilities ; j++){
+
+        geometry_msgs::Point loc_point = locations[j];
+
+        coordinates_t pos = {
+          loc_point.x,
+          loc_point.y
+        };
+
+        ROS_INFO("%f, %f", pos.x, pos.y);
+        EnvironmentLocation probable_loc = loc_eval->get_closest_location(pos);
+
+        ROS_INFO("%s got closest adding %s to evaluator", TELEM_TAG, obj_name.data.c_str());
+        loc_eval->add_object(probable_loc, obj_name.data.c_str());
+      }
+      
     }
+    
+    ROS_INFO("%s Finished getting occurrence model", TELEM_TAG);
+
+
+    // // using ObjmemDump
+    // bwi_scavenger_msgs::ObjmemDump objmem_dump;
+    // objmem_dump.request.labels = target_object_labels;
+    // client_objmem_dump.call(objmem_dump);
+    // for (std::size_t i = 0; i < objmem_dump.response.labels.size(); i++) {
+    //   const std::string& label = objmem_dump.response.labels[i];
+    //   const geometry_msgs::Pose& pose = objmem_dump.response.object_poses[i];
+    //   coordinates_t pos = {
+    //     pose.position.x,
+    //     pose.position.y
+    //   };
+    //   EnvironmentLocation probable_loc = loc_eval->get_closest_location(pos);
+    //   loc_eval->add_object(probable_loc, label);
+    // }
   }
 
   // Localize in the map and begin searching
@@ -612,6 +659,7 @@ void multitask_start_cb(const bwi_scavenger_msgs::MultitaskStart& msg) {
   c.y = robot_pose.position.y;
 
   loc_eval->get_closest_location(c, true);
+
 
   ssv.destination = (*world_waypoints)[
     loc_eval->get_location(target_object_labels, c)
@@ -685,6 +733,8 @@ int main(int argc, char **argv) {
   client_confirm_object = nh.serviceClient<bwi_scavenger_msgs::ConfirmObject>(SRV_CONFIRM_OBJECT);
   client_get_priority_points = nh.serviceClient<bwi_scavenger_msgs::GetPriorityPoints>(SRV_GET_PRIORITY_POINTS);
   client_objmem_dump = nh.serviceClient<bwi_scavenger_msgs::ObjmemDump>("/bwi_scavenger/services/objmem_dump");
+  client_path = nh.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
+  client_occurrence_model_request = nh.serviceClient<bwi_scavenger_msgs::GetOccurrenceModel>(SRV_GET_OCCURRENCE_MODEL);
 
   pub_move = nh.advertise<bwi_scavenger_msgs::RobotMove>(TPC_MOVE_NODE_GO, 1);
   pub_stop = nh.advertise<bwi_scavenger_msgs::RobotStop>(TPC_MOVE_NODE_STOP, 1);
@@ -695,19 +745,27 @@ int main(int argc, char **argv) {
   ros::Subscriber sub_perception = nh.subscribe(TPC_PERCEPTION_NODE_MOMENT, 1, perceive_cb);
   ros::Subscriber sub_multitask_start = nh.subscribe(TPC_MULTITASK_START, 1, multitask_start_cb);
 
+  nav_msgs::GetPlan srv;
+
+	client_path.waitForExistence();
+
   // Build evaluators
   if (SEARCH_STRATEGY == COMPLETE)
     loc_eval = new CompleteLocationEvaluator(world);
   else if (SEARCH_STRATEGY == OCCUPANCY_GRID)
     loc_eval = new OccupancyGridLocationEvaluator(world);
-  else if (SEARCH_STRATEGY == PROXIMITY_BASED)
-    ROS_ERROR("wtffffffffffffffffffffffffff");
+  else if (SEARCH_STRATEGY == PROXIMITY_BASED){
+    // loc_eval = new ProximityBasedLocationEvaluator(world);
+    // ((ProximityBasedLocationEvaluator*)loc_eval)->generate_distances(client_path, srv);
+  }
 
-  loc_eval->add_location(BWI_LAB_DOOR_NORTH);
-  loc_eval->add_location(CLEARING_NORTH);
-  loc_eval->add_location(CLEARING_SOUTH);
-  loc_eval->add_location(KITCHEN);
-  loc_eval->add_location(HALLWAY0);
+
+
+  // loc_eval->add_location(BWI_LAB_DOOR_NORTH);
+  // loc_eval->add_location(CLEARING_NORTH);
+  // loc_eval->add_location(CLEARING_SOUTH);
+  // loc_eval->add_location(KITCHEN);
+  // loc_eval->add_location(HALLWAY0);
 
   // Build state machine
   s_traveling->add_output(s_end);

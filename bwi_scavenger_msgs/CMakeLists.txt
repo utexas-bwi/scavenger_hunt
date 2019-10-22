@@ -22,12 +22,16 @@ add_message_files(FILES
   DarknetAddTrainingFile.msg
   DarknetStartTraining.msg
   DatabaseFile.msg
+  ObjectProbabilities.msg
   ObjmemAdd.msg
+  OccurrenceModel.msg
   MultitaskStart.msg
 )
 
 add_service_files(FILES
+  GetOccurrenceModel.srv
   PoseRequest.srv
+  SaveOccurrenceModel.srv
   SendProof.srv
   ConfirmObject.srv
   GetPriorityPoints.srv
