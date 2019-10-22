@@ -210,6 +210,26 @@ target_link_libraries(perception_node
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
+add_executable(occurrence_model_service
+  src/occurrence_model_services.cpp)
+
+add_dependencies(occurrence_model_service
+  bwi_scavenger_generate_messages_cpp)
+
+target_link_libraries(occurrence_model_service
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
+
+add_executable(occurrence_model_node
+  src/occurrence_model_node.cpp)
+
+add_dependencies(occurrence_model_node
+  bwi_scavenger_generate_messages_cpp)
+
+target_link_libraries(occurrence_model_node
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
+
 # add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
