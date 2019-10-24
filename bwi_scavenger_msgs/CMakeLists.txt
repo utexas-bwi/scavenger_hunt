@@ -29,9 +29,11 @@ add_message_files(FILES
 )
 
 add_service_files(FILES
+  GetNextLocation.srv
   GetOccurrenceModel.srv
   PoseRequest.srv
   SaveOccurrenceModel.srv
+  SaveWorld.srv
   SendProof.srv
   ConfirmObject.srv
   GetPriorityPoints.srv

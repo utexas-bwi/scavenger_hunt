@@ -63,5 +63,7 @@ const char SRV_CONFIRM_OBJECT[] = "/bwi_scavenger/services/confirm_object";
 const char SRV_GET_PRIORITY_POINTS[] = "/bwi_scavenger/services/get_priority_points";
 const char SRV_GET_OCCURRENCE_MODEL[] = "/bwi_scavenger/services/get_occurrence_model";
 const char SRV_SAVE_OCCURRENCE_MODEL[] = "/bwi_scavenger/services/save_occurrence_model";
+const char SRV_GET_NEXT_LOCATION[] = "/bwi_scavenger/services/get_next_location";
+const char SRV_SAVE_WORLD[] = "/bwi_scavenger/services/save_world";
 
 #endif

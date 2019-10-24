@@ -53,4 +53,9 @@ extern std::map<EnvironmentLocation, coordinates_t> WORLD_WAYPOINTS_SIM;
  */
 extern std::map<EnvironmentLocation, coordinates_t> WORLD_WAYPOINTS_IRL;
 
+/**
+ * Marks adjacent locations
+ */
+extern std::map<EnvironmentLocation, std::vector<EnvironmentLocation>> WORLD_CONNECTIONS;
+
 #endif

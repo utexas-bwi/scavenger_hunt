@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <bwi_scavenger_msgs/ConfirmObject.h>
+#include <bwi_scavenger_msgs/GetNextLocation.h>
 #include <bwi_scavenger_msgs/GetOccurrenceModel.h>
 #include <bwi_scavenger_msgs/GetPriorityPoints.h>
 #include <bwi_scavenger_msgs/MultitaskStart.h>
@@ -95,6 +96,7 @@ static ros::ServiceClient client_get_priority_points;
 static ros::ServiceClient client_objmem_dump;
 static ros::ServiceClient client_path;
 static ros::ServiceClient client_occurrence_model_request;
+static ros::ServiceClient client_get_next_location;
 
 /**
  * Called when a target object is confirmed. Relies on perceive_cb(...) to
@@ -281,8 +283,23 @@ public:
         req_pose.response.pose.position.y
       };
 
+      // TODO save objects found
+      bwi_scavenger_msgs::GetNextLocation next_srv;
+      next_srv.request.current_location.x = c.x;
+      next_srv.request.current_location.y = c.y;
+      // next_srv.request.objects_found = objects_found;
+
+      client_get_next_location.call(next_srv);
+
+      coordinates_t next_loc = {
+        next_srv.response.next_location.x,
+        next_srv.response.next_location.y
+      };
+
+      EnvironmentLocation next_env_loc = loc_eval->get_closest_location(next_loc, false);
+
       svec->destination = (*world_waypoints)[
-        loc_eval->get_location(target_object_labels, c)
+        next_env_loc
       ];
     }
   }
@@ -735,6 +752,7 @@ int main(int argc, char **argv) {
   client_objmem_dump = nh.serviceClient<bwi_scavenger_msgs::ObjmemDump>("/bwi_scavenger/services/objmem_dump");
   client_path = nh.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
   client_occurrence_model_request = nh.serviceClient<bwi_scavenger_msgs::GetOccurrenceModel>(SRV_GET_OCCURRENCE_MODEL);
+  client_get_next_location = nh.serviceClient<bwi_scavenger_msgs::GetNextLocation>(SRV_GET_NEXT_LOCATION);
 
   pub_move = nh.advertise<bwi_scavenger_msgs::RobotMove>(TPC_MOVE_NODE_GO, 1);
   pub_stop = nh.advertise<bwi_scavenger_msgs::RobotStop>(TPC_MOVE_NODE_STOP, 1);
