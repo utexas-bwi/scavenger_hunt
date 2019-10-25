@@ -23,6 +23,7 @@
 #include <bwi_scavenger_msgs/RobotMove.h>
 #include <bwi_scavenger_msgs/RobotStop.h>
 #include <bwi_scavenger_msgs/SaveOccurrenceModel.h>
+#include <bwi_scavenger_msgs/SaveWorld.h>
 #include <bwi_scavenger_msgs/SendProof.h>
 #include <bwi_scavenger_msgs/TaskEnd.h>
 #include <scavenger_hunt_msgs/Task.h>
@@ -43,7 +44,8 @@
 enum SearchStrategy {
   COMPLETE,
   OCCUPANCY_GRID,
-  PROXIMITY_BASED
+  PROXIMITY_BASED,
+  FUTURE_PATH
 };
 
 static const SearchStrategy SEARCH_STRATEGY = PROXIMITY_BASED;
@@ -97,6 +99,7 @@ static ros::ServiceClient client_objmem_dump;
 static ros::ServiceClient client_path;
 static ros::ServiceClient client_occurrence_model_request;
 static ros::ServiceClient client_get_next_location;
+static ros::ServiceClient client_save_world;
 
 /**
  * Called when a target object is confirmed. Relies on perceive_cb(...) to
@@ -296,11 +299,8 @@ public:
         next_srv.response.next_location.y
       };
 
-      EnvironmentLocation next_env_loc = loc_eval->get_closest_location(next_loc, false);
-
-      svec->destination = (*world_waypoints)[
-        next_env_loc
-      ];
+      svec->destination.x = next_loc.x;
+      svec->destination.y = next_loc.y;
     }
   }
 
@@ -611,42 +611,36 @@ void multitask_start_cb(const bwi_scavenger_msgs::MultitaskStart& msg) {
   // If doing greedy based search, get object distribution data
   if (SEARCH_STRATEGY == OCCUPANCY_GRID || SEARCH_STRATEGY == PROXIMITY_BASED) {
 
-    ROS_INFO("%s Getting occurrence model", TELEM_TAG);
+    // ROS_INFO("%s Getting occurrence model", TELEM_TAG);
 
-    bwi_scavenger_msgs::GetOccurrenceModel occ_model_req;
-    while (!client_occurrence_model_request.call(occ_model_req));
-    std::vector<std_msgs::String> names = occ_model_req.response.model.object_names;
-    std::vector<bwi_scavenger_msgs::ObjectProbabilities> objects = occ_model_req.response.model.objects;
+    // bwi_scavenger_msgs::GetOccurrenceModel occ_model_req;
+    // while (!client_occurrence_model_request.call(occ_model_req));
+    // std::vector<std_msgs::String> names = occ_model_req.response.model.object_names;
+    // std::vector<bwi_scavenger_msgs::ObjectProbabilities> objects = occ_model_req.response.model.objects;
 
-    // add these objects to the location evaluator's list of objects
-    for(int i = 0 ; i < occ_model_req.response.model.num_objects; i++){
+    // // add these objects to the location evaluator's list of objects
+    // for(int i = 0 ; i < occ_model_req.response.model.num_objects; i++){
       
-      std_msgs::String obj_name = names[i];
-      bwi_scavenger_msgs::ObjectProbabilities op = objects[i];
-      std::vector<geometry_msgs::Point> locations = op.locations;
+    //   std_msgs::String obj_name = names[i];
+    //   bwi_scavenger_msgs::ObjectProbabilities op = objects[i];
+    //   std::vector<geometry_msgs::Point> locations = op.locations;
 
-      // loops through the locations where the object is located and add that object label to the EnvironmentLocation
+    //   // loops through the locations where the object is located and add that object label to the EnvironmentLocation
       
-    ROS_INFO("%s num prob %d", TELEM_TAG, occ_model_req.response.model.objects[i].num_probabilities);
-      for(int j = 0 ; j < occ_model_req.response.model.objects[i].num_probabilities ; j++){
+    //   for(int j = 0 ; j < occ_model_req.response.model.objects[i].num_probabilities ; j++){
 
-        geometry_msgs::Point loc_point = locations[j];
+    //     geometry_msgs::Point loc_point = locations[j];
 
-        coordinates_t pos = {
-          loc_point.x,
-          loc_point.y
-        };
+    //     coordinates_t pos = {
+    //       loc_point.x,
+    //       loc_point.y
+    //     };
 
-        ROS_INFO("%f, %f", pos.x, pos.y);
-        EnvironmentLocation probable_loc = loc_eval->get_closest_location(pos);
-
-        ROS_INFO("%s got closest adding %s to evaluator", TELEM_TAG, obj_name.data.c_str());
-        loc_eval->add_object(probable_loc, obj_name.data.c_str());
-      }
+    //     EnvironmentLocation probable_loc = loc_eval->get_closest_location(pos);
+    //     loc_eval->add_object(probable_loc, obj_name.data.c_str());
+    //   }
       
-    }
-    
-    ROS_INFO("%s Finished getting occurrence model", TELEM_TAG);
+    // }
 
 
     // // using ObjmemDump
@@ -753,6 +747,7 @@ int main(int argc, char **argv) {
   client_path = nh.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
   client_occurrence_model_request = nh.serviceClient<bwi_scavenger_msgs::GetOccurrenceModel>(SRV_GET_OCCURRENCE_MODEL);
   client_get_next_location = nh.serviceClient<bwi_scavenger_msgs::GetNextLocation>(SRV_GET_NEXT_LOCATION);
+  client_save_world = nh.serviceClient<bwi_scavenger_msgs::SaveWorld>(SRV_SAVE_WORLD);
 
   pub_move = nh.advertise<bwi_scavenger_msgs::RobotMove>(TPC_MOVE_NODE_GO, 1);
   pub_stop = nh.advertise<bwi_scavenger_msgs::RobotStop>(TPC_MOVE_NODE_STOP, 1);
@@ -767,23 +762,19 @@ int main(int argc, char **argv) {
 
 	client_path.waitForExistence();
 
-  // Build evaluators
-  if (SEARCH_STRATEGY == COMPLETE)
-    loc_eval = new CompleteLocationEvaluator(world);
-  else if (SEARCH_STRATEGY == OCCUPANCY_GRID)
-    loc_eval = new OccupancyGridLocationEvaluator(world);
-  else if (SEARCH_STRATEGY == PROXIMITY_BASED){
-    // loc_eval = new ProximityBasedLocationEvaluator(world);
-    // ((ProximityBasedLocationEvaluator*)loc_eval)->generate_distances(client_path, srv);
-  }
+  float** distances = generate_distances(WORLD_WAYPOINTS_SIM, client_path);
 
+  // Save world on the connection node
+  bwi_scavenger_msgs::SaveWorld save_world_srv;
+  // save_world_srv.request.world = world_description;
+  save_world_srv.request.algo = SEARCH_STRATEGY;
 
+  client_save_world.call(save_world_srv);
 
-  // loc_eval->add_location(BWI_LAB_DOOR_NORTH);
-  // loc_eval->add_location(CLEARING_NORTH);
-  // loc_eval->add_location(CLEARING_SOUTH);
-  // loc_eval->add_location(KITCHEN);
-  // loc_eval->add_location(HALLWAY0);
+  // clear up array allocated
+  for(int i = 0; i < WORLD_WAYPOINTS_SIM.size(); i++)
+    delete [] distances[i];
+  delete [] distances;
 
   // Build state machine
   s_traveling->add_output(s_end);

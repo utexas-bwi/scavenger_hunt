@@ -1,11 +1,22 @@
 import rospy
+import enum 
 
 from globals import *
 from bwi_scavenger_msgs.srv import GetNextLocation, SaveWorld
 
+  
+# creating enumerations using class 
+class search_strategy(enum.Enum): 
+  random = 0
+  probability_based = 1
+  distance_based = 2
+  future_path = 3
+
 def get_next_location(req):
-  # Req takes in the current robot location and the objects that
-  # have just been found at said location
+  # Req takes in the current robot location (point) and the objects that
+  # have just been found at that location
+  
+  # TODO convert the point into a "location" as described on the map
 
   # Res returns the next location to travel to (based on the algorithm 
   # previously provided)

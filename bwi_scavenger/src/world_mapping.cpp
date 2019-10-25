@@ -4,7 +4,7 @@ std::map<EnvironmentLocation, coordinates_t> WORLD_WAYPOINTS_SIM {
   {KITCHEN,               { 30.9585, 105.623   }},
   {SOCCER_LAB_DOOR_NORTH, { 48.2878, 112.392   }},
   {SOCCER_LAB_DOOR_SOUTH, { 48.3504, 105.226   }},
-  {FELLOW_COMPUTERS, {0, 0}},
+  {FELLOW_COMPUTERS,      { 35.8519, 112.632   }},
 
   {GRAD_CUBICLES_MIDDLE,  { 14.142,  108.77    }},
   {WHITEBOARD,            { 8.1891,  109.09    }},
@@ -80,3 +80,83 @@ std::map<EnvironmentLocation, std::vector<EnvironmentLocation>> WORLD_CONNECTION
   {RIGHT_GC_3,            { SOCCER_LAB_DOOR_NORTH, LEFT_GC_3, WITHIN_GC_3 }}
 
 };
+
+float** generate_distances(std::map<EnvironmentLocation, coordinates_t> world, ros::ServiceClient client_path){
+  const int num_locations = world.size();
+  
+  geometry_msgs::PoseStamped initial_pose;
+  initial_pose.header.stamp = ros::Time::now();
+  initial_pose.header.frame_id = "/level_mux_map";
+
+  geometry_msgs::PoseStamped goal_pose;
+  goal_pose.header.stamp = ros::Time::now();
+  goal_pose.header.frame_id = "/level_mux_map";
+  
+  float** distances = new float* [num_locations]; // array for all of the distances between locations
+  for(int i = 0 ; i < num_locations ; i++)
+    distances[i] = new float[num_locations];
+  
+  // Go through every location
+  for(int loc_index_1 = 0 ; loc_index_1 < num_locations ; loc_index_1++){
+    EnvironmentLocation loc_1 = static_cast<EnvironmentLocation>(loc_index_1);
+    coordinates_t loc_coor_1 = world[loc_1];
+
+    distances[loc_index_1][loc_index_1] = 0;
+
+    // Get distances to every other location and set it in the array
+    for(int loc_index_2 = loc_index_1 + 1 ; loc_index_2 < num_locations ; loc_index_2++){
+      EnvironmentLocation loc_2 = static_cast<EnvironmentLocation>(loc_index_2);
+      coordinates_t loc_coor_2 = world[loc_2];
+
+      // Call service to generate plan, returns list of PoseStamped
+      std::vector<geometry_msgs::PoseStamped> pose_list;
+	    nav_msgs::GetPlan get_plan_srv;
+
+      initial_pose.pose.position.x = loc_coor_1.x;
+      initial_pose.pose.position.y = loc_coor_1.y;
+
+      goal_pose.pose.position.x = loc_coor_2.x;
+      goal_pose.pose.position.y = loc_coor_2.y;
+
+      get_plan_srv.request.start = initial_pose;
+      get_plan_srv.request.goal = goal_pose;
+	    get_plan_srv.request.tolerance = -1.0f;
+
+	    client_path.call(get_plan_srv);
+
+	    pose_list = get_plan_srv.response.plan.poses;
+
+      // Get the distance based on the path of defined by the pose list
+      int num_poses = pose_list.size();
+      const int next_to_last = num_poses - 1;
+      float distance = 0;
+
+      for(int i = 0 ; i < next_to_last ; i++){
+        geometry_msgs::PoseStamped firstPose = pose_list[i];
+        geometry_msgs::PoseStamped secondPose = pose_list[i + 1];
+
+        auto dx = firstPose.pose.position.x - secondPose.pose.position.x;
+        auto dy = firstPose.pose.position.y - secondPose.pose.position.y;
+
+        distance += std::sqrt(std::pow(dx, 2) + std::pow(dy, 2));
+      }
+
+      // Writes distances in array - distance between points is reversible
+      distances[loc_index_1][loc_index_2] = distance;
+      distances[loc_index_2][loc_index_1] = distance;
+
+    }
+  }
+
+  // std::cout << "[generate_distances] " << std::endl;;
+  // for(int i = 0 ; i < num_locations ; i++){
+  //   for(int j = 0 ; j < num_locations ; j++){
+  //     std::cout << distances[i][j] << "  ";
+  //   }
+  //   std::cout << std::endl;
+  // }
+
+  // std::cout << "[generate_distances] done " << std::endl;
+
+  return distances;
+}

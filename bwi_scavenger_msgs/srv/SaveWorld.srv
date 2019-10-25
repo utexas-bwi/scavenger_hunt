@@ -1,4 +1,4 @@
 string world
-string algo
+uint32 algo
 ---
 bool b

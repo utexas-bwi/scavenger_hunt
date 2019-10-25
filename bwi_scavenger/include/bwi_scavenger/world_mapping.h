@@ -1,8 +1,11 @@
 #ifndef BWI_SCAVENGER_WORLD_MAPPING_H
 #define BWI_SCAVENGER_WORLD_MAPPING_H
 
+#include <ros/ros.h>
 #include <map>
 #include <vector>
+#include <nav_msgs/GetPlan.h>
+#include <geometry_msgs/PoseStamped.h>
 
 typedef struct {
   float x;
@@ -57,5 +60,11 @@ extern std::map<EnvironmentLocation, coordinates_t> WORLD_WAYPOINTS_IRL;
  * Marks adjacent locations
  */
 extern std::map<EnvironmentLocation, std::vector<EnvironmentLocation>> WORLD_CONNECTIONS;
+
+/**
+ * Determines the distances between each location, stores it in an array 
+ * and returns said array
+ */
+float** generate_distances(std::map<EnvironmentLocation, coordinates_t> world, ros::ServiceClient client_path);
 
 #endif
