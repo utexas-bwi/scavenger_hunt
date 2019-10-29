@@ -23,6 +23,11 @@ class GreedyAgent(agent.Agent):
         self.path_index = 0
 
     def run(self):
+        self.traverse(None)
+
+        if self.is_done():
+            return
+
         unvisited = [l for l in self.map.nodes if l not in self.visited]
 
         # If no unvisited nodes, hunt should be done

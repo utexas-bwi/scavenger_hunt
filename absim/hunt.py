@@ -125,11 +125,17 @@ def simulate(map, hunt, start_loc, params):
               (trials, agent.__class__.__name__))
 
     for i in range(trials):
-        agent.setup()
-        while not agent.is_done():
-            agent.run()
+        success = False
+        while not success:
+            map.populate()
+            agent.setup()
+            success = True
+            try:
+                while not agent.is_done():
+                    agent.run()
+            except AssertionError:
+                success = False
         total_distance += agent.travel_distance
-        map.populate()
         if not suppress_out:
             print("Progress: {:2.1%}".format(i / trials), end="\r")
         agent.reset()

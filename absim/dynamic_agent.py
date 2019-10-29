@@ -204,7 +204,7 @@ class DynamicAgent(agent.Agent):
         for i in range(len(self.valid_occurrences)):
             if self.valid_occurrences[i]:
                 for event in self.occurrence_space[i]:
-                    if event[0] == inst and (node in event[1][0] == seen):
+                    if event[0] == inst and (node in event[1][0]) == seen:
                         possible = True
         if not possible:
             return
@@ -237,9 +237,10 @@ class DynamicAgent(agent.Agent):
                     p = self.map.prob_inst(inst, node) if \
                         key not in self.p_exceptions else self.p_exceptions[key]
                     for event in self.occurrence_space[i]:
-                        if event[0] == inst and event[1][1] < 1.0:
+                        if event[0] == inst and \
+                           not util.approx(event[1][1], 1.0):
                             p_old = event[1][1]
-                            event[1][1] = p_old / (1 - p)
+                            event[1][1] = min(p_old / (1 - p), 1.0)
                             # Hacky solution that avoids changing the probabilty
                             # distributions in the world.Map itself
                             for loc in event[1][0]:
