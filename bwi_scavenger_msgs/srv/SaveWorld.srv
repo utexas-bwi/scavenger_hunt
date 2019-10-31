@@ -1,0 +1,4 @@
+string world
+uint32 algo
+---
+bool b

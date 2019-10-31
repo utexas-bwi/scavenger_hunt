@@ -1,0 +1,4 @@
+geometry_msgs/Point current_location
+string[] objects_found
+---
+geometry_msgs/Point next_location
