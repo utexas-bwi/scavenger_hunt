@@ -19,6 +19,7 @@ class GreedyAgent(agent.Agent):
                new_occs == best_occs and new_dist < best_dist
 
     def setup(self):
+        super().setup()
         self.active_path = None
         self.path_index = 0
 

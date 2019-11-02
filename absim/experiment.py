@@ -18,9 +18,9 @@ import numpy
 # dynamic traveled 0.7118388728770967 the dist of greedy on avg.
 
 
-NUM_EXPERIMENTS = 100
+NUM_EXPERIMENTS = 10
 NUM_TRIALS = 1000
-AGENTS = ["dynamic", "random", "proximity", "greedy"]
+AGENTS = ["optimal", "dynamic"] # ["dynamic", "random", "proximity", "greedy"]
 NODES_RANGE = [5, 7]
 COST_RANGE = [100, 300]
 OBJECTS_RANGE = [2, 5]
@@ -42,27 +42,35 @@ for i in range(NUM_EXPERIMENTS):
     best_score = 0
     best_agent = None
 
-    print("BEGIN EXPERIMENT %s OF %s" % (i, NUM_EXPERIMENTS))
+    print("BEGIN EXPERIMENT %s OF %s" % (i + 1, NUM_EXPERIMENTS))
 
+    agent_avgs = {}
     for agent in AGENTS:
+        agent_avgs[agent] = 0
+
+    for i in range(NUM_TRIALS):
         argv = [
             "hunt.py",
             fname,
-            "-t",
-            str(NUM_TRIALS),
             "-a",
-            agent,
-            "-s"
+            "AGENT",
+            "-s",
+            "-m"
         ]
         map, h, start_loc, params = hunt.parse(argv)
-        avg_dist = hunt.simulate(map, h, start_loc, params)
-        scores[agent].append(avg_dist)
+        map.populate()
+        for agent in AGENTS:
+            params["a"] = agent
+            agent_avgs[agent] += hunt.simulate(map, h, start_loc, params)
 
-        print("%s: %s" % (agent, avg_dist))
-
-        if best_agent is None or avg_dist < best_score:
-            best_score = avg_dist
+    best_agent = None
+    best_avg = 0
+    for agent in agent_avgs:
+        agent_avgs[agent] /= NUM_TRIALS
+        print("%s: %s" % (agent, agent_avgs[agent]))
+        if best_agent is None or agent_avgs[agent] < best_avg:
             best_agent = agent
+            best_avg = agent_avgs[agent]
 
     wins[best_agent] += 1
 

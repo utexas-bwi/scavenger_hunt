@@ -1,9 +1,11 @@
 from dynamic_agent import DynamicAgent
 from greedy_agent import GreedyAgent
+from optimal_agent import OptimalAgent
 from proximity_agent import ProximityAgent
 from random_agent import RandomAgent
 
 import agent
+import time
 import world
 
 
@@ -14,7 +16,8 @@ agent_lookup = {
     "dynamic"   : DynamicAgent,
     "random"    : RandomAgent,
     "greedy"    : GreedyAgent,
-    "proximity" : ProximityAgent
+    "proximity" : ProximityAgent,
+    "optimal"   : OptimalAgent
 }
 
 ################################################################################
@@ -114,11 +117,17 @@ def parse(argv):
 ################################################################################
 def simulate(map, hunt, start_loc, params):
     total_distance = 0
+    total_runtime = 0
+    total_ticks = 0
     trials = int(params["t"])
     agent_lambda = agent_lookup[params["a"]]
     agent = agent_lambda(map, hunt.copy(), start_loc)
     agent.epoch()
+
     suppress_out = "s" in params
+    manual_randomize = "m" in params
+    log_runtime = "r" in params
+    log_complexity = "c" in params
 
     if not suppress_out:
         print(">>> Running %s trials of %s" % \
@@ -126,23 +135,35 @@ def simulate(map, hunt, start_loc, params):
 
     for i in range(trials):
         success = False
+        t_start, t_end = None, None
         while not success:
-            map.populate()
+            if not manual_randomize:
+                map.populate()
             agent.setup()
             success = True
             try:
+                t_start = time.time()
                 while not agent.is_done():
                     agent.run()
+                t_end = time.time()
             except AssertionError:
                 success = False
         total_distance += agent.travel_distance
+        total_runtime += t_end - t_start
+        total_ticks += agent.ticks
         if not suppress_out:
             print("Progress: {:2.1%}".format(i / trials), end="\r")
         agent.reset()
 
     avg_dist = total_distance / trials
+    avg_runtime = total_runtime / trials
+    avg_ticks = total_ticks / trials
     if not suppress_out:
         print("Average distance: %s" % avg_dist)
+        if log_runtime:
+            print("Average runtime: %ss" % avg_runtime)
+        if log_complexity:
+            print("Average operations: %s" % avg_ticks)
     return avg_dist
 
 

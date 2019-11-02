@@ -17,7 +17,7 @@ def distribute(count):
         if p is None:
             p = random.randint(0, 100)
         elif i < count - 1:
-            p = random.randint(0, 100 - p)
+            p = random.randint(0, 100 - p_total)
         else:
             p = 100 - p_total
         p_total += p
@@ -74,8 +74,8 @@ def generate(fname, nodes_range, cost_range, objects_range, occurrences_range):
 if __name__ == "__main__":
     nodes_range = [5, 5]
     cost_range = [50, 200]
-    objects_range = [2, 4]
-    occurrences_range = [1, 3]
+    objects_range = [4, 4]
+    occurrences_range = [5, 5]
 
     import sys
     generate(sys.argv[1],

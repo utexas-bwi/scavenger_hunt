@@ -109,7 +109,7 @@ def distr_label_at(map, distr, label, node):
     return False
 
 
-def estimate_path_cost(map, hunt, path, occurrence_space, valid_vec):
+def estimate_path_cost(agent, map, hunt, path, occurrence_space, valid_vec):
     """Computes the expected cost of a path.
 
     Parameters
@@ -145,6 +145,7 @@ def estimate_path_cost(map, hunt, path, occurrence_space, valid_vec):
 
         # Move along path until all objects found
         for i in range(1, len(path)):
+            agent.ticks += 1  # Operation contributing to O(n, m)
             traveled += map.cost(current_node, path[i])
             current_node = path[i]
             # Collect items at current location
@@ -174,6 +175,7 @@ class DynamicAgent(agent.Agent):
     def setup(self):
         """DynamicAgent begins with no path and a full occurrence space.
         """
+        super().setup()
         self.path = None
         self.path_index = 1
         # All possible object distributions for the map
@@ -274,14 +276,14 @@ class DynamicAgent(agent.Agent):
         if self.is_done():
             return
 
-        # If no path is active or an object was just found, we need a new path
-        # to follow
-        if self.path is None or finds > 0:
+        # If no path is active or an observation was just made, we need a new
+        # path to follow
+        if self.path is None or len(expected_instances) > 0:
             # Generate all possible paths through all nodes besides the current
             all_paths = []
             unvisited = [loc for loc in self.map.nodes \
                          if loc != self.current_node]
-            pathutil.complete_traverse(unvisited, all_paths)
+            pathutil.complete_traverse(unvisited, all_paths, [])
 
             # Identify path with lowest expected cost
             self.path = None
@@ -289,7 +291,7 @@ class DynamicAgent(agent.Agent):
             best_cost = math.inf
             for path in all_paths:
                 path.insert(0, self.current_node)
-                cost = estimate_path_cost(self.map, self.hunt,
+                cost = estimate_path_cost(self, self.map, self.hunt,
                                           path, self.occurrence_space,
                                           self.valid_occurrences)
                 if self.path is None or cost < best_cost:

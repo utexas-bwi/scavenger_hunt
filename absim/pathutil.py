@@ -1,7 +1,7 @@
 import math
 
 
-def complete_traverse(unvisited_nodes, all_paths, current_path=[]):
+def complete_traverse(unvisited_nodes, all_paths, current_path):
     """Finds all permutations of a node list, i.e. all paths through a complete
     graph that visit each node once.
 

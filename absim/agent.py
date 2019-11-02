@@ -79,7 +79,7 @@ class Agent:
     def setup(self):
         """One-time setup logic, called just prior to each scavenger hunt.
         """
-        pass
+        self.ticks = 0
 
     def run(self):
         """Traversal logic. This method is called repeatedly until is_done().
