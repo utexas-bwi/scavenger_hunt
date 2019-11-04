@@ -22,7 +22,7 @@ const char* NODE_CONCLUDE = "conclude_node";
 TASKS
 ------------------------------------------------------------------------------*/
 
-const std::string TASK_FIND_OBJECT = "Find Object";
+const std::string TASK_FIND_OBJECT = "Find object";
 const std::string TASK_CONCLUDE = "Conclude";
 
 /*------------------------------------------------------------------------------

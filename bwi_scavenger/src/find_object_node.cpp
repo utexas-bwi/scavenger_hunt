@@ -52,7 +52,7 @@ static const SearchStrategy SEARCH_STRATEGY = PROXIMITY_BASED;
 
 // Pathing
 static std::map<EnvironmentLocation, coordinates_t>* world_waypoints;
-static LocationEvaluator* loc_eval;
+// static LocationEvaluator* loc_eval;
 
 // IDs for state machine states
 static const state_id_t STATE_TRAVELING = 0;
@@ -84,6 +84,7 @@ static bool node_active = false;
 
 // Target object metadata
 static std::vector<std::string> target_object_labels;
+static std::vector<std::string> target_objects_found_so_far;
 static std::string target_label_current;
 static std::map<std::string, int> target_object_confirmations;
 static std::map<std::string, bwi_scavenger_msgs::PerceptionMoment> target_object_perceptions;
@@ -99,7 +100,7 @@ static ros::ServiceClient client_objmem_dump;
 static ros::ServiceClient client_path;
 static ros::ServiceClient client_occurrence_model_request;
 static ros::ServiceClient client_get_next_location;
-static ros::ServiceClient client_save_world;
+// static ros::ServiceClient client_save_world;
 
 /**
  * Called when a target object is confirmed. Relies on perceive_cb(...) to
@@ -168,6 +169,10 @@ void send_proof(const scavenger_hunt_msgs::Task& task) {
     target_object_labels.begin(), target_object_labels.end(), label
   );
   target_object_labels.erase(it);
+
+  // Add object to list of objects found
+  target_objects_found_so_far.push_back(label);
+
 
   ROS_INFO("%s Things I'm still looking for:", TELEM_TAG);
 
@@ -275,32 +280,27 @@ public:
   void on_transition_from(SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
 
-    if (!svec->travel_finished) {
+    if (!svec->travel_finished) { // Stop travelling
       bwi_scavenger_msgs::RobotStop stop;
       pub_stop.publish(stop);
-    } else {
-      bwi_scavenger_msgs::PoseRequest req_pose;
-      client_pose_request.call(req_pose);
-      coordinates_t c = {
-        req_pose.response.pose.position.x,
-        req_pose.response.pose.position.y
-      };
+    } else { // Travelling is done, get the next location
 
-      // TODO save objects found
       bwi_scavenger_msgs::GetNextLocation next_srv;
-      next_srv.request.current_location.x = c.x;
-      next_srv.request.current_location.y = c.y;
-      // next_srv.request.objects_found = objects_found;
+      next_srv.request.objects_found = target_objects_found_so_far;
 
       client_get_next_location.call(next_srv);
 
-      coordinates_t next_loc = {
-        next_srv.response.next_location.x,
-        next_srv.response.next_location.y
-      };
+      // Determine the coordinates of the next location
+      std::string next_location = next_srv.response.next_location;
 
-      svec->destination.x = next_loc.x;
-      svec->destination.y = next_loc.y;
+      EnvironmentLocation dest = location_names[next_location];
+      
+      coordinates_t dest_coor = (*world_waypoints)[dest];
+      svec->destination.x = dest_coor.x;
+      svec->destination.y = dest_coor.y;
+
+      // Clear the current list of objects found for this location
+      target_objects_found_so_far.clear();
     }
   }
 
@@ -608,73 +608,26 @@ void multitask_start_cb(const bwi_scavenger_msgs::MultitaskStart& msg) {
       ROS_ERROR("%s Cannot multitask: %s", TELEM_TAG, task.name.c_str());
   }
 
-  // If doing greedy based search, get object distribution data
-  if (SEARCH_STRATEGY == OCCUPANCY_GRID || SEARCH_STRATEGY == PROXIMITY_BASED) {
+  // If doing greedy based search, save object distribution data
+  // if (SEARCH_STRATEGY == OCCUPANCY_GRID || SEARCH_STRATEGY == PROXIMITY_BASED) {
 
-    // ROS_INFO("%s Getting occurrence model", TELEM_TAG);
-
-    // bwi_scavenger_msgs::GetOccurrenceModel occ_model_req;
-    // while (!client_occurrence_model_request.call(occ_model_req));
-    // std::vector<std_msgs::String> names = occ_model_req.response.model.object_names;
-    // std::vector<bwi_scavenger_msgs::ObjectProbabilities> objects = occ_model_req.response.model.objects;
-
-    // // add these objects to the location evaluator's list of objects
-    // for(int i = 0 ; i < occ_model_req.response.model.num_objects; i++){
-      
-    //   std_msgs::String obj_name = names[i];
-    //   bwi_scavenger_msgs::ObjectProbabilities op = objects[i];
-    //   std::vector<geometry_msgs::Point> locations = op.locations;
-
-    //   // loops through the locations where the object is located and add that object label to the EnvironmentLocation
-      
-    //   for(int j = 0 ; j < occ_model_req.response.model.objects[i].num_probabilities ; j++){
-
-    //     geometry_msgs::Point loc_point = locations[j];
-
-    //     coordinates_t pos = {
-    //       loc_point.x,
-    //       loc_point.y
-    //     };
-
-    //     EnvironmentLocation probable_loc = loc_eval->get_closest_location(pos);
-    //     loc_eval->add_object(probable_loc, obj_name.data.c_str());
-    //   }
-      
-    // }
+  // }
 
 
-    // // using ObjmemDump
-    // bwi_scavenger_msgs::ObjmemDump objmem_dump;
-    // objmem_dump.request.labels = target_object_labels;
-    // client_objmem_dump.call(objmem_dump);
-    // for (std::size_t i = 0; i < objmem_dump.response.labels.size(); i++) {
-    //   const std::string& label = objmem_dump.response.labels[i];
-    //   const geometry_msgs::Pose& pose = objmem_dump.response.object_poses[i];
-    //   coordinates_t pos = {
-    //     pose.position.x,
-    //     pose.position.y
-    //   };
-    //   EnvironmentLocation probable_loc = loc_eval->get_closest_location(pos);
-    //   loc_eval->add_object(probable_loc, label);
-    // }
-  }
+  bwi_scavenger_msgs::GetNextLocation next_srv;
+  next_srv.request.objects_found = target_objects_found_so_far;
+  
+  client_get_next_location.call(next_srv);
 
-  // Localize in the map and begin searching
-  bwi_scavenger_msgs::PoseRequest pose_req;
-  client_pose_request.call(pose_req);
+  // Determine the coordinates of the next location
+  std::string next_location = next_srv.response.next_location;
+  EnvironmentLocation dest = location_names[next_location];
+  
+  coordinates_t dest_coor = (*world_waypoints)[dest];
 
-  geometry_msgs::Pose robot_pose = pose_req.response.pose;
+  ssv.destination.x = dest_coor.x;
+  ssv.destination.y = dest_coor.y;
 
-  coordinates_t c;
-  c.x = robot_pose.position.x;
-  c.y = robot_pose.position.y;
-
-  loc_eval->get_closest_location(c, true);
-
-
-  ssv.destination = (*world_waypoints)[
-    loc_eval->get_location(target_object_labels, c)
-  ];
   node_active = true;
   t_task_start = ros::Time::now().toSec();
 }
@@ -746,8 +699,8 @@ int main(int argc, char **argv) {
   client_objmem_dump = nh.serviceClient<bwi_scavenger_msgs::ObjmemDump>("/bwi_scavenger/services/objmem_dump");
   client_path = nh.serviceClient <nav_msgs::GetPlan> ("/move_base/NavfnROS/make_plan");
   client_occurrence_model_request = nh.serviceClient<bwi_scavenger_msgs::GetOccurrenceModel>(SRV_GET_OCCURRENCE_MODEL);
-  client_get_next_location = nh.serviceClient<bwi_scavenger_msgs::GetNextLocation>(SRV_GET_NEXT_LOCATION);
-  client_save_world = nh.serviceClient<bwi_scavenger_msgs::SaveWorld>(SRV_SAVE_WORLD);
+  client_get_next_location = nh.serviceClient<bwi_scavenger_msgs::GetNextLocation>("/absim");
+  // client_save_world = nh.serviceClient<bwi_scavenger_msgs::SaveWorld>(SRV_SAVE_WORLD);
 
   pub_move = nh.advertise<bwi_scavenger_msgs::RobotMove>(TPC_MOVE_NODE_GO, 1);
   pub_stop = nh.advertise<bwi_scavenger_msgs::RobotStop>(TPC_MOVE_NODE_STOP, 1);
@@ -758,23 +711,21 @@ int main(int argc, char **argv) {
   ros::Subscriber sub_perception = nh.subscribe(TPC_PERCEPTION_NODE_MOMENT, 1, perceive_cb);
   ros::Subscriber sub_multitask_start = nh.subscribe(TPC_MULTITASK_START, 1, multitask_start_cb);
 
-  nav_msgs::GetPlan srv;
+	// client_path.waitForExistence();
 
-	client_path.waitForExistence();
+  // float** distances = generate_distances(WORLD_WAYPOINTS_SIM, client_path);
 
-  float** distances = generate_distances(WORLD_WAYPOINTS_SIM, client_path);
+  // // Save world on the connection node
+  // bwi_scavenger_msgs::SaveWorld save_world_srv;
+  // // save_world_srv.request.world = world_description;
+  // save_world_srv.request.algo = SEARCH_STRATEGY;
 
-  // Save world on the connection node
-  bwi_scavenger_msgs::SaveWorld save_world_srv;
-  // save_world_srv.request.world = world_description;
-  save_world_srv.request.algo = SEARCH_STRATEGY;
+  // // client_save_world.call(save_world_srv);
 
-  client_save_world.call(save_world_srv);
-
-  // clear up array allocated
-  for(int i = 0; i < WORLD_WAYPOINTS_SIM.size(); i++)
-    delete [] distances[i];
-  delete [] distances;
+  // // clear up array allocated
+  // for(int i = 0; i < WORLD_WAYPOINTS_SIM.size(); i++)
+  //   delete [] distances[i];
+  // delete [] distances;
 
   // Build state machine
   s_traveling->add_output(s_end);
@@ -800,6 +751,9 @@ int main(int argc, char **argv) {
 
   ROS_INFO("%s Standing by.", TELEM_TAG);
 
+  // TODO have robot travel to fc before starting tests
+
+  
   // Run until state machine exit
   while (ros::ok()) {
     ros::spinOnce();

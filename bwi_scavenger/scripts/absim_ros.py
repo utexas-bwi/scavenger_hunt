@@ -5,9 +5,12 @@ import rospy
 
 agent_name = "dynamic"
 agent = None
-datfile = "/home/bwilab/exp.dat"
+datfile = "/home/bwilab/scavenger_hunt/src/bwi_scavneger/exp.dat"
 
 
+# string[] objects_found
+#---
+# string next_location
 def update(req):
     """Step the algorithm once and return the location it traveled to.
     """

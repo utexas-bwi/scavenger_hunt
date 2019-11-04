@@ -22,29 +22,45 @@ enum World {
  */
 enum EnvironmentLocation {
   KITCHEN,
-  SOCCER_LAB_DOOR_NORTH,
-  SOCCER_LAB_DOOR_SOUTH,
-  FELLOW_COMPUTERS,
 
   GRAD_CUBICLES_MIDDLE,
   WHITEBOARD,
-  CONFERENCE_ROOM,
 
-  LEFT_GC_0,
   WITHIN_GC_0,
-  RIGHT_GC_0,
-
-  LEFT_GC_1,
   WITHIN_GC_1,
-  RIGHT_GC_1,
-
   WITHIN_GC_2,
-  RIGHT_GC_2,
-
-  LEFT_GC_3,
   WITHIN_GC_3,
-  RIGHT_GC_3
- };
+
+  FELLOW_COMPUTERS
+};
+
+extern std::map<std::string, EnvironmentLocation> location_names;
+
+// enum EnvironmentLocation {
+//   KITCHEN,
+//   SOCCER_LAB_DOOR_NORTH,
+//   SOCCER_LAB_DOOR_SOUTH,
+//   FELLOW_COMPUTERS,
+
+//   GRAD_CUBICLES_MIDDLE,
+//   WHITEBOARD,
+//   CONFERENCE_ROOM,
+
+//   LEFT_GC_0,
+//   WITHIN_GC_0,
+//   RIGHT_GC_0,
+
+//   LEFT_GC_1,
+//   WITHIN_GC_1,
+//   RIGHT_GC_1,
+
+//   WITHIN_GC_2,
+//   RIGHT_GC_2,
+
+//   LEFT_GC_3,
+//   WITHIN_GC_3,
+//   RIGHT_GC_3
+//  };
 
 /**
  * Simulation waypoint coordinates
