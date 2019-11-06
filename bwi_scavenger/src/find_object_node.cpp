@@ -274,6 +274,8 @@ public:
       msg.location.push_back(dest.x);
       msg.location.push_back(dest.y);
       pub_move.publish(msg);
+      // Clear the current list of objects found for this location
+      target_objects_found_so_far.clear();
     }
   }
 
@@ -299,8 +301,6 @@ public:
       svec->destination.x = dest_coor.x;
       svec->destination.y = dest_coor.y;
 
-      // Clear the current list of objects found for this location
-      target_objects_found_so_far.clear();
     }
   }
 

@@ -1,38 +1,38 @@
 [map]
-kitchen gc_middle 19 !
-kitchen whiteboard 25 !
-kitchen gc_0 26 !
-kitchen gc_1 19 !
-kitchen gc_2 17 !
-kitchen gc_3 20 !
+kitchen gc_middle 18.7463 !
+kitchen whiteboard 25.2168 !
+kitchen gc_0 26.6877 !
+kitchen gc_1 19.2753 !
+kitchen gc_2 17.2276 !
+kitchen gc_3 20.4678 !
 
-gc_middle whiteboard 10 !
-gc_middle gc_0 8 !
-gc_middle gc_1 9 !
-gc_middle gc_2 35 !
-gc_middle gc_3 28 !
+gc_middle whiteboard 9.63195 !
+gc_middle gc_0 8.7444 !
+gc_middle gc_1 9.0939 !
+gc_middle gc_2 35.7816 !
+gc_middle gc_3 28.3985 !
 
-whiteboard gc_0 11!
-whiteboard gc_1 12 !
-whiteboard gc_2 42 !
-whiteboard gc_3 34 !
+whiteboard gc_0 11.1192 !
+whiteboard gc_1 11.8067 !
+whiteboard gc_2 42.3256 !
+whiteboard gc_3 34.3338 !
 
-gc_0 gc_1 18 !
-gc_0 gc_2 179 38 !
-gc_0 gc_3 240 28 !
+gc_0 gc_1 17.7369 !
+gc_0 gc_2 179 38.8857 !
+gc_0 gc_3 240 28.4988 !
 
-gc_1 gc_2 153 36 !
-gc_1 gc_3 216 35 !
+gc_1 gc_2 153 36.3238 !
+gc_1 gc_3 216 34.9387 !
 
-gc_2 gc_3 179 21 !
+gc_2 gc_3 179 21.0341 !
 
-fc kitchen 18 !
-fc gc_middle 23 !
-fc whiteboard 30 !
-fc gc_0 24 !
-fc gc_1 30 !
-fc gc_2 19 !
-fc gc_3 5 !
+fc kitchen 18.6199 !
+fc gc_middle 23.6398 !
+fc whiteboard 29.5738 !
+fc gc_0 23.7368 !
+fc gc_1 3.17150 !
+fc gc_2 19.1726 !
+fc gc_3 5.4261 !
 
 [start]
 fc
@@ -40,11 +40,20 @@ fc
 [obj]
 i0 o0
 i1 o1
+i2 o2
+i3 o3
+i4 o4
 
 [distr]
-i0 l1 0.53 l3 0.08 l4 0.39 
-i1 l3 1.0 
+i0 gc_0 0.5 gc_1 0.5
+i1 gc_1 0.3 gc_3 0.3 gc_middle 0.4
+i2 whiteboard 0.2 gc_middle 0.5 gc_2 0.3
+i3 kitchen 0.2 gc_2 0.8
+i4 gc_0 0.1 gc_middle 0.9
 
 [hunt]
-o0
-o1
+o0 
+o1 
+o2 
+o3 
+o4 
