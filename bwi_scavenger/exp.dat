@@ -42,18 +42,15 @@ i0 o0
 i1 o1
 i2 o2
 i3 o3
-i4 o4
 
 [distr]
 i0 gc_0 0.5 gc_1 0.5
-i1 gc_1 0.3 gc_3 0.3 gc_middle 0.4
-i2 whiteboard 0.2 gc_middle 0.5 gc_2 0.3
-i3 kitchen 0.2 gc_2 0.8
-i4 gc_0 0.1 gc_middle 0.9
+i1 whiteboard 0.2 gc_middle 0.5 gc_2 0.3
+i2 kitchen 0.2 gc_2 0.8
+i3 gc_0 0.1 gc_middle 0.9
 
 [hunt]
 o0 
 o1 
 o2 
 o3 
-o4 

@@ -138,8 +138,8 @@ def simulate(map, hunt, start_loc, params):
             except AssertionError:
                 success = False
         total_distance += agent.travel_distance
-        if not suppress_out:
-            print("Progress: {:2.1%}".format(i / trials), end="\r")
+        # if not suppress_out:
+            # print("Progress: {:2.1%}".format(i / trials), end="\r")
         agent.reset()
 
     avg_dist = total_distance / trials

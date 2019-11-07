@@ -1,47 +1,33 @@
+#!/usr/bin/env python
+
 import bwi_scavenger_msgs.srv
-import hunt
 import rospy
+import socket
 
 
-agent_name = "dynamic"
-agent = None
-datfile = "/home/bwilab/scavenger_hunt/src/bwi_scavneger/exp.dat"
-
+ip = "127.0.0.1" # TODO change to robot IP
+port = 5005
 
 # string[] objects_found
 #---
 # string next_location
 def update(req):
-    """Step the algorithm once and return the location it traveled to.
-    """
+
     res = bwi_scavenger_msgs.srv.GetNextLocationResponse()
-    res.next_location = "done"
-    if not agent.is_done():
-        agent.objects_at_current_node = req.objects_found
-        agent.run()
-        res.next_Location = agent.current_node()
+   
+    """Send objects found over socket to obtain the next location calculated by the absim
+    """
+    sock.sendto(",".join(req.objects_found), (ip, port))
+    next_location, addr = sock.recvfrom(1000) # socket will send back the next_location
+
+    res.next_location = next_location.decode('utf-8')
+
     return res
 
 
-def load():
-    """Load scavenger hunt from datfile.
-    """
-    cmd = [
-        "hunt.py",
-        datfile,
-        "-a",
-        agent_name,
-        "-s"
-    ]
-    map, hunt, start_loc, params = hunt.parse(cmd)
-    agent_lambda = hunt.agent_lookup[agent_name]
-    agent = agent_lambda(map, hunt.copy(), start_loc)
-    agent.epoch()
-
-
 if __name__ == "__main__":
-    rospy.init_node("/absim_node")
-    load()
+    rospy.init_node("absim_node")
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     proxy = rospy.Service(
         "/absim",
