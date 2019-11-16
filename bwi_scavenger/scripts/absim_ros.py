@@ -5,7 +5,7 @@ import rospy
 import socket
 
 
-ip = "127.0.0.1" # TODO change to robot IP
+ip = "127.0.0.1"
 port = 5005
 
 # string[] objects_found

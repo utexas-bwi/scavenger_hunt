@@ -54,6 +54,8 @@ ssh -L 8080:localhost:80 bwilab@kane.csres.utexas.edu
 ```
 roslaunch bwi_launch segbot_v2.launch
 roslaunch bwi_scavenger scavenger.launch
+rosrun bwi_scavenger absim_ros.py
+python3 src/bwi_scavenger/scripts/absim_socket.py
 ```
 
 3. Run darksocket on the offboard machine. If everything was set up correctly, it should load the network and then print "connection established."
@@ -62,7 +64,7 @@ roslaunch bwi_scavenger scavenger.launch
 python darksocket.py client
 ```
 
-3. Localize the robot in rviz and start a hunt via the `do_hunt` node.
+4. Localize the robot in rviz and start a hunt via the `do_hunt` node.
 
 ```
 rosrun bwi_scavenger do_hunt "BWI Lab Hunt"
