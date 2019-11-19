@@ -18,13 +18,13 @@ whiteboard gc_2 42.3256 !
 whiteboard gc_3 34.3338 !
 
 gc_0 gc_1 17.7369 !
-gc_0 gc_2 179 38.8857 !
-gc_0 gc_3 240 28.4988 !
+gc_0 gc_2 38.8857 !
+gc_0 gc_3 28.4988 !
 
-gc_1 gc_2 153 36.3238 !
-gc_1 gc_3 216 34.9387 !
+gc_1 gc_2 36.3238 !
+gc_1 gc_3 34.9387 !
 
-gc_2 gc_3 179 21.0341 !
+gc_2 gc_3 21.0341 !
 
 fc kitchen 18.6199 !
 fc gc_middle 23.6398 !
@@ -38,19 +38,19 @@ fc gc_3 5.4261 !
 fc
 
 [obj]
-i0 o0
-i1 o1
-i2 o2
-i3 o3
+i0 ball
+i1 person
+i2 plant
+i3 suitcase
 
 [distr]
 i0 gc_0 0.5 gc_1 0.5
 i1 whiteboard 0.2 gc_middle 0.5 gc_2 0.3
 i2 kitchen 0.2 gc_2 0.8
-i3 gc_0 0.1 gc_middle 0.9
+i3 gc_0 0.1 gc_3 0.9
 
 [hunt]
-o0 
-o1 
-o2 
-o3 
+ball
+person
+plant
+suitcase
