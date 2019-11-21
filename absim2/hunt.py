@@ -4,6 +4,7 @@ import world
 
 from prob_agent import ProbAgent
 from prox_agent import ProxAgent
+from prob_prox_agent import ProbProxAgent
 
 
 def parse_world(fname):
@@ -139,7 +140,8 @@ def simulate(world, hunt, start_loc, args):
     trials = args.trials
     agent_lookup = {
         "prob" : ProbAgent,
-        "prox" : ProxAgent
+        "prox" : ProxAgent,
+        "prob_prox" : ProbProxAgent
     }
     agent = agent_lookup[args.agent](world, hunt, world.node_id(start_loc))
     agent.epoch()
