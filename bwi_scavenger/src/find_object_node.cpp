@@ -253,12 +253,15 @@ public:
     if (from->get_id() == STATE_SCANNING &&
         svec->turn_finished &&
         !svec->target_seen) {
+          ROS_INFO("%s To traveling from scanning", TELEM_TAG);
       return true;
     // Enter TRAVELING if INSPECTING finished and it did not interrupt SCANNING
-    } else if (from->get_id() == STATE_INSPECTING &&
-               svec->inspect_finished &&
-               !svec->scan_interrupted)
-      return true;
+    } else 
+    // if (from->get_id() == STATE_INSPECTING &&
+    //            svec->inspect_finished &&
+    //            !svec->scan_interrupted){
+    //   return true;
+    //            }
     // Continue in current state otherwise
     return false;
   }
@@ -274,8 +277,6 @@ public:
       msg.location.push_back(dest.x);
       msg.location.push_back(dest.y);
       pub_move.publish(msg);
-      // Clear the current list of objects found for this location
-      target_objects_found_so_far.clear();
     }
   }
 
@@ -285,22 +286,6 @@ public:
     if (!svec->travel_finished) { // Stop travelling
       bwi_scavenger_msgs::RobotStop stop;
       pub_stop.publish(stop);
-    } else { // Travelling is done, get the next location
-
-      bwi_scavenger_msgs::GetNextLocation next_srv;
-      next_srv.request.objects_found = target_objects_found_so_far;
-
-      client_get_next_location.call(next_srv);
-
-      // Determine the coordinates of the next location
-      std::string next_location = next_srv.response.next_location;
-
-      EnvironmentLocation dest = location_names[next_location];
-      
-      coordinates_t dest_coor = (*world_waypoints)[dest];
-      svec->destination.x = dest_coor.x;
-      svec->destination.y = dest_coor.y;
-
     }
   }
 
@@ -308,6 +293,31 @@ public:
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     svec->travel_in_progress = false;
     svec->travel_finished = false;
+    
+    // Travelling is done, get the next location
+
+    bwi_scavenger_msgs::GetNextLocation next_srv;
+    next_srv.request.objects_found = target_objects_found_so_far;
+    ROS_INFO("%s Objects found at this location: ", TELEM_TAG);
+    for(int i = 0 ; i < target_objects_found_so_far.size(); i++){
+      std::cout << target_objects_found_so_far[i] << ", ";
+    }
+    std::cout << std::endl;
+
+    client_get_next_location.call(next_srv);
+
+    // Determine the coordinates of the next location
+    std::string next_location = next_srv.response.next_location;
+    ROS_INFO("%s Next location to travel to is %s", TELEM_TAG, next_location);
+
+    EnvironmentLocation dest = location_names[next_location];
+    
+    coordinates_t dest_coor = (*world_waypoints)[dest];
+    svec->destination.x = dest_coor.x;
+    svec->destination.y = dest_coor.y;
+
+    // Clear the current list of objects found, reset for the next location
+    target_objects_found_so_far.clear();
   }
 };
 
@@ -326,6 +336,8 @@ public:
     if (from->get_id() == STATE_TRAVELING &&
         svec->travel_finished &&
         (T_TIMEOUT == 0 || svec->t < T_TIMEOUT)) {
+
+          ROS_INFO("%s To scanning from traveling", TELEM_TAG);
       return true;
     // Enter SCANNING becaues INSPECTING finished and interrupted a scan that
     // was running previously
@@ -335,6 +347,7 @@ public:
                (T_TIMEOUT == 0 || svec->t < T_TIMEOUT))
     {
       ROS_INFO("%s Returning to finish scan.", TELEM_TAG);
+          ROS_INFO("%s To scanning from inspecting", TELEM_TAG);
       return true;
     }
 
@@ -391,12 +404,13 @@ public:
   bool can_transition(State *from, SystemStateVector *vec) {
     FindObjectSystemStateVector *svec = (FindObjectSystemStateVector*)vec;
     // Enter INSPECTING when target is seen while traveling
-    if (from->get_id() == STATE_TRAVELING &&
-        svec->target_seen) {
-      ROS_INFO("%s Glimpsed the target. Transitioning to INSPECTING.", TELEM_TAG);
-      return true;
-    // Enter INSPECTING when target is seen while scanning
-    } else if (from->get_id() == STATE_SCANNING &&
+    // if (from->get_id() == STATE_TRAVELING &&
+    //     svec->target_seen) {
+    //   ROS_INFO("%s Glimpsed the target. Transitioning to INSPECTING.", TELEM_TAG);
+    //   return true;
+    // // Enter INSPECTING when target is seen while scanning
+    // } else 
+    if (from->get_id() == STATE_SCANNING &&
                svec->target_seen) {
       ROS_INFO("%s SCANNING interrupted by INSPECTING after target was glimpsed", TELEM_TAG);
       // Flag the scan as interrupted so we can return to it later
@@ -426,6 +440,7 @@ public:
       }
 
       svec->inspect_finished = true;
+      ROS_INFO("%s Finished scanning now transitioning", TELEM_TAG);
     }
   }
 
@@ -614,19 +629,19 @@ void multitask_start_cb(const bwi_scavenger_msgs::MultitaskStart& msg) {
   // }
 
 
-  bwi_scavenger_msgs::GetNextLocation next_srv;
-  next_srv.request.objects_found = target_objects_found_so_far;
+  // bwi_scavenger_msgs::GetNextLocation next_srv;
+  // next_srv.request.objects_found = target_objects_found_so_far;
   
-  client_get_next_location.call(next_srv);
+  // client_get_next_location.call(next_srv);
 
-  // Determine the coordinates of the next location
-  std::string next_location = next_srv.response.next_location;
-  EnvironmentLocation dest = location_names[next_location];
+  // // Determine the coordinates of the next location
+  // std::string next_location = next_srv.response.next_location;
+  // EnvironmentLocation dest = location_names[next_location];
   
-  coordinates_t dest_coor = (*world_waypoints)[dest];
+  // coordinates_t dest_coor = (*world_waypoints)[dest];
 
-  ssv.destination.x = dest_coor.x;
-  ssv.destination.y = dest_coor.y;
+  // ssv.destination.x = dest_coor.x;
+  // ssv.destination.y = dest_coor.y;
 
   node_active = true;
   t_task_start = ros::Time::now().toSec();
@@ -711,9 +726,9 @@ int main(int argc, char **argv) {
   ros::Subscriber sub_perception = nh.subscribe(TPC_PERCEPTION_NODE_MOMENT, 1, perceive_cb);
   ros::Subscriber sub_multitask_start = nh.subscribe(TPC_MULTITASK_START, 1, multitask_start_cb);
 
-	// client_path.waitForExistence();
+	client_path.waitForExistence();
 
-  // float** distances = generate_distances(WORLD_WAYPOINTS_SIM, client_path);
+  float** distances = generate_distances(WORLD_WAYPOINTS_SIM, client_path);
 
   // // Save world on the connection node
   // bwi_scavenger_msgs::SaveWorld save_world_srv;

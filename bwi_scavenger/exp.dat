@@ -4,7 +4,7 @@ kitchen whiteboard 25.2168 !
 kitchen gc_0 26.6877 !
 kitchen gc_1 19.2753 !
 kitchen gc_2 17.2276 !
-kitchen gc_3 20.4678 !
+kitchen gc_3 36.3592 !
 
 gc_middle whiteboard 9.63195 !
 gc_middle gc_0 8.7444 !
@@ -18,20 +18,20 @@ whiteboard gc_2 42.3256 !
 whiteboard gc_3 34.3338 !
 
 gc_0 gc_1 17.7369 !
-gc_0 gc_2 38.8857 !
-gc_0 gc_3 28.4988 !
+gc_0 gc_2 43.7334 !
+gc_0 gc_3 28.5288 !
 
 gc_1 gc_2 36.3238 !
-gc_1 gc_3 34.9387 !
+gc_1 gc_3 36.8007 !
 
-gc_2 gc_3 21.0341 !
+gc_2 gc_3 25.0987 !
 
-fc kitchen 18.6199 !
+fc kitchen 35.7205 !
 fc gc_middle 23.6398 !
 fc whiteboard 29.5738 !
 fc gc_0 23.7368 !
-fc gc_1 30.17150 !
-fc gc_2 19.1726 !
+fc gc_1 31.7388 !
+fc gc_2 24.4375 !
 fc gc_3 5.4261 !
 
 [start]
