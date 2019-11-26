@@ -17,11 +17,15 @@ def update(req):
    
     """Send objects found over socket to obtain the next location calculated by the absim
     """
+    print("Objects found: ")
+    for x in req.objects_found:
+      print(x)
     sock.sendto(",".join(req.objects_found), (ip, port))
     next_location, addr = sock.recvfrom(1000) # socket will send back the next_location
 
     res.next_location = next_location.decode('utf-8')
 
+    print("Next location: " + next_location)
     return res
 
 
