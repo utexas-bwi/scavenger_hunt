@@ -2,9 +2,11 @@ import argparse
 import time
 import world
 
+from bayesian_agent import BayesianAgent
 from prob_agent import ProbAgent
 from prox_agent import ProxAgent
 from prob_prox_agent import ProbProxAgent
+from salesman_agent import SalesmanAgent
 
 
 def parse_world(fname):
@@ -141,7 +143,9 @@ def simulate(world, hunt, start_loc, args):
     agent_lookup = {
         "prob" : ProbAgent,
         "prox" : ProxAgent,
-        "prob_prox" : ProbProxAgent
+        "prob_prox" : ProbProxAgent,
+        "salesman" : SalesmanAgent,
+        "bayes" : BayesianAgent
     }
     agent = agent_lookup[args.agent](world, hunt, world.node_id(start_loc))
     agent.epoch()

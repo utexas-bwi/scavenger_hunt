@@ -138,6 +138,113 @@ class Graph:
         key = str(a) + str(b)
         return self.shortest_paths[key]
 
+    def salesman_paths_rec(self, loc_c, locs, current_path, all_paths, forks):
+        """Recursive helper for salesman_paths(). Do not call.
+        """
+        current_path.append(loc_c)
+        conns = self.conns[loc_c]
+        new_conns = [c for c in conns if c not in current_path]
+        # Dead end reached
+        if len(new_conns) == 0:
+            # If full map explored, we're done
+            unvisited = [c for c in locs if c not in current_path]
+            if len(unvisited) == 0 and current_path not in all_paths:
+                all_paths.append(current_path)
+                return
+            # Otherwise, we backtrack and try different decisions at prev forks
+            else:
+                # For each fork
+                for fork in forks:
+                    # Retrace our steps to that fork, adding to our path
+                    steps = current_path.copy()[:len(current_path) - 1]
+                    current_path_new = current_path.copy()
+                    while steps[len(steps) - 1] != fork:
+                        current_path_new.append(steps.pop())
+                    # This branch of recursion takes unexplored branches w/ it
+                    forks_new = forks.copy()
+                    forks_new.remove(fork)
+                    # Rerun search with path including backtracing
+                    self.salesman_paths_rec(
+                        fork, locs, current_path_new, all_paths, forks_new
+                    )
+        # If we made a decision here, make a note so we come back and try others
+        elif len(new_conns) > 1:
+            forks.append(loc_c)
+        # Explore new branches
+        for conn in new_conns:
+            self.salesman_paths_rec(
+                conn, locs, current_path.copy(), all_paths, forks.copy()
+            )
+        # Cycles in the graph may give us shortcuts to previous forks
+        for fork in forks:
+            if self.cost(loc_c, fork) is not None:
+                forks_new = forks.copy()
+                forks_new.remove(fork)
+                self.salesman_paths_rec(
+                    fork, locs, current_path.copy(), all_paths, forks_new
+                )
+
+    def salesman_paths(self, loc):
+        """Gets all paths beginning at LOC and passing through all other locs.
+
+        NOTE: This implementation is incomplete. There is currently a bug that
+        causes the same path to be discovered multiple times, requiring that we
+        do an O(N^2) check to see if we've already found it. Additionally, the
+        definition of a "salesman path" is somewhat nebulous for an incomplete
+        graph, since the agent can visit every node with an arbitrary amount of
+        backtracking. Search algorithms that consider all paths should use
+        permute_paths() instead of this method.
+        """
+        assert self.finalized
+        all_paths = []
+        self.salesman_paths_rec(loc, self.nodes, [], all_paths, [])
+        return all_paths
+
+    def permute_paths_rec(self, locs, current_path, all_paths):
+        """Recursive helper for permute_paths(). Do not call.
+        """
+        if len(locs) == 0:
+            all_paths.append(current_path)
+            return
+        for loc in locs:
+            new_locs = locs.copy()
+            new_locs.remove(loc)
+            new_current_path = current_path.copy()
+            new_current_path.append(loc)
+            self.permute_paths_rec(new_locs, new_current_path, all_paths)
+
+    def permute_paths(self, loc):
+        """Gets all permutations of locs starting at LOC.
+        """
+        assert self.finalized
+        all_paths = []
+        traverse_locs = self.nodes.copy()
+        traverse_locs.remove(loc)
+        self.permute_paths_rec(traverse_locs, [loc], all_paths)
+        return all_paths
+
+    def path_cost(self, path):
+        """Gets the cost of a path in list form.
+        """
+        assert self.finalized
+        cost = 0
+        for i in range(1, len(path)):
+            cost += self.shortest_path(path[i-1], path[i]).cost
+        return cost
+
+    def stitch_path(self, path):
+        """Creates a valid path of nodes not necessarily adjacent by stitching
+        together Dijkstra paths.
+        """
+        assert self.finalized
+        stitched = []
+        for i in range(1, len(path)):
+            n_to, n_from = path[i], path[i-1]
+            inter_path = self.shortest_path(n_from, n_to).nodes
+            start_idx = 1 if i > 1 else 0
+            stitched.extend(inter_path[start_idx:])
+        return stitched
+
 
 class Event:
     """An event as defined by the scavenger hunt problem.
@@ -210,6 +317,14 @@ class Arrangement:
         for event in self.events:
             prob *= event.prob
         return prob
+
+    def contains(self, obj, loc):
+        """Returns whether or not OBJ is at LOC in this arrangement.
+        """
+        for event in self.events:
+            if loc in event.locs and event.obj == obj:
+                return True
+        return False
 
     def __str__(self):
         return "<" + ", ".join([str(e) for e in self.events]) + ">"
@@ -427,6 +542,12 @@ class World:
                     if distr.obj not in self.pot_objs[self.node_id(loc)]:
                         self.pot_objs[self.node_id(loc)].append(distr.obj)
         self.finalized = True
+
+    def conns(self, loc):
+        """Gets a list of the locations adjacent to LOC.
+        """
+        assert self.finalized
+        return self.graph.conns[loc]
 
     def prob_obj(self, obj, loc):
         """Returns probability of OBJ occurring at LOC.
