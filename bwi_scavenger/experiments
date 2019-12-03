@@ -1,0 +1,38 @@
+A: Plant 
+B: Suitcase 
+C: Person 
+D: Ball
+
+
+Exp0
+A: whiteboard, B: whiteboard, C: gc_0 D: kitchen
+
+Exp1
+A: whiteboard, B: whiteboard, C: gc_3 D: gc_middle
+
+Exp2
+A: whiteboard, B: whiteboard, C: gc_3 D: gc_middle
+
+Exp3
+A: whiteboard, B: whiteboard, C: gc_1 D: kitchen
+
+Exp4
+A: whiteboard, B: whiteboard, C: gc_3 D: gc_middle
+
+Exp5
+A: whiteboard, B: gc_2, C: gc_middle D: gc_middle
+
+Exp6
+A: whiteboard, B: gc_2, C: gc_1 D: gc_middle
+
+Exp7
+A: gc_2, B: whiteboard, C: gc_3 D: kitchen
+
+Exp8
+A: whiteboard, B: whiteboard, C: gc_middle D: gc_middle
+
+Exp9
+A: gc_2, B: whiteboard, C: gc_1 D: gc_middle
+
+
+
