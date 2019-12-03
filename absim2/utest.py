@@ -4,8 +4,10 @@ import unittest
 import util
 import world
 
+from bayesian_agent import BayesianAgent
 from prob_agent import ProbAgent
 from prox_agent import ProxAgent
+from salesman_agent import SalesmanAgent
 
 
 class GraphTests(unittest.TestCase):
@@ -375,6 +377,20 @@ class ProxAgentTests(unittest.TestCase):
         a.run()  # Agent should visit node3
         a.run()  # Agent should collect at node3 and conclude
         # self.assertTrue(a.done())
+
+
+class SalesmanAgentTests(unittest.TestCase):
+    def test(self):
+        # TEST - salesman agent chooses the shortest path
+        w, h, l = hunt.parse_world("utest_world3.dat")
+        w.populate()
+        a = SalesmanAgent(w, h, w.node_id(l))
+        a.epoch()
+        a.setup()
+
+        self.assertEqual(a.path, [0, 3, 2, 1])
+
+
 
 
 
