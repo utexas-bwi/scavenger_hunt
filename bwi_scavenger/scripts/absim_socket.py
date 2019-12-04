@@ -3,7 +3,7 @@ import socket
 import time
 
 
-agent_name = "prox"
+agent_name = "prob"
 robot = None
 datfile = "/home/bwilab/scavenger_hunt/src/bwi_scavenger/exp_incomplete_graph.dat"
 ip = "127.0.0.1" # TODO change to robot IP
@@ -37,6 +37,7 @@ if __name__ == "__main__":
     # Get the next location
     robot.objects_at_loc = objects_found
     robot.run()
+    print("ROBOT HAS NOW TRAVELED %s" % robot.travel_distance)
     next_location = robot.loc
 
     loc_name = None

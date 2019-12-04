@@ -171,6 +171,7 @@ void send_proof(const scavenger_hunt_msgs::Task& task) {
   target_object_labels.erase(it);
 
   // Add object to list of objects found
+  if(label == "sports ball") label = "ball";
   target_objects_found_so_far.push_back(label);
 
 
@@ -308,7 +309,7 @@ public:
 
     // Determine the coordinates of the next location
     std::string next_location = next_srv.response.next_location;
-    ROS_INFO("%s Next location to travel to is %s", TELEM_TAG, next_location);
+    ROS_INFO("%s Next location to travel to is %s", TELEM_TAG, next_location.c_str());
 
     EnvironmentLocation dest = location_names[next_location];
     
