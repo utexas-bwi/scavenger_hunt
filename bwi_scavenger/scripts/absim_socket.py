@@ -3,9 +3,9 @@ import socket
 import time
 
 
-agent_name = "proximity"
+agent_name = "prox"
 robot = None
-datfile = "/home/bwilab/scavenger_hunt/src/bwi_scavenger/exp.dat"
+datfile = "/home/bwilab/scavenger_hunt/src/bwi_scavenger/exp_incomplete_graph.dat"
 ip = "127.0.0.1" # TODO change to robot IP
 port = 5005
 
@@ -39,4 +39,11 @@ if __name__ == "__main__":
     robot.run()
     next_location = robot.loc
 
-    sock.sendto(bytes(next_location, 'utf-8'), addr)
+    loc_name = None
+    for l in robot.world.graph.name_ids:
+      if robot.world.graph.name_ids[l] == next_location:
+        loc_name = l
+        break
+    assert loc_name is not None
+
+    sock.sendto(bytes(loc_name, 'utf-8'), addr)

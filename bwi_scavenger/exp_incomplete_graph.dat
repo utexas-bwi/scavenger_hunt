@@ -1,45 +1,30 @@
 [map]
-kitchen gc_1 19.2753 !
-kitchen gc_2 17.2276 !
+kitchen gc_1 19.2753
+kitchen gc_2 17.2276
 
-gc_middle gc_0 8.7444 !
-gc_middle gc_1 9.0939 !
+gc_middle gc_0 8.7444
+gc_middle gc_1 9.0939
 
-whiteboard gc_0 11.1192 !
-whiteboard gc_1 11.8067 !
+whiteboard gc_0 11.1192
+whiteboard gc_1 11.8067
 
-gc_0 gc_1 17.7369 !
-gc_0 gc_3 28.5288 !
+gc_0 gc_1 17.7369
+gc_0 gc_3 28.5288
 
-gc_1 gc_2 36.3238 !
+gc_1 gc_2 36.3238
 
-gc_2 gc_3 25.0987 !
+gc_2 gc_3 25.0987
 
-fc kitchen 35.7205 !
-fc gc_middle 23.6398 !
-fc whiteboard 29.5738 !
-fc gc_0 23.7368 !
-fc gc_1 31.7388 !
-fc gc_2 24.4375 !
-fc gc_3 5.4261 !
-
-[start]
-fc
-
-[obj]
-i0 ball
-i1 person
-i2 plant
-i3 suitcase
+fc* kitchen 35.7205
+fc gc_middle 23.6398
+fc whiteboard 29.5738
+fc gc_0 23.7368
+fc gc_1 31.7388
+fc gc_2 24.4375
+fc gc_3 5.4261
 
 [distr]
-i0 gc_middle 0.5 kitchen 0.5
-i1 gc_1 0.3 gc_0 0.2 gc_3 0.3 gc_middle 0.2
-i2 whiteboard 0.8 gc_3 0.1 gc_2 0.1
-i3 whiteboard 0.5 gc_0 0.2 gc_2 0.3
-
-[hunt]
-ball
-person
-plant
-suitcase
+ball gc_middle 0.5 kitchen 0.5
+person gc_1 0.3 gc_0 0.2 gc_3 0.3 gc_middle 0.2
+plant whiteboard 0.8 gc_3 0.1 gc_2 0.1
+suitcase whiteboard 0.5 gc_0 0.2 gc_2 0.3
