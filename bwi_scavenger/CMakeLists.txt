@@ -230,6 +230,19 @@ target_link_libraries(occurrence_model_node
   ${OpenCV_LIBS}
   ${catkin_LIBRARIES})
 
+add_executable(go_home
+  src/go_home.cpp
+  src/world_mapping.cpp
+  src/path_planning.cpp
+  src/robot_motion.cpp)
+
+add_dependencies(go_home
+  bwi_scavenger_generate_messages_cpp)
+
+target_link_libraries(go_home
+  ${OpenCV_LIBS}
+  ${catkin_LIBRARIES})
+
 # add_dependencies(client_test ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
