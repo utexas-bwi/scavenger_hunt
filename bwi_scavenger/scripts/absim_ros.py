@@ -20,6 +20,7 @@ def update(req):
     print("Objects found: ")
     for x in req.objects_found:
       print(x)
+    print(",".join(req.objects_found))
     sock.sendto(",".join(req.objects_found), (ip, port))
     next_location, addr = sock.recvfrom(1000) # socket will send back the next_location
 

@@ -35,7 +35,9 @@ if __name__ == "__main__":
     objects_found = objects_found.decode('utf-8').split(",")
 
     # Get the next location
-    robot.objects_at_loc = objects_found
+    robot.objs_at_loc = objects_found
+    for obj in objects_found:
+        print(obj)
     robot.run()
     print("ROBOT HAS NOW TRAVELED %s" % robot.travel_distance)
     next_location = robot.loc
