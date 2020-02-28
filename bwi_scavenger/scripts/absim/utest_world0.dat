@@ -1,0 +1,10 @@
+[map]
+node0* node1 10
+node1 node2 5
+node0 node2 8
+node2 node3 15
+
+[distr]
+box node1 3/4 node2 1/4
+plant node0 0.05 node1 0.95
+robot node2 1.0
