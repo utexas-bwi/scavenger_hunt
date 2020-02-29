@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<launch>
+	<arg name="config_path" default="$(find darksocket_ros)/config"/>
+	<rosparam command="load" file="$(arg config_path)/darksocket_ros.yaml"/>
+	<node name="darksocket_ros_node" pkg="darksocket_ros" type="darksocket_ros_node.py" output="screen"/>
+</launch>

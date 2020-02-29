@@ -1,0 +1,41 @@
+[map]
+kitchen gc_middle 18.7463
+kitchen whiteboard 25.2168
+kitchen gc_0 26.6877
+kitchen gc_1 19.2753
+kitchen gc_2 17.2276
+kitchen gc_3 20.4678
+
+gc_middle whiteboard 9.63195
+gc_middle gc_0 8.7444
+gc_middle gc_1 9.0939
+gc_middle gc_2 35.7816
+gc_middle gc_3 28.3985
+
+whiteboard gc_0 11.1192
+whiteboard gc_1 11.8067
+whiteboard gc_2 42.3256
+whiteboard gc_3 34.3338
+
+gc_0 gc_1 17.7369
+gc_0 gc_2 38.8857
+gc_0 gc_3 28.4988
+
+gc_1 gc_2 36.3238
+gc_1 gc_3 34.9387
+
+gc_2 gc_3 21.0341
+
+fc* kitchen 18.6199
+fc gc_middle 23.6398
+fc whiteboard 29.5738
+fc gc_0 23.7368
+fc gc_1 3.17150
+fc gc_2 19.1726
+fc gc_3 5.4261
+
+[distr]
+plant gc_0 0.5 gc_1 0.5
+ball whiteboard 0.2 gc_middle 0.5 gc_2 0.3
+suitcase kitchen 0.2 gc_2 0.8
+person gc_0 0.1 gc_middle 0.9

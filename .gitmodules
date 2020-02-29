@@ -1,12 +1,3 @@
-[submodule "segbot"]
-	path = segbot
-	url = https://github.com/utexas-bwi/segbot
-[submodule "darksocket"]
-	path = darksocket
-	url = https://github.com/stefandebruyn/darksocket
 [submodule "darknet"]
 	path = darknet_ros/darknet
 	url = https://github.com/pjreddie/darknet
-[submodule "bwi_scavenger/scripts/absim"]
-	path = bwi_scavenger/scripts/absim
-	url = https://github.com/stefandebruyn/absim
