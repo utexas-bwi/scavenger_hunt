@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+      <!-- Metadata -->
+      <title>Scavenger Hunt</title>
+
+      <!-- Theme stylesheets -->
+      <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
+      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+      <link href="css/style.css" rel="stylesheet"/>
+      <link href="css/leader.css" rel="stylesheet"/>
+
+      <!-- Fonts -->
+      <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+
+      <!-- Global scripts -->
+      <script src="https://unpkg.com/scrollreveal@4"></script>
+      <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+      <script src="../script/firebase_init.js"></script>
+      <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+      <script src="css/formBE/js/main.js"></script>
+
+      <!-- Page-specific scripts -->
+      <link href="css/prism.css" rel="stylesheet"/>
+    </head>
+    <body>
+        <div id="navbar"></div>
+        <div class="content">
+        <section id="main" class = "full">
+            <section id="content">
+                <!--<p> A task library includes a set of scavenger hunt tasks for robots. On the mornings of game days, a list of tasks will be randomly selected from the task library and posted on the page of results. Specific types of tasks from the library might appear more than once or not at all. It is not mandatory for the robot to follow the order of tasks on the list when working on the tasks. Instead, we encourage robots to dynamically adjust the order of tasks in such a way that they judge will maximize their overall score. For instance, tasks requiring long-distance navigation can be executed at times when humans have fewer activities, e.g., early mornings, while tasks require human-robot interactions can be attempted during hours when people are more accessible. However, this reordering should be done fully autonomously: once the robot downloads the task list, its only input from a person should be as specified by the tasks themselves. </p>
+
+                <p> A task specification is a four-tuple: <br />⟨ <br /> task name, format, score, description <br /> ⟩ </p>
+
+                <p> The name is a unique string that usually includes fewer than four words in English. The format specifies the format of completion certificate (e.g., jpg for images and txt for plain texts). The score defines the reward a robot can receive when the task is finished within the game day and the certificate meets the requirements specified in the task description. Finally, in the description, we describe the requirements that a completion certificate needs to meet so the robot can earn the full score, and in case of partial completion or partial correctness, how we award partial credit. </p>
+
+                <p> At the beginning of each game day (when the robot downloads the task list), a profile needs to be submitted for each robot player. This profile includes a map of the game environment for that robot, the initial location of the robot within that map and some statistics about the robot's capabilities. By the end of each game day, a game report needs to be collected from each robot that participated in the scavenger hunt game on that day - no matter whether the robot has finished the given list of tasks or not. </p>
+
+                <p> Such results can be used for statistical analysis over a long period of time. A game report is in the form: robot name, traveled distance, start time, finish time, task results, where the traveled distance records the distance covered between the start time and the finish time on that day (both are local time in format YYYYMMDD:HHMMSS). The task results is a set of results that each identifies the task name and the path to the completion certificate, where the path provides a link by which the completion certificate is publicly available. </p>
+
+                <p> Task results: <br /> ⟨ <br /> task name 1, certificate 1, time stamp 1, path to certificate 1, <br /> task name 2, certificate 2, time stamp 2, path to certificate 2, <br /> ...<br /> ⟩ </p>-->
+
+<h2>Scavenger Hunt API</h2>
+
+<p>
+This guide details how to connect to Scavenger Hunt using the core API (which
+does not require ROS).
+</p>
+
+<p>
+Click the button below to download the Scavenger Hunt API.
+</p>
+
+<form method="get" action="file.doc">
+  <div style="text-align: center;">
+    <button id="export-btn" class="btn btn-primary" type="submit" style="width: 33%;">Get Scavenger Hunt API</button>
+  </div>
+</form>
+
+<hr>
+<h2>Connecting Your Robot</h2>
+
+<p>
+First, include the main Scavenger Hunt header.
+</p>
+
+<pre>
+  <code class="language-cpp">
+#include &lt;scavenger_hunt/scavenger_hunt.h&gt;
+  </code>
+</pre>
+
+<p>
+Then, create a new client object and sign in with your website credentials.
+Don't worry—we're very careful with the password.
+</p>
+
+<pre>
+  <code class="language-cpp">
+ScavengerHuntClient client("your@email.com", "password");
+  </code>
+</pre>
+
+<p>
+Scavenger hunts are downloaded by name. We've created a never-expiring hunt
+called Bottle Hunt to test with. It contains a single task to find a bottle and
+take a picture of it.
+</p>
+
+<pre>
+  <code class="language-cpp">
+std::vector&lt;Task&gt; tasks;
+client.get_hunt("Bottle Hunt", tasks);
+  </code>
+</pre>
+
+<p>
+The provided vector will be populated with all tasks in the requested hunt.
+</p>
+
+<p>
+Each <code>Task</code> object describes a single task within the hunt. They
+contain lots of useful information, including the task name, description, and
+any parameters required to complete it.
+</p>
+
+<pre>
+  <code class="language-cpp">
+for (int i = 0; i < tasks.size(); i++) {
+  Task &task = tasks[i];
+
+  // Insert a task into a stream to get a pretty-printed summary.
+  std::cout << task << std::endl;
+
+  // Access to task details. See
+  // include/scavenger_hunt/scavenger_hunt_structure.h for the full docs.
+  std::string task_name = task.get_name();
+  std::string task_description = task.get_description();
+  std::string target_object = task.get_parameter_value("object"); // Specific to the "Find Object" task
+}
+  </code>
+</pre>
+
+<p>
+Proof of task completion is uploaded to the website via <code>send_proof</code>.
+This method takes a path to a proof file (either an image or a video), the task
+in question, and the time taken to complete the task in seconds.
+</p>
+
+<pre>
+  <code class="language-cpp">
+proof_id_t id = client.send_proof("bottle.png", tasks[0], 60.0);
+// A proof ID can be used to download the original uploaded file.
+client.download_proof_material(id, "/home/my_downloaded_proofs/proof.jpeg");
+  </code>
+</pre>
+
+<p>
+The upload process generates a unique ID for the proof that can be used to
+get feedback on it:
+</p>
+
+<pre>
+  <code class="language-cpp">
+proof_status_t status = client.get_proof_status(id);
+
+if (status == PROOF_CORRECT)
+  std::cout << ":)";
+else if (status == PROOF_INCORRECT)
+  std::cout << ":(";
+else if (status == PROOF_NOT_VALIDATED)
+  std::cout << ":|";
+  </code>
+</pre>
+
+<p>
+Alternatively, all of the proofs submitted for a particular task that have been
+validated can be downloaded in bulk with <code>get_proofs</code>:
+</p>
+
+<pre>
+  <code class="language-cpp">
+std::vector&lt;Proof&gt; proofs;
+client.get_proofs(tasks[0], proofs);
+  </code>
+</pre>
+
+<p>
+If the vector is empty after this step, no proofs for the specified task have
+been validated yet.
+</p>
+
+<pre>
+  <code class="language-cpp">
+for (int i = 0; i < proofs.size(); i++) {
+  Proof &proof = proofs[i];
+  bool is_correct = proof.get_correct(); // Was I right?
+
+  // The original file uploaded as proof can be retrieved if necessary.
+  std::string download_directory = "/home/my_downloaded_proofs";
+  client.download_proof_material(proof, download_directory);
+  std::string path_to_proof = download_directory + "/" + proof.get_filename();
+}
+  </code>
+</pre>
+
+<p>
+You're ready to roll.
+</p>
+
+            </section>
+        </section>
+      </div>
+
+      <!-- Footer -->
+      <?php include 'components/footer.html';?>
+
+        <!-- Populate nav bar -->
+        <script>
+            var htmlComponentsPath = 'components/';
+        </script>
+        <script src="css/index.js"></script>
+
+        <script src="../script/prism.js"></script>
+    </body>
+
+    <html>

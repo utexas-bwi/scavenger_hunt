@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <!-- Metadata -->
+  <title>Scavenger Hunt</title>
+
+  <!-- Theme stylesheets -->
+  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="css/style.css" rel="stylesheet"/>
+  <link href="css/leader.css" rel="stylesheet"/>
+
+  <!-- Fonts -->
+  <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+
+  <!-- Global scripts -->
+  <script src="https://unpkg.com/scrollreveal@4"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+  <script src="../script/firebase_init.js"></script>
+  <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+  <script src="css/formBE/js/main.js"></script>
+
+  <!-- Page-specific scripts -->
+</head>
+<body>
+  <div id="navbar"></div>
+  <div class="content">
+    <section id="main" class = "full">
+      <div id="content">
+      <h2>All-Time Leaderboard</h2>
+        <div class="leaderboard flex column wrap leaderboard-header column grow leaderboard-table">
+          <div class="leaderboard-row flex align-center row--header" style="border-radius: 0 !important;">
+            <div class="row-user--header">Rank</div>
+            <div class="row-collapse flex align-center">
+              <div class="row-user--header" style = "padding-left: 2%">University</div>
+              <div class="row-user--header" style = "padding-left: 16%">Tasks Attempted</div>
+              <div class="row-user--header">Percent Success</div>
+              <div class="row-user--header">Points</div>
+            </div>
+          </div>
+          <?php include '../script/all_time_leaderboard.php';?>
+        </div>
+      </div>
+    </section>
+  </div>
+  <?php include '../script/hunt-leaderboard.php';?>
+
+  <!-- Populate nav bar -->
+  <script>
+    var htmlComponentsPath = 'components/';
+  </script>
+  <script src="css/index.js"></script>
+
+  <!-- Footer -->
+  <?php include 'components/footer.html';?>
+
+  <script>
+  function myFunction() {
+    var x = document.getElementById("huntData");
+    if (x.style.display === "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
+    }
+  }
+  </script>
+</body>

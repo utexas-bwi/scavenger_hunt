@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+      <!-- Metadata -->
+      <title>Scavenger Hunt</title>
+
+      <!-- Theme stylesheets -->
+      <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
+      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+      <link href="css/style.css" rel="stylesheet"/>
+      <link href="css/leader.css" rel="stylesheet"/>
+
+      <!-- Fonts -->
+      <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+
+      <!-- Global scripts -->
+      <script src="https://unpkg.com/scrollreveal@4"></script>
+      <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+      <script src="../script/firebase_init.js"></script>
+      <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+      <script src="css/formBE/js/main.js"></script>
+
+      <!-- Page-specific scripts -->
+      <script src="../script/hunt.js"></script>
+      <script src="../script/string_hash.js"></script>
+    </head>
+    <body>
+        <div id="navbar"></div>
+        <div class="content">
+        <section id="main" class = "full">
+            <section id="content">
+
+                <!-- table for user to construct a hunt from tasks -->
+                <h2>My Hunts</h2>
+                <div>
+                    <p>Here are the hunts that you have permission to edit. Click on a hunt to edit it, or click the plus icon to create a new hunt.</p>
+                    <div id="user-hunt-table" class="use-glyphicon">
+                        <table class="table" id="hunt-table">
+                            <div id="table-contents"></div>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- Build hunt table -->
+        <script src="../script/auth.js"></script>
+        <script>
+            sendUserId("../script/user_hunt_table.php", "table-contents");
+        </script>
+      </div>
+
+      <!-- Footer -->
+      <?php include 'components/footer.html';?>
+
+        <!-- Populate nav bar -->
+        <script>
+            var htmlComponentsPath = 'components/';
+        </script>
+        <script src="css/index.js"></script>
+    </body>
+    <html>

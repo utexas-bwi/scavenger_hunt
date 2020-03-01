@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+      <!-- Metadata -->
+      <title>Scavenger Hunt</title>
+
+      <!-- Theme stylesheets -->
+      <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
+      <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+      <link href="css/style.css" rel="stylesheet"/>
+      <link href="css/leader.css" rel="stylesheet"/>
+
+      <!-- Fonts -->
+      <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+      <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+
+      <!-- Global scripts -->
+      <script src="https://unpkg.com/scrollreveal@4"></script>
+      <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+      <script src="../script/firebase_init.js"></script>
+      <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+      <script src="css/formBE/js/main.js"></script>
+
+      <!-- Page-specific scripts -->
+    </head>
+    <body>
+        <div id="navbar"></div>
+        <div class="content">
+        <section id="main" class = "full">
+            <section id="content">
+                <!--<p> A task library includes a set of scavenger hunt tasks for robots. On the mornings of game days, a list of tasks will be randomly selected from the task library and posted on the page of results. Specific types of tasks from the library might appear more than once or not at all. It is not mandatory for the robot to follow the order of tasks on the list when working on the tasks. Instead, we encourage robots to dynamically adjust the order of tasks in such a way that they judge will maximize their overall score. For instance, tasks requiring long-distance navigation can be executed at times when humans have fewer activities, e.g., early mornings, while tasks require human-robot interactions can be attempted during hours when people are more accessible. However, this reordering should be done fully autonomously: once the robot downloads the task list, its only input from a person should be as specified by the tasks themselves. </p>
+
+                <p> A task specification is a four-tuple: <br />⟨ <br /> task name, format, score, description <br /> ⟩ </p>
+
+                <p> The name is a unique string that usually includes fewer than four words in English. The format specifies the format of completion certificate (e.g., jpg for images and txt for plain texts). The score defines the reward a robot can receive when the task is finished within the game day and the certificate meets the requirements specified in the task description. Finally, in the description, we describe the requirements that a completion certificate needs to meet so the robot can earn the full score, and in case of partial completion or partial correctness, how we award partial credit. </p>
+
+                <p> At the beginning of each game day (when the robot downloads the task list), a profile needs to be submitted for each robot player. This profile includes a map of the game environment for that robot, the initial location of the robot within that map and some statistics about the robot's capabilities. By the end of each game day, a game report needs to be collected from each robot that participated in the scavenger hunt game on that day - no matter whether the robot has finished the given list of tasks or not. </p>
+
+                <p> Such results can be used for statistical analysis over a long period of time. A game report is in the form: robot name, traveled distance, start time, finish time, task results, where the traveled distance records the distance covered between the start time and the finish time on that day (both are local time in format YYYYMMDD:HHMMSS). The task results is a set of results that each identifies the task name and the path to the completion certificate, where the path provides a link by which the completion certificate is publicly available. </p>
+
+                <p> Task results: <br /> ⟨ <br /> task name 1, certificate 1, time stamp 1, path to certificate 1, <br /> task name 2, certificate 2, time stamp 2, path to certificate 2, <br /> ...<br /> ⟩ </p>-->
+
+<h2>How to Play</h2>
+
+<p>
+If you haven't already, head over to the <a href="api.html">API</a> page to learn how to connect your robot with Scavenger Hunt.
+</p>
+
+<hr>
+
+<p> 
+  This site was designed with the intention to track the progress of different universities in their robot development by 
+  creating a standardized set of tasks designed to be done by robots. These tasks can be put into "hunts" that will test
+  the robot in how well it can not only implement each task, but complete the hunt in the most efficient way possible. 
+</p>
+
+<p>
+  We will be publishing a daily hunt entitled "Dijkstra Hunt" that test the robot on relatively simple tasks. This will help 
+  you work on creating ways to make the robot complete tasks efficiently. For example by working on multiple tasks at once, 
+  or possibly developing a machine learning algorithm so the robot can finish a task more quickly.
+</p>
+
+<p>
+  We will also be publishing a weekly hunt entitled "Turing Hunt" that will test the robot on relatively difficult tasks. 
+  This will foster an exapnsion in research with tasks that may have not been implemented yet. The goal of this is to hopefully allow
+  labs to develop new programs while knowing that there are other labs trying to do the same. 
+</p>
+
+<p>
+  Both of these hunts will have a number associated with it ("Dijkstra Hunt # or Turing Hunt #") which you must use to access the
+  current hunt. We will also be publishing a leaderboard for these hunts that display how many tasks were attempted, the success rate, 
+  and score obtained. These are updated continuously so there may be ongoing hunts alongside completed hunts. The goal is to achieve the 
+  highest score, and by doing so have the best success rate. One can also look at the points per task, but be careful as the ones with
+  a higher point value will also be much more difficult to implement and accomplsih consistently.
+</p>
+
+<p>
+  Good luck to everyone!
+</p>
+
+            </section>
+        </section>
+      </div>
+
+      <!-- Footer -->
+      <?php include 'components/footer.html';?>
+
+        <!-- Populate nav bar -->
+        <script>
+            var htmlComponentsPath = 'components/';
+        </script>
+        <script src="css/index.js"></script>
+    </body>
+
+    <html>

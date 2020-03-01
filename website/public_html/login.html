@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Log In</title>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+
+    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/formBE/css/style.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet"/>
+
+    <script src="https://unpkg.com/scrollreveal@4"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+    <script src="../script/firebase_init.js"></script>
+    <script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+    <script src="css/formBE/js/main.js"></script>
+    <script src="../script/string_hash.js"></script>
+</head>
+<body>
+    <div id="navbar"></div>
+      <div class="main">
+        <section id="content">
+          <!-- Sign in form -->
+          <section class="signup">
+            <div class="container">
+              <div class="signup-content">
+                <div class="signup-form">
+                  <h2 class="form-title">Sign In</h2>
+                  <div id="login_div" class="register-form">
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email"><i class="zmdi zmdi-email"></i></label>
+                        <input type="email" name="your_name" id="email_field" placeholder="Email"/>
+                    </div>
+                    <!-- Password -->
+                    <div class="form-group" onKeyPress="return checkSubmit(event)">
+                        <label for="your_pass"><i class="zmdi zmdi-lock"></i></label>
+                        <input type="password" name="your_pass" id="password_field" placeholder="Password"/>
+                    </div>
+                    <!-- New user button -->
+                    <div class="form-group">
+                        <label class="label-agree-term">New User? <a href="register.html">Register</a></label>
+                    </div>
+                    <!-- Log in button -->
+                    <div>
+                        <button onclick="login()" class="form-submit"  >Login to Account</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </section>
+      </div>
+    </div>
+    <!-- Elements that appear on login -->
+    <div id="user_div" class="loggedin-div"></div>
+
+    <!-- Populate nav bar -->
+    <script>
+        var htmlComponentsPath = 'components/';
+    </script>
+    <script src="css/index.js"></script>
+
+    <!-- Footer -->
+    <?php include 'components/footer.html';?>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+      <!-- Metadata -->
+  		<title>Scavenger Hunt</title>
+
+  		<!-- Theme stylesheets -->
+      <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css" rel="stylesheet" />
+  		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" rel="stylesheet"/>
+  		<link href="css/style.css" rel="stylesheet"/>
+  		<link href="css/leader.css" rel="stylesheet"/>
+
+  		<!-- Fonts -->
+  		<link href='https://fonts.googleapis.com/css?family=Oswald:400,700' rel='stylesheet' type='text/css'>
+  		<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+  		<link href='https://fonts.googleapis.com/css?family=Avenir' type='text/css'>
+  		<link href='https://fonts.googleapis.com/css?family=Ubuntu' type='text/css'>
+  		<link href='https://fonts.googleapis.com/css?family=Roboto' type='text/css'>
+
+  		<!-- Global scripts -->
+  		<script src="https://unpkg.com/scrollreveal@4"></script>
+  		<script src="https://www.gstatic.com/firebasejs/5.9.3/firebase.js"></script>
+  		<script src="../script/firebase_init.js"></script>
+  		<script src="css/formBE/vendor/jquery/jquery.min.js"></script>
+  		<script src="css/formBE/js/main.js"></script>
+  		<script src="../script/table.js"></script>
+
+  		<!-- Page-specific scripts -->
+      <script src="../script/hunt.js"></script>
+      <script src="../script/table.js"></script>
+      <script src="../script/string_hash.js"></script>
+    </head>
+    <body>
+        <div id="navbar"></div>
+        <div class="content">
+        <section id="main" class = "full">
+            <section id="content">
+
+                <!-- table for user to construct a hunt from tasks -->
+                <h2><?php
+                     if (isset($_GET['type']) && isset($_GET['name'])) {
+                        echo "Edit " . $_GET['name'];
+                     } else {
+                        echo "Create a Scavenger Hunt";
+                     }
+                    ?>
+                </h2>
+                <div>
+                    <p>
+                      Below are the possible tasks you can add to your scavenger
+                      hunt. Click a task to add it, and fill in the parameters
+                      accordingly. The possible parameters for a particular task
+                      are shown in brackets. If a task has no parameters, leave
+                      that field blank.
+                    </p>
+                    <div id="task-list">
+                        <p class="hidden-msg alert save-msg" id="save-msg"></p>
+			<table class="table">
+                            <tr><th>Possible Tasks</th><tr>
+                                    <!--tr class = "clickable" onclick="addTask('Color Shirt')">
+                                        <td>Color Shirt, {red, yellow, blue, green}</td>
+                                    </tr>
+                                    <tr class = "clickable" onclick="addTask('Target Search')">
+                                        <td>Target Search, {can, pencil, shoe}</td>
+                                    </tr>
+                                    <tr class = "clickable" onclick="addTask('Human Following')">
+                                        <td>Human Following, {}</td>
+                                    </tr>
+                                    <tr class = "clickable" onclick="addTask('Object Delivery')">
+                                        <td>Object Delivery, {}</td>
+                                    </tr-->
+				    <?php require_once '../script/hunt_table.php'; makeHuntTaskTable(); ?>
+			</table>
+                    </div>
+                    <div id="construct-hunt-table" class="use-glyphicon">
+
+                        <!--<h2 id="hunt-name"><?php
+			        require_once '../script/hunt_table.php';
+                                if (isset($_GET['id'])) {
+                                    getHuntName($_GET['id']);
+			    	} else {
+                                    echo "New Hunt";
+                                }
+                            ?><span class="clickable use-glyphicon glyphicon glyphicon-pencil" onclick="editable(this, 1)"/></h2>-->
+                        <table class="table">
+                          <tr>
+                            <th>
+                                <span class="clickable glyphicon glyphicon-pencil" onclick="editableHuntName(this, 1)"</span>
+                            </th>
+                            <td width="25%" id="hunt-name" contenteditable="false" style="font-weight:bold">
+                              <?php
+      			                    require_once '../script/hunt_table.php';
+                                if (isset($_GET['id'])) {
+                                  getHuntName($_GET['id']);
+      			    	              } else {
+                                  echo "New Hunt";
+                                }
+                              ?>
+                            </td>
+
+				                    <!--<th id="hunt-name">
+                              <?php
+      			                    require_once '../script/hunt_table.php';
+                                if (isset($_GET['id'])) {
+                                  getHuntName($_GET['id']);
+      			    	              } else {
+                                  echo "New Hunt";
+                                }
+                              ?>
+                            </th>
+				                    <th>
+                              <span class="clickable use-glyphicon glyphicon glyphicon-pencil" onclick="editable('hunt-name', 1)"/>
+                            </th>-->
+
+                            <td contenteditable="false">
+                              Start Date:
+                              <?php
+      			                    require_once '../script/hunt_table.php';
+                                if (isset($_GET['id'])) {
+                                  getReleaseDate($_GET['id']);
+      			    	              } else {
+                                  echo "<input id='release_date' type = 'date' value = '".date('Y-m-d')."'>";
+                                }
+                              ?>
+
+                            </td>
+
+                            <td contenteditable="false">
+                              End Date:
+                              <?php
+                                require_once '../script/hunt_table.php';
+                                if (isset($_GET['id'])) {
+                                  getEndDate($_GET['id']);
+                                } else {
+                                  echo "<input id='end_date' type='date' value='".date('Y-m-d', strtotime('+1 day'))."'>";
+                                }
+                              ?>
+
+                            </td>
+
+                            <td>
+                              <?php
+                                echo "<input type='checkbox' id ='no_expiration' onclick='toggleEndDateField()'";
+
+                                if ($GLOBALS["hunt_expires"])
+                                  echo "checked='true'";
+
+                                echo "> No Expiration";
+                              ?>
+                            </td>
+
+                          </tr>
+                        </table>
+                        <table class="table" id="hunt-table">
+
+			                    <tr>
+				                    <th>Task Name</th>
+				                    <th>Parameters</th>
+			                    </tr>
+			    <!-- clonable table line -->
+                            <tr class="hide" id="tr-hide">
+			        <td contenteditable="false"></td>
+                                <td contenteditable="false"></td>
+                                <td>
+                                    <span class="clickable glyphicon glyphicon-pencil" onclick="editable(this, 3)"</span>
+                                </td>
+                                <td>
+                                    <span class="table-remove glyphicon glyphicon-remove" onclick="removeRow(this, 3)"></span>
+                                </td>
+                            </tr>
+			    <?php require_once '../script/hunt_table.php'; makeHuntTable(); ?>
+                        </table>
+                        <button id="export-btn" class="btn btn-primary" onclick="submitHunt()">Save Hunt</button>
+                        <button style="display: none;" id="delete-btn" class="btn btn-primary" onclick="deleteHunt()">Delete Hunt</button>
+
+                        <script>
+                          if (window.location.href.indexOf("id") > -1)
+                            document.getElementById("delete-btn").style.display = "inline";
+                        </script>
+                    </div>
+                </div>
+            </section>
+        </section>
+      </div>
+
+        <!-- Populate nav bar -->
+        <script>
+            var htmlComponentsPath = 'components/';
+        </script>
+        <script src="css/index.js"></script>
+
+        <!-- Footer -->
+        <?php include 'components/footer.html';?>
+    </body>
+    <html>
