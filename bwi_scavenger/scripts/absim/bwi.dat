@@ -35,7 +35,7 @@ fc gc_2 19.1726
 fc gc_3 5.4261
 
 [distr]
-plant gc_0 0.5 gc_1 0.5
-ball whiteboard 0.2 gc_middle 0.5 gc_2 0.3
-suitcase kitchen 0.2 gc_2 0.8
-person gc_0 0.1 gc_middle 0.9
+plant whiteboard 0.8 gc_3 0.1 gc_2 0.1
+bear whiteboard 0.5 gc_2 0.3 gc_0 0.2
+umbrella gc_0 0.2 gc_middle 0.2 gc_1 0.3 gc_3 0.3
+ball gc_middle 0.5 kitchen 0.5

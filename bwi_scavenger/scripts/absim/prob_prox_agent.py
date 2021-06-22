@@ -1,5 +1,5 @@
-import absim.agent as agent
-import absim.world as world
+import agent as agent
+import world as world
 
 
 class ProbProxAgent(agent.Agent):
@@ -16,19 +16,20 @@ class ProbProxAgent(agent.Agent):
         best_node_path = None
         for node in self.world.graph.nodes:
             if not self.visited(node):
-                prob_nothing_here = 1
-                pot_objs = self.arrangement_space.pot_objs_at(node)
                 path = self.world.graph.shortest_path(self.loc, node)
-                # score is the expected wasted distance of going to that node
-                # this means high is bad and low is good
-                for pot_obj in pot_objs:
-                    prob_nothing_here *= 1 - self.arrangement_space.prob_obj(pot_obj, node)
-                score = path.cost * prob_nothing_here
+                
+                prob_any = self.arrangement_space.prob_any_obj(node)
+                score = prob_any / path.cost
+
                 if best_node is None or \
-                   score < best_node_score:
+                    score > best_node_score or \
+                    (score == best_node_score and path.cost < best_node_path.cost):
+
                     best_node = node
                     best_node_score = score
                     best_node_path = path
+            
+                
         assert best_node is not None
         return best_node_path
 

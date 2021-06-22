@@ -15,9 +15,9 @@ A triangular map might look like this:
 
 ```
 [map]
-a* b 10
-a c 8
-b c 5
+kitchen* garage 10
+garage foyer 8
+foyer kitchen 5
 ```
 
 Note the asterisk by node `a`. This indicates that scavenger hunt agents start
@@ -43,9 +43,23 @@ Probabilities may also appear in fraction form `a/b`.
 
 ```
 [distr]
-box a 0.5 b 0.5
-plant b 1/4 c 3/4
-robot b 1.0
+box kitchen 0.5 garage 0.5
+plant foyer 1/4 garage 3/4
+robot kitchen 1.0
+```
+
+### Arrangement Override Section [arr]
+
+Normally, the arrangement of objects is chosen by sampling from the
+distributions specified in the distribution section. In instances where the user
+wants to provide their own arrangement, the world arrangement can be overridden
+by enumerating `obj loc` pairs in this section.
+
+```
+[arr]
+box kitchen
+plant garage
+robot foyer
 ```
 
 ## Creating an Algorithm

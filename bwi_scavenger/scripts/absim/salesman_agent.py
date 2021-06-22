@@ -1,5 +1,5 @@
-import absim.agent as agent
-import absim.world as world
+import agent as agent
+import world as world
 
 
 class SalesmanAgent(agent.Agent):
@@ -8,10 +8,8 @@ class SalesmanAgent(agent.Agent):
     """
     def epoch(self):
         super().epoch()
-        print("Generating paths...");
         # Generate all paths through the world
         self.salesman_paths = self.world.graph.permute_paths(self.start_loc)
-        print("Done.")
 
     def setup(self):
         super().setup()

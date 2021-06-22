@@ -2,6 +2,8 @@
 
 <launch>
 	<!-- Load config parameters -->
+	<arg name="use_darksocket" default="false"/>
+	<arg name="launch_darknet" default="true"/>
 	<arg name="config_path" default="$(find bwi_scavenger)/config"/>
 	<rosparam command="load" file="$(arg config_path)/bwi_scavenger.yaml"/>
 	<arg name="darksocket_config_path" default="$(find darksocket_ros)/config"/>
@@ -14,7 +16,12 @@
 	<!-- File and information processing -->
 	<node name="memory_node" pkg="bwi_scavenger" type="memory_node.py" output="screen"/>
 	<include file="$(find scavenger_hunt)/launch/scavenger_hunt.launch"/>
-	<include file="$(find darksocket_ros)/launch/darksocket_ros.launch"/>
+	<group if="$(arg use_darksocket)">
+	    <include file="$(find darksocket_ros)/launch/darksocket_ros.launch"/>
+        </group>
+	<group if="$(arg launch_darknet)">
+		<include file="$(find darknet_ros)/launch/darknet_ros.launch"/>
+	</group>
 
 	<!-- Tasks -->
   <node name="find_object_node" pkg="bwi_scavenger" type="find_object_node" output="screen"/>

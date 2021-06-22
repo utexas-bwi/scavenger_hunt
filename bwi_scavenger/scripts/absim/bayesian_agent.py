@@ -1,5 +1,5 @@
-import absim.agent as agent
-import absim.world as world
+import agent as agent
+import world as world
 
 
 class BayesianAgent(agent.Agent):

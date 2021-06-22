@@ -1,4 +1,4 @@
-import absim.world as world
+import world as world
 
 
 class Agent:
